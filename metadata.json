@@ -1,0 +1,6 @@
+{
+  "name": "BerryMist",
+  "description": "BerryMist is a premium translated novel reading platform featuring an advanced chapter tracking system, personalized reading modes, statistics, and bookmarked history.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
