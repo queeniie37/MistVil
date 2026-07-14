@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Star, Eye, Layers, Heart, Share2, Plus, Calendar, Clock, ChevronDown, MessageSquare, Edit2, AlertCircle, Trash2, Upload, Image, ArrowUp, ArrowDown, FileText, ChevronLeft, Undo2, Redo2, BookOpen, Info } from 'lucide-react';
+import { Star, Eye, Layers, Heart, Share2, Plus, Calendar, Clock, ChevronDown, MessageSquare, Edit2, AlertCircle, Trash2, Upload, Image, ArrowUp, ArrowDown, FileText, ChevronLeft, Undo2, Redo2, BookOpen, Info, Download } from 'lucide-react';
 import { Novel, Chapter, Comment, Review, User, UserRole, Report, Suggestion } from '../types';
 import { MistVilDatabase } from '../data';
 import { compressImageFile } from '../utils/media';
@@ -786,6 +786,42 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
   const isOwner = currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com';
   const isTranslatorOrOwner = isOwner || (novel && novel.translatorId === currentUser.id);
 
+  // Download the novel's published chapters as a single .txt file. The file is
+  // always named with the ENGLISH title (never the Arabic one); the Arabic
+  // title is only used as a fallback when no English title exists.
+  const handleDownloadNovel = () => {
+    if (!novel) return;
+    const published = chapters
+      .filter(c => !c.publishAt || new Date(c.publishAt).getTime() <= Date.now())
+      .slice()
+      .sort((a, b) => a.number - b.number);
+    if (published.length === 0) {
+      alert('There are no published chapters to download yet.');
+      return;
+    }
+
+    const englishName = (novel.titleEn && novel.titleEn.trim()) ? novel.titleEn.trim() : (novel.titleAr || 'novel');
+    const header = `${englishName}\nAuthor: ${novel.author || 'Unknown'}\nTranslator: ${novel.translatorName || 'None'}\n© MistVil\n`;
+    const body = published
+      .map(ch => {
+        const title = ch.title.includes(':') ? ch.title.split(':').slice(1).join(':').trim() : ch.title;
+        return `\n\n==============================\nChapter ${ch.number}: ${title || 'Translated chapter'}\n==============================\n\n${normalizeChapterText(ch.content || '')}`;
+      })
+      .join('');
+
+    // Filesystem-safe file name derived from the English title only.
+    const safeName = englishName.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'novel';
+    const blob = new Blob([header + body], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeName}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleDeleteNovel = () => {
     if (!novel) return;
 
@@ -1303,9 +1339,22 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               })()
             )}
 
+            {/* Download button — only when the owner has enabled downloads for
+                this novel. The saved file is named with the English title. */}
+            {novel.downloadAllowed && chapters.length > 0 && (
+              <button
+                onClick={handleDownloadNovel}
+                className="px-5 py-3 bg-white/5 border border-white/10 text-purple-300 hover:bg-white/10 hover:text-white rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all"
+                title="Download the published chapters as a text file (named with the English title)"
+              >
+                <Download size={14} />
+                <span>Download novel</span>
+              </button>
+            )}
+
             {/* Owner Delete button */}
             {isOwner && (
-              <button 
+              <button
                 onClick={handleDeleteNovel}
                 className="px-5 py-3 bg-red-600/25 hover:bg-red-600 hover:text-white text-red-200 border border-red-500/30 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg shadow-red-500/10 transition-all duration-300"
                 title="Permanently delete novel from the site"
