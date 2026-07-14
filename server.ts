@@ -1,90 +1,170 @@
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import fs from "fs";
+import { createHash } from "crypto";
 import { createServer as createViteServer } from "vite";
-
-dotenv.config();
 
 const app = express();
 const PORT = 3000;
+const DB_FILE = path.join(process.cwd(), "mistvil_db.json");
 
-app.use(express.json());
+// Allow large payloads for importing novels/covers
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Lazy-initialized Gemini Client
-let aiClient: GoogleGenAI | null = null;
-
-function getGeminiClient(): GoogleGenAI {
-  if (!aiClient) {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) {
-      throw new Error("لم يتم العثور على مفتاح GEMINI_API_KEY في إعدادات التطبيق.");
+// Helper to load database
+function loadDb() {
+  if (fs.existsSync(DB_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+    } catch (e) {
+      console.error("Error reading database file, using empty:", e);
     }
-    aiClient = new GoogleGenAI({
-      apiKey: key,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        }
-      }
-    });
   }
-  return aiClient;
+  return {};
 }
 
-// Server-side translation and terms assistant API
-app.post("/api/gemini/explain", async (req, res) => {
-  const { novelTitle, chapterTitle, chapterContent, prompt } = req.body;
+// Helper to save database
+function saveDb(data: any) {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch (e) {
+    console.error("Error writing to database file:", e);
+  }
+}
 
-  if (!prompt) {
-    res.status(400).json({ error: "الرجاء إدخال سؤال صالح" });
+// Initialize default values if empty
+const db = loadDb();
+const defaults: any = {
+  novels: [],
+  news: [],
+  teams: [],
+  suggestions: [],
+  comments: [],
+  reviews: [],
+  reservations: [],
+  notifications: [],
+  reports: [],
+  translator_requests: [],
+  chapters: [],
+  ads: [],
+  // email(lowercase) -> role, so owner role approvals propagate across devices
+  // without ever syncing account credentials (users_db stays private)
+  role_assignments: {},
+  // userId -> badges granted by the owner (admin panel)
+  user_badges: {},
+  // userId -> public profile + reading stats, published by each member's device
+  user_directory: {},
+  site_name: "MistVil",
+  site_logo: "🌫️",
+  site_banner: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200",
+  footer_description: "منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.",
+  footer_email: "support@mistvil.com",
+  footer_support_text: "عبر تذكرة الديسكورد الرسمية بالأسفل",
+  footer_community_text: "انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!",
+  footer_socials: [
+    { id: "discord", name: "Discord", icon: "👾", url: "https://discord.gg/mistvil", active: true },
+    { id: "telegram", name: "Telegram", icon: "📢", url: "https://t.me/mistvil", active: true },
+    { id: "facebook", name: "Facebook", icon: "👥", url: "", active: false },
+    { id: "twitter", name: "Twitter / X", icon: "🐦", url: "", active: false },
+    { id: "instagram", name: "Instagram", icon: "📸", url: "", active: false },
+    { id: "tiktok", name: "TikTok", icon: "🎵", url: "", active: false },
+    { id: "youtube", name: "YouTube", icon: "📺", url: "", active: false },
+    { id: "whatsapp", name: "WhatsApp", icon: "💬", url: "", active: false }
+  ]
+};
+
+let dbChanged = false;
+for (const key of Object.keys(defaults)) {
+  if (!(key in db)) {
+    db[key] = defaults[key];
+    dbChanged = true;
+  }
+}
+if (dbChanged) {
+  saveDb(db);
+}
+
+// Per-user/private keys must never be stored in or served from the shared
+// database — users_db in particular contains account credentials.
+const PRIVATE_KEYS = new Set([
+  "users_db",
+  "current_user_data",
+  "current_role",
+  "bookmarks",
+  "reading_history",
+]);
+
+// API Endpoints
+app.get("/api/db", (req, res) => {
+  const db = loadDb();
+  for (const key of PRIVATE_KEYS) {
+    delete db[key];
+  }
+  // Cheap conditional polling (matches api/db.php): empty 304 when the
+  // client already holds the latest data.
+  const body = JSON.stringify(db);
+  const etag = '"' + createHash("md5").update(body).digest("hex") + '"';
+  res.setHeader("ETag", etag);
+  if (req.headers["if-none-match"] === etag) {
+    res.status(304).end();
     return;
   }
-
-  try {
-    const ai = getGeminiClient();
-
-    const systemInstruction = `أنت المترجم المحترف وخبير الفانتازيا والزراعة الصينية والشرقية لـ موقع الروايات "MistVil".
-مهمتك هي الإجابة عن أسئلة القارئ بشكل مبهر وجذاب ومثقف وبلغة عربية فصحى راقية.
-الرواية الحالية: ${novelTitle}
-الفصل الحالي: ${chapterTitle}
-مقتطف من الفصل لمساعدتك في السياق:
----
-${chapterContent.slice(0, 1500)}
----
-يرجى تفسير المصطلحات، أو تلخيص الأحداث، أو توضيح الخلفية الثقافية لطقوس السحر أو السيوف أو الآلات البخارية بدقة، مع الحفاظ على نبرة غامضة ومحفزة تليق بـ MistVil. لا تذكر تفاصيل فنية عن الخوادم أو الأكواد.`;
-
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      }
-    });
-
-    const text = response.text || "عذراً، لم أستطع صياغة رد مناسب حالياً.";
-    res.json({ explanation: text });
-  } catch (error: any) {
-    console.error("Gemini Assistant Error:", error);
-    res.status(500).json({
-      error: "فشل استدعاء الذكاء الاصطناعي",
-      explanation: "عذراً يا صديقي، يبدو أن مفتاح الـ API لم يُفعّل بعد أو أن هناك خطأً مؤقتاً في الاتصال. يمكنك متابعة القراءة باستخدام الشروحات المحلية المسبقة المتوفرة بالفصل!"
-    });
-  }
+  res.type("application/json").send(body);
 });
 
-// Vite Middleware & Production static serve setup
-async function startServer() {
+// Comments are written by many visitors at once. A plain "replace the whole
+// array" write makes the last writer erase everyone else's fresh comments,
+// so instead the server merges: comments only the server knows about are
+// kept, and for comments both sides know the newest version wins. Deleted
+// comments arrive as tombstones ({deleted:true}) so deletions survive the
+// merge; tombstones older than 30 days are purged.
+function commentTime(c: any): number {
+  const t = Date.parse(c?.updatedAt || c?.createdAt || "");
+  return Number.isNaN(t) ? 0 : t;
+}
+
+function mergeComments(stored: any, incoming: any): any[] {
+  const storedList = Array.isArray(stored) ? stored : [];
+  const incomingList = Array.isArray(incoming) ? incoming : [];
+  const byId = new Map<string, any>();
+  for (const c of storedList) {
+    if (c && typeof c === "object" && typeof c.id === "string") byId.set(c.id, c);
+  }
+  for (const c of incomingList) {
+    if (!c || typeof c !== "object" || typeof c.id !== "string") continue;
+    const prev = byId.get(c.id);
+    if (!prev || commentTime(c) >= commentTime(prev)) byId.set(c.id, c);
+  }
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  return [...byId.values()]
+    .filter((c) => !c.deleted || commentTime(c) > cutoff)
+    .sort((a, b) => commentTime(b) - commentTime(a));
+}
+
+app.post("/api/db", (req, res) => {
+  const { key, value } = req.body;
+  if (!key || typeof key !== "string") {
+    return res.status(400).json({ error: "Missing key" });
+  }
+  if (PRIVATE_KEYS.has(key)) {
+    return res.status(403).json({ error: "This key is private and cannot be synced" });
+  }
+  const currentDb = loadDb();
+  currentDb[key] = key === "comments" ? mergeComments(currentDb[key], value) : value;
+  saveDb(currentDb);
+  res.json({ success: true });
+});
+
+// Mount Vite or static assets depending on environment
+async function setupServer() {
   if (process.env.NODE_ENV !== "production") {
-    console.log("Starting server in DEVELOPMENT mode with Vite Middleware...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    console.log("Starting server in PRODUCTION mode...");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
@@ -93,8 +173,8 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`MistVil Full-Stack server is actively running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-startServer();
+setupServer();

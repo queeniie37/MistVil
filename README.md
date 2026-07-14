@@ -1,20 +1,38 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# MistVil 🌫️ — ميست فيل
 
-# Run and deploy your AI Studio app
+**MistVil (ميست فيل)** منصة عربية كاملة الاتجاه من اليمين لليسار (RTL) لاقتراح وترجمة ونشر وقراءة الروايات: روايات كورية وصينية ويابانية مترجمة، إضافة إلى روايات عربية مؤلفة — بنظام حجز وتفاعل متطور.
 
-This contains everything you need to run your app locally.
+## المزايا الرئيسية
 
-View your app in AI Studio: https://ai.studio/apps/9da1fec5-b2cc-40f1-ab98-2102efdd8255
+- **دورة حياة كاملة للرواية**: اقتراح بتصويت الأعضاء → حجز من مترجم (30 يومًا + تمديد) → ترجمة → موافقة المالك → نشر → متابعة/إكمال.
+- **محرر فصول متقدم**: مسودات، صور، ترقيم مخصص، وجدولة نشر تلقائية.
+- **قارئ متقدم**: تخصيص الخط والألوان، قراءة دون اتصال، تنقّل بين الفصول، وتحميل الفصول (PNG / JPG / TXT) بإذن المالك.
+- **مجتمع تفاعلي**: تعليقات بردود وإعجابات ووسم سبويلر، مراجعات منظمة، بلاغات، إشعارات، نظام XP ومستويات وشارات.
+- **لوحات إدارة**: لوحة مالك شاملة (موافقات، رتب، شارات، إعلانات، إعدادات الموقع) ولوحة مترجم (روايات، فصول، حجوزات، طلبات تعديل).
+- **مزامنة شبه لحظية** بين الزوار عبر استطلاع خفيف بمصافحة ETag/304.
 
-## Run Locally
+## التقنيات
 
-**Prerequisites:**  Node.js
+| الطبقة | التقنية |
+|---|---|
+| الواجهة | React 19 + TypeScript + Vite 6 + Tailwind CSS 4 |
+| خادم التطوير | Express (`server.ts`) على المنفذ 3000 |
+| خادم الإنتاج | PHP خالص (`public/api/db.php`) — يعمل على استضافة مشتركة بلا Node.js |
+| قاعدة البيانات | ملف JSON مشترك (`mistvil_db.json`) مع كتابة ذرّية ونسخ احتياطية دوارة |
+| تخزين المتصفح | IndexedDB (مع fallback إلى localStorage) |
+| النشر | GitHub Actions → FTP إلى Hostinger |
 
+## التشغيل محليًا
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+**المتطلبات:** Node.js
+
+```bash
+npm install
+npm run dev      # خادم التطوير على http://localhost:3000
+npm run build    # بناء نسخة الإنتاج في dist/
+npm run lint     # فحص أنواع TypeScript
+```
+
+## النشر
+
+راجع دليل النشر المفصل: [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md)
