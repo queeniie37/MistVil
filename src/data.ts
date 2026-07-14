@@ -1,308 +1,540 @@
-import { Novel } from "./types";
+import { Novel, Chapter, Suggestion, Reservation, Notification, Comment, Review, Report, TranslatorRequest, News, Team, User, UserRole, Ad } from './types';
 
-export const DEFAULT_BADGES = [
-  { id: "first_read", title: "First Step", description: "You read your first chapter on MistVil", icon: "BookOpen" },
-  { id: "streak_3", title: "Fog Seeker", description: "Maintained a reading streak of 3 consecutive days", icon: "Flame" },
-  { id: "all_novels", title: "Omni Explorer", description: "Read at least one chapter of every available novel", icon: "Compass" },
-  { id: "bookmark_master", title: "Archivist", description: "Saved 5 bookmarks or personal reading annotations", icon: "Bookmark" },
-  { id: "speed_reader", title: "Lightning Fast", description: "Read a total of 2500+ words across translated works", icon: "Zap" }
-];
+// Unsplash Anime / Fantasy high-quality placeholders for covers
+export const COVER_IMAGES = {
+  shadow_king: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600', // Dark castle / moonlight
+  solo_leveling: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600', // Cyber anime / neon sword
+  beginning_after: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600', // Starry / cosmic magic
+  beast_level: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=600', // Fantasy beast
+  want_to_live: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?q=80&w=600', // Golden gateway / magic forest
+  emerald_knights: 'https://images.unsplash.com/photo-1535663116935-e39f41783312?q=80&w=600', // Knight / fantasy portal
+  unconquered_one: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=600', // Dark wanderer under stars
+  dragon_master: 'https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=600', // Astrolabe / Alchemist
+};
 
-export const MOCK_NOVELS: Novel[] = [
-  {
-    id: "lord-of-misty-thrones",
-    title: "Lord of the Misty Thrones",
-    englishTitle: "Lord of the Misty Thrones",
-    coverImage: "/src/assets/images/lord_of_misty_thrones_cover_1783795825290.jpg",
-    author: "Eldridge Wylde",
-    translator: "MistVil Translation Team",
-    description: "In a world blanketed by an eternal black fog, ancient lineages awaken and mysterious entities vie for lost thrones. Arthur wakes up in a ruined cathedral on the outskirts of the foggy town with no memories, holding only a strange brass lantern emitting a faint green glow. This lantern grants him the power to read metaphysical glyphs left behind by ancient rulers and decode the mysteries of death in this gloomy world.",
-    genres: ["Dark Fantasy", "Mystery", "Magical Secrets", "Thriller"],
-    tags: ["Smart Protagonist", "Gloomy World", "Relic Tools", "Misty Magic"],
-    rating: 4.8,
-    chaptersCount: 3,
-    status: "مستمرة",
-    viewCount: 14203,
-    chapters: [
-      {
-        id: "lmt-ch-1",
-        novelId: "lord-of-misty-thrones",
-        title: "Chapter 1: Awakening in the Silent Cathedral",
-        chapterNumber: 1,
-        publishDate: "2026-07-01",
-        wordCount: 820,
-        content: [
-          "The frost seeped beneath his rough cloak, touching his cold skin. Arthur slowly opened his eyes, greeted by a deep darkness broken only by faint streams of light filtering through the stained glass windows of the ruined cathedral.",
-          "In his right hand, he felt a familiar metallic weight. He was holding a strange lantern, pulsing with a faint ember of green light. This light did not merely illuminate the space; it seemed to actively repel the fog creeping through the cracks of the ancient wooden door.",
-          "Arthur stood, leaning against the church altar. A terrible void occupied his mind; no name, no past, no purpose. Only a single thought clung to his consciousness as if branded by hot iron: 'Never let the green light go out, or the abyssal fog will swallow you whole.'",
-          "Suddenly, metaphysical glyphs began to glow on the cathedral walls, shining with the same hue as the lantern. Arthur drew closer, and instinctively, his vision opened to comprehend their hidden, terrifying meaning: 'The Lost King shall return when the first sea of fog dries up.'"
-        ],
-        translatorNotes: "Translator Note: The Silent Cathedral refers in English folklore to the 'Silentium' chapel abandoned after the great cataclysm. The mysterious tone was preserved to keep the user immersed in the protagonist's confusion.",
-        translationNotesMap: {
-          1: "The author uses 'green light' to refer to the 'Aether Catalyst spark', a concept that will repeat heavily in future chapters.",
-          3: "The metaphysical glyphs here are translated from 'Metaphysical Glyphs', a magical language used by the ancient 'Arcane' race to cast defensive barriers."
-        },
-        termsMap: {
-          "metaphysical glyphs": {
-            translation: "Metaphysical Glyphs",
-            explanation: "An ancient language of magical symbols used to document ancient spells and covenants, readable only by those with soul-sight or relic tools."
-          },
-          "abyssal fog": {
-            translation: "The Abyss Mist",
-            explanation: "A mysterious magical weather phenomenon covering the continent of 'Andaria', carrying distorted monsters inside and draining the sanity of any living creature entering unprotected."
-          }
-        }
-      },
-      {
-        id: "lmt-ch-2",
-        novelId: "lord-of-misty-thrones",
-        title: "Chapter 2: The Green Lantern and the Three Covenants",
-        chapterNumber: 2,
-        publishDate: "2026-07-04",
-        wordCount: 950,
-        content: [
-          "Arthur stepped outside the boundaries of the ruined cathedral. The howling wind was gloomy, and the external fog appeared thicker and more viscous, like a living creature trying to feel his limbs, searching for any opening to swallow him.",
-          "He lifted the brass lantern slightly. The protective green light expanded, forcing the wall of fog to recede by five full paces around him. In this tight, safe space, Arthur felt a warmth restoring vitality to his stiffened body.",
-          "On the damp, earthy ground, he noticed deep, massive non-human footprints heading toward the forest surrounding the dead town. Remembering the glyphs he had just read, he wondered if the Lost King was the one who left these tracks.",
-          "Invisible voices whispered from the heart of the darkness: 'O new bearer... Are you ready to offer the first sacrifice?' Arthur felt a heavy spiritual pressure, like a mountain, clamping down on his chest, making him realize the lantern is not just a tool of survival, but a shackle binding him to inescapable soul covenants."
-        ],
-        translatorNotes: "Translator Note: The dialogue of the hidden voices is written in a poetic and mysterious style in the original, which we translated to reflect fear and mystery to ensure an exciting experience.",
-        translationNotesMap: {
-          1: "The distance of 'five paces' in ancient lore symbolizes the 'minimum spiritual protection domain' for ninth-grade mages.",
-          3: "The concept of 'First Sacrifice' is a common mechanic in dark fantasy novels to activate holy relic tools."
-        },
-        termsMap: {
-          "first sacrifice": {
-            translation: "The First Sacrifice",
-            explanation: "A spiritual activation process requiring the lantern bearer to offer part of their memories or soul-blood to expand the light domain and obtain defensive combat skills."
-          },
-          "soul covenants": {
-            translation: "Soul Covenants",
-            explanation: "Unbreakable contractual bonds formed between a mage and relic items, where the relic grants immense power in exchange for strict, life-threatening conditions."
-          }
-        }
-      },
-      {
-        id: "lmt-ch-3",
-        novelId: "lord-of-misty-thrones",
-        title: "Chapter 3: A Visitor in the Dusty Night",
-        chapterNumber: 3,
-        publishDate: "2026-07-08",
-        wordCount: 1100,
-        content: [
-          "Arthur took refuge in an abandoned wooden cabin containing the remains of a stone fireplace, cold for a long time. He placed the lantern on a dilapidated wooden table and watched its stable green pulses. The fog outside seemed to have settled temporarily.",
-          "As he tried to gather his thoughts, the cabin window was tapped gently. Three slow taps, followed by a single strong knock. The blood froze in Arthur's veins, for in this misty wasteland, no living being should wander without a specialized lantern.",
-          "From behind the dusty glass, emerged the face of a girl wearing a silver mask engraved with a single-eye symbol. Her eyes were not visible, but the green light of Arthur's lantern reflected on her mask to reveal ancient writing: 'Mist Wardens'.",
-          "The girl opened the door without waiting for permission, and said in a calm but commanding tone: 'Extinguish your lantern immediately, stranger. They are searching for the Emerald Spark, and if they find you here... not even ashes will remain of your soul.'"
-        ],
-        translatorNotes: "Translator Note: 'Mist Wardens' are an ancient combat class that will play a pivotal role in helping or destroying the protagonist. The single-eye mask indicates their loyalty to the temple of the 'Eternal Soul Eye'.",
-        translationNotesMap: {
-          2: "The single-eye symbol in the folklore of the misty lands represents the pursuit of absolute truth through sacrificing physical sight.",
-          3: "The 'Emerald Spark' is the secret name enemies use to refer to Arthur's relic lantern."
-        },
-        termsMap: {
-          "mist wardens": {
-            translation: "Mist Wardens",
-            explanation: "A mysterious sect of warriors who developed special skills to live and fight inside the thick fog without needing aether lanterns, aiming to maintain the balance of the magical world."
-          }
-        }
-      }
-    ]
+// Clean states requested by user (removing all placeholder data)
+export const INITIAL_ADS: Ad[] = [];
+export const INITIAL_NEWS: News[] = [];
+export const INITIAL_TEAMS: Team[] = [];
+export const INITIAL_NOVELS: Novel[] = [];
+export const INITIAL_SUGGESTIONS: Suggestion[] = [];
+export const INITIAL_COMMENTS: Comment[] = [];
+export const INITIAL_REVIEWS: Review[] = [];
+
+export const generateChapters = (novelId: string, count: number): Chapter[] => {
+  return [];
+};
+
+// Default Current User (Required for the role-simulator/evaluator)
+export const DEFAULT_USERS: { [key in UserRole]: User } = {
+  GUEST: {
+    id: 'guest-user',
+    username: 'زائر_الضباب',
+    email: 'guest@mistvil.com',
+    role: 'GUEST',
+    xp: 0,
+    level: 1,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=guest',
+    bio: 'زائر غير مسجل يستمتع بقراءة الروايات والاطلاع على الفصول المجانية.'
   },
-  {
-    id: "immortal-sword-path",
-    title: "Path of the Immortal Sword",
-    englishTitle: "Path of the Immortal Sword",
-    coverImage: "/src/assets/images/immortal_sword_path_cover_1783795838466.jpg",
-    author: "Zhang Wei",
-    translator: "Abu Omar (Sword Ether)",
-    description: "An epic Chinese cultivation (Xianxia) novel. Ling Chen was born in the Heavenly Sword Sect with broken meridians, a desperate state that dooms him to eternal failure as a weak mortal. However, after being betrayed and thrown into the 'Abyss of Fallen Swords', he finds a lost ancient scroll teaching him to cultivate his soul sword by refining Qi directly inside his soul instead of physical meridians. From here begins his path to slice through the Seven Heavens and challenge the Immortals with only a single sword.",
-    genres: ["Xianxia", "Martial Arts", "Action", "Hype"],
-    tags: ["Betrayed Protagonist", "Weak to Strong", "Revenge", "Sword Sect"],
-    rating: 4.9,
-    chaptersCount: 3,
-    status: "مستمرة",
-    viewCount: 28940,
-    chapters: [
-      {
-        id: "isp-ch-1",
-        novelId: "immortal-sword-path",
-        title: "Chapter 1: Broken Meridians and the Abyssal Chasm",
-        chapterNumber: 1,
-        publishDate: "2026-07-02",
-        wordCount: 890,
-        content: [
-          "Ling Chen stood on the edge of the Abyss of Fallen Swords, blood dripping heavily from his left shoulder. His fellow disciples, whom he once considered family, looked at him with cold eyes filled with contempt and schadenfreude.",
-          "Xing Huan, the sect's first genius, held a sword dripping with blood and said: 'Ling Chen, with your broken meridians, you are nothing more than trash polluting the name of the Heavenly Sword Sect. Your death today is a service to divine justice!'",
-          "With a final effort, Ling Chen spat blood from his mouth and laughed a desperate, mocking laugh. He knew his only sin was not weakness, but finding the 'Ancient Sword Heart Stone' that the greedy Xing family had long coveted.",
-          "Before Xing Huan's hand could reach out to tear the stone from his necklace, Ling Chen took a step back and threw himself into the thick, stagnant fog of the terrifying abyss, leaving behind shouts of rage and disappointment."
-        ],
-        translatorNotes: "Translator Note: 'Abyss of Fallen Swords' is a historically forbidden area in the cultivation world where thousands of spiritual swords were buried after the great deity war. Traditional Xianxia terminology was maintained to highlight the authentic flavor.",
-        translationNotesMap: {
-          1: "Broken Meridians 'Broken Meridians/Jingmai' refers in Chinese novels to the blockage or tearing of Qi channels, making energy storage in the Dantian impossible.",
-          3: "The Abyss of Fallen Swords represents a rich spiritual geographical site with raging sword intent 'Sword Qi' that shreds ordinary bodies."
-        },
-        termsMap: {
-          "broken meridians": {
-            translation: "Broken Meridians / Jingmai",
-            explanation: "A rare physical condition in which a person is unable to circulate Qi through their body channels, preventing them from practicing martial arts and ascending in spiritual training."
-          },
-          "heavenly sword sect": {
-            translation: "Heavenly Sword Sect",
-            explanation: "One of the five major martial sects in the Eastern Spiritual Continent, famous for training powerful sword cultivators and teaching 'Nine Rages Sword'."
-          }
-        }
-      },
-      {
-        id: "isp-ch-2",
-        novelId: "immortal-sword-path",
-        title: "Chapter 2: Mortal Sword Refining Art",
-        chapterNumber: 2,
-        publishDate: "2026-07-05",
-        wordCount: 1020,
-        content: [
-          "Ling Chen woke up on a carpet of rusted, broken swords. To his surprise, his body was not completely destroyed; instead, the Sword Heart Stone necklace emitted a milky warmth seeping directly into his soul and body, healing his deep wounds.",
-          "When he focused his consciousness, glowing golden scriptures appeared in his mind, as if engraved directly on his soul: 'Mortal Sword Refining Art: If physical meridians are broken, let the soul be your scabbard, and make Qi your immortal sword!'",
-          "This technique called for shattering the traditional concept of cultivation. Instead of gathering energy from heaven and earth in the physical Dantian, it proposed transforming the soul itself into a refined sword core capable of filtering cosmic energy directly.",
-          "Ling Chen sat in a meditative posture, ignoring the burning pains ravaging his body. He began to summon the scattered Qi energy around him, directing it straight to his heart to merge with the relic Sword Heart Stone, declaring the start of his unique, supernatural path of cultivation."
-        ],
-        translatorNotes: "Translator Note: The 'Dantian' is the spiritual energy center located three fingers below the navel in Chinese mythology and traditional medicine. We simplified the explanation to ensure smooth understanding for readers.",
-        translationNotesMap: {
-          1: "Mortal Sword Refining Art is considered a forbidden technique because it requires an iron will and leads to instant death if the practitioner fails.",
-          3: "Qi is the vital cosmic energy that all immortals rely on to increase their power and prolong their lives."
-        },
-        termsMap: {
-          "qi": {
-            translation: "Qi / Chi",
-            explanation: "The vital spiritual energy that fills the universe. Cultivators absorb and refine it inside their bodies to strengthen bones, minds, and achieve immortality."
-          },
-          "dantian": {
-            translation: "Dantian",
-            explanation: "The spiritual energy core or reservoir in a martial artist's body, used to store refined Qi."
-          }
-        }
-      },
-      {
-        id: "isp-ch-3",
-        novelId: "immortal-sword-path",
-        title: "Chapter 3: First Stage of Sword Intent",
-        chapterNumber: 3,
-        publishDate: "2026-07-09",
-        wordCount: 1200,
-        content: [
-          "Three weeks passed and Ling Chen had not left the abyss. His mortal skin turned into a faint grey metallic luster, and his eyes seemed sharper and deeper, as if a single glance could penetrate dense iron armor.",
-          "In his palm, he held a dusty wooden sword he picked up from the ground. Yet, with a gentle wave, a slight booming sound echoed in the air, and nearby solid rocks cracked, leaving sharp, straight scars.",
-          "He had finally succeeded in refining the first stage of 'Soul Sword Intent', a step that the genius Xing Huan only reached after five years of arduous training backed by the finest Qi condensation pills.",
-          "Ling Chen looked up toward the peak of the abyss where the Heavenly Sword Sect hid behind bright clouds, and muttered coldly: 'Xing Huan, Heavenly Sword Sect... wait for me, I will return soon to reclaim what is mine and slice through your hypocrisy completely!'"
-        ],
-        translatorNotes: "Translator Note: 'Sword Intent' (Jianyi) is a very high level of martial comprehension where a fighter embodies their martial will as sharp energy that pierces any physical defense.",
-        translationNotesMap: {
-          1: "The grey metallic luster symbolizes entry into the 'Mortal Iron Body' level, a rare physical transformation for cultivators.",
-          2: "Qi Condensation Pills are spiritual alchemical capsules crafted from rare mountain herbs to accelerate the accumulation of spiritual energy."
-        },
-        termsMap: {
-          "sword intent": {
-            translation: "Sword Intent / Jianyi",
-            explanation: "A spiritual martial concept representing the fusion of the swordsman's mind with their combat spirit, allowing them to launch sharp, devastating attacks even using a tree branch or a broken sword."
-          }
-        }
-      }
-    ]
+  MEMBER: {
+    id: 'member-1',
+    username: 'عضو_الضباب',
+    email: 'member@mistvil.com',
+    role: 'MEMBER',
+    xp: 250,
+    level: 3,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=member1',
+    bio: 'قارئ شغوف للروايات الكورية والصينية، أهوى التفاعل وكتابة المراجعات العميقة.',
+    discord: 'member_discord#1234',
+    telegram: '@member_tele'
   },
-  {
-    id: "lost-eras-mechanic",
-    title: "Mechanic of the Lost Eras",
-    englishTitle: "Mechanic of the Lost Eras",
-    coverImage: "/src/assets/images/lost_eras_mechanic_cover_1783795852401.jpg",
-    author: "Alister Gray",
-    translator: "Digital Luna",
-    description: "In an era where steam blends with magical gears, the 'Brass Empire' dominates the world with its massive war machines. Edward lives as a simple mechanic in the slums, repairing antique clocks and damaged steam pieces. His life turns upside down when a dilapidated mechanical model from the 'Lost Eras' falls into his hands containing an 'Intelligent Aether Core'. This core grants him an interactive interface capable of analyzing machinery, revealing structural defects, and inventing superhuman mechanical designs thousands of years ahead of his current age.",
-    genres: ["Steampunk", "Sci-Fi", "Adventure", "Magical Machinery"],
-    tags: ["Genius Protagonist", "Ancient Tech", "Machinery Crafting", "UI Interface"],
-    rating: 4.7,
-    chaptersCount: 3,
-    status: "مستمرة",
-    viewCount: 9450,
-    chapters: [
-      {
-        id: "lem-ch-1",
-        novelId: "lost-eras-mechanic",
-        title: "Chapter 1: The Rusted Pocket Watch and the Blue Core",
-        chapterNumber: 1,
-        publishDate: "2026-07-03",
-        wordCount: 850,
-        content: [
-          "Edward's workshop smelled of motor oil and burning coal steam. He sat behind his table littered with hundreds of brass screws and springs, trying to repair a miniature steam engine belonging to a wealthy resident of the Upper City.",
-          "He wiped sweat from his forehead with his hand stained with black grease, then sighed as he looked at an old wooden box brought to him by an antiquarian from the ruins of the destroyed 'Silent Clockwork City'.",
-          "Opening the box carefully, he found no gold or jewels, but a massive bronze pocket watch covered in thick rust. In its center, a dark blue crystal pulsed with a faint glow resembling rapid heartbeats.",
-          "The moment his fingers touched the crystal, a blue electric spark coursed through his veins like fire, and a soft mechanical voice echoed in his mind: 'Compatible mechanic detected for ancient cipher... Aether Core system activated successfully!'"
-        ],
-        translatorNotes: "Translator Note: 'Steampunk' refers to a science fiction subgenre that merges 19th-century steam technology with fantasy and magical elements. We translated the mechanical descriptions precisely to convey the workshop's texture.",
-        translationNotesMap: {
-          1: "The Silent Clockwork City is an archaeological site destroyed in the Great War 3000 years ago, considered the origin of lost technology.",
-          3: "The Aether Core in the steampunk world is the magical equivalent of nuclear reactors or super-high-capacity batteries."
-        },
-        termsMap: {
-          "aether core": {
-            translation: "Aether Core",
-            explanation: "An intense ancient energy source relying on magically charged 'Aether' gas fluid to power complex old machinery and breathe life into automatic mechanical constructs."
-          },
-          "ancient cipher": {
-            translation: "Ancient Cipher Code",
-            explanation: "A digital programming language used by engineers in the lost eras to encrypt and protect their military technological designs from theft."
-          }
-        }
-      },
-      {
-        id: "lem-ch-2",
-        novelId: "lost-eras-mechanic",
-        title: "Chapter 2: Slum 3D Analysis",
-        chapterNumber: 2,
-        publishDate: "2026-07-06",
-        wordCount: 970,
-        content: [
-          "Edward blinked several times trying to get rid of the strange vision overlaying his normal sight. There were glowing blue lines displaying 3D drawings of every mechanical piece scattered in his small workshop.",
-          "When he looked at the miniature steam engine he failed to repair for hours, a transparent interactive window appeared: 'Type: Fourth-generation piston compression engine. Defects: 40% steam valve blockage and a micro-crack in the central gear.'",
-          "Edward felt an indescribable amazement. He picked up his screwdriver and moved directly to the valve and gear specified in his magical vision. Within ten minutes, he repaired the defect completely, accompanied by the smooth, gentle whistle of the engine.",
-          "As he contemplated his achievement, a new blue window suddenly rose in his view: 'Next Goal: Craft Simple Mechanical Arm. Required components: 3kg of pure brass, steam pressure valve, and a bit of Aether fluid.'"
-        ],
-        translatorNotes: "Translator Note: The protagonist's UI interface is written in a style resembling video games (RPGs) to ease reader immersion and show how superior his mechanical vision is compared to his peers.",
-        translationNotesMap: {
-          1: "A micro-crack cannot be seen by the naked eye even using the strongest clock lenses available in the Imperial market.",
-          3: "Aether Fluid is sold in special bottles at Imperial alchemy centers for exorbitant prices, being the fuel of the magical elite."
-        },
-        termsMap: {
-          "steam pressure valve": {
-            translation: "Steam Pressure Valve",
-            explanation: "A precise mechanical tool controlling gas flow and pressure inside brass cylinders to prevent explosion and provide stable mechanical thrust."
-          }
-        }
-      },
-      {
-        id: "lem-ch-3",
-        novelId: "lost-eras-mechanic",
-        title: "Chapter 3: First Mechanical Rain",
-        chapterNumber: 3,
-        publishDate: "2026-07-10",
-        wordCount: 1150,
-        content: [
-          "Edward spent two sleepless nights, the sound of his brass hammer strikes echoing through the slums. He melted brass and tightened screws with utmost precision under the guidance of the virtual 3D blueprint.",
-          "Finally, he secured the last piece to his right forearm. It was a lightweight, hollow brass arm, lined with fine tubes through which shiny blue Aether fluid flowed, giving it a charming sci-fi aesthetic.",
-          "As he clenched his new fist, he felt a mechanical force multiplied dozens of times. He punched a nearby stone wall gently; the rocks cracked and fell like small pebbles without him feeling any pain or shock in his real arm.",
-          "Edward smiled as the system screen proudly displayed: '[Aether Slasher Arm - Mark I] crafted successfully. Physical Sync Rate: 95%. You have taken your first step to becoming a legendary engineer!'"
-        ],
-        translatorNotes: "Translator Note: 'Physical Sync Rate' expresses how compatible the crafted machinery is with the mechanical nerves and biological body of the engineer to ensure speed and accuracy.",
-        translationNotesMap: {
-          1: "The Aether Slasher Arm was designed as a tool for self-defense against underworld gangs looking for quick profits.",
-          2: "A 95% sync rate is almost impossible for any modern mechanical technology in the Empire, which usually stands at only 60%."
-        },
-        termsMap: {
-          "physical sync rate": {
-            translation: "Physical Sync Rate",
-            explanation: "A scientific measure in the Aether system specifying how well the mechanical piece responds to the motor signals of the brain's nerves. Higher sync makes the machinery feel lighter and more flexible."
-          }
-        }
-      }
-    ]
+  TRANSLATOR: {
+    id: 'translator-1',
+    username: 'مترجم_الظلال',
+    email: 'translator@mistvil.com',
+    role: 'TRANSLATOR',
+    xp: 2450,
+    level: 12,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=translator1',
+    bio: 'مترجم روايات فانتازيا وأكشن بخبرة تزيد عن 3 سنوات. شعاري: الدقة والسرعة في النشر.',
+    discord: 'shadow_trans#9999',
+    telegram: '@shadow_trans',
+    paypalEmail: 'shadow_donate@paypal.com'
+  },
+  SUPERVISOR: {
+    id: 'supervisor-1',
+    username: 'مشرف_بالموقع',
+    email: 'supervisor@mistvil.com',
+    role: 'SUPERVISOR',
+    xp: 5600,
+    level: 25,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=super',
+    bio: 'مشرف على تدقيق الروايات وتسهيل عمل المترجمين ومراجعة البلاغات للحفاظ على فخامة البيئة.'
+  },
+  OWNER: {
+    id: 'mistvil-owner',
+    username: 'MISTVIL',
+    email: 'mistvil112@gmail.com',
+    role: 'OWNER',
+    xp: 15400,
+    level: 50,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=mistvilowner',
+    bio: 'مؤسس وصاحب منصة MistVil الفاخرة لروايات الخيال والأكشن المترجمة.',
+    discord: 'mistvil_owner#0001',
+    telegram: '@mistvil_admin'
+  },
+  WRITER: {
+    id: 'writer-1',
+    username: 'كاتب_الأساطير',
+    email: 'writer@mistvil.com',
+    role: 'WRITER',
+    xp: 1200,
+    level: 8,
+    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=writer1',
+    bio: 'كاتب ومؤلف قصص خيالية وفانتازيا عربية أصلية بمستويات شيقة ومثيرة.',
+    discord: 'legend_writer#7777',
+    telegram: '@legend_writer'
   }
-];
+};
+
+// Keys that belong to THIS browser/user only and must never be pushed to the
+// shared server database: users_db holds account credentials, and the rest
+// are per-device session/preference data. Leaking users_db to /api/db would
+// expose every registered email + password to any visitor.
+const PRIVATE_LOCAL_KEYS = new Set([
+  'users_db',
+  'current_user_data',
+  'current_role',
+  'bookmarks',
+  'reading_history'
+]);
+
+// ---------------------------------------------------------------------------
+// Storage backend: in-memory cache + IndexedDB persistence.
+//
+// localStorage's ~5MB quota used to cap the ENTIRE site (novels, chapters,
+// covers, user accounts). IndexedDB quotas are hundreds of MB to multiple GB,
+// so the library and member base can grow far beyond the old limit. The
+// in-memory Map keeps MistVilDatabase.get() synchronous for all existing
+// callers; MistVilDatabase.hydrate() (awaited in main.tsx before the app
+// renders) loads everything from IndexedDB — and migrates any pre-existing
+// localStorage data — into the cache first.
+// ---------------------------------------------------------------------------
+
+const IDB_NAME = 'mistvil_db';
+const IDB_STORE = 'kv';
+
+const memCache = new Map<string, string>();
+let idbHandle: IDBDatabase | null = null;
+
+function openIdb(): Promise<IDBDatabase | null> {
+  return new Promise((resolve) => {
+    try {
+      if (typeof indexedDB === 'undefined') return resolve(null);
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(IDB_STORE)) {
+          req.result.createObjectStore(IDB_STORE);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+      req.onblocked = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function idbPut(key: string, value: string): void {
+  if (!idbHandle) return;
+  try {
+    const tx = idbHandle.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(value, key);
+    tx.onerror = () => console.error('IndexedDB write failed for', key, tx.error);
+  } catch (e) {
+    console.error('IndexedDB write failed for', key, e);
+  }
+}
+
+function storeRead(fullKey: string): string | null {
+  const v = memCache.get(fullKey);
+  return v === undefined ? null : v;
+}
+
+function storeWrite(fullKey: string, value: string): void {
+  memCache.set(fullKey, value);
+  if (idbHandle) {
+    idbPut(fullKey, value);
+  } else {
+    // Browsers without IndexedDB fall back to localStorage (old 5MB limit).
+    try {
+      localStorage.setItem(fullKey, value);
+    } catch (e) {
+      console.error('localStorage fallback write failed for', fullKey, e);
+    }
+  }
+}
+
+// Database class handling storage safely with immediate cleanup migration
+export class MistVilDatabase {
+  // Loads persisted data into the synchronous in-memory cache. MUST complete
+  // before the first React render (awaited in main.tsx) because components
+  // read state via MistVilDatabase.get() in their useState initializers.
+  static async hydrate(): Promise<void> {
+    idbHandle = await openIdb();
+
+    if (idbHandle) {
+      await new Promise<void>((resolve) => {
+        try {
+          const tx = idbHandle!.transaction(IDB_STORE, 'readonly');
+          const cursorReq = tx.objectStore(IDB_STORE).openCursor();
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor) {
+              if (typeof cursor.key === 'string' && typeof cursor.value === 'string') {
+                memCache.set(cursor.key, cursor.value);
+              }
+              cursor.continue();
+            } else {
+              resolve();
+            }
+          };
+          cursorReq.onerror = () => resolve();
+        } catch {
+          resolve();
+        }
+      });
+    }
+
+    // One-time migration: copy any pre-IndexedDB data that still lives in
+    // localStorage (existing visitors' accounts, bookmarks, drafts…) into
+    // the new store, then free the old quota-limited copies.
+    try {
+      const toMigrate: Array<[string, string]> = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('mistvil_') && !memCache.has(k)) {
+          const v = localStorage.getItem(k);
+          if (v !== null) toMigrate.push([k, v]);
+        }
+      }
+      for (const [k, v] of toMigrate) memCache.set(k, v);
+
+      if (idbHandle && toMigrate.length > 0) {
+        const migrated = await new Promise<boolean>((resolve) => {
+          try {
+            const tx = idbHandle!.transaction(IDB_STORE, 'readwrite');
+            const store = tx.objectStore(IDB_STORE);
+            for (const [k, v] of toMigrate) store.put(v, k);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+            tx.onabort = () => resolve(false);
+          } catch {
+            resolve(false);
+          }
+        });
+        // Only clear localStorage copies once IndexedDB durably holds them.
+        // The tiny init flags stay: initialize() reads them synchronously.
+        if (migrated) {
+          for (const [k] of toMigrate) {
+            if (k !== 'mistvil_initialized' && k !== 'mistvil_cleaned_v6') {
+              try { localStorage.removeItem(k); } catch { /* ignore */ }
+            }
+          }
+        }
+      }
+    } catch {
+      // localStorage disabled — IndexedDB (or memory only) still works.
+    }
+
+    // Ask the browser to protect this origin's storage from automatic
+    // eviction under disk pressure, so downloaded/offline data survives.
+    try {
+      if (navigator.storage && navigator.storage.persist) {
+        await navigator.storage.persist();
+      }
+    } catch { /* optional */ }
+  }
+  static get<T>(key: string, defaultValue: T): T {
+    try {
+      if (key === 'comments') {
+        // Hide tombstoned (deleted) and malformed comments everywhere in the
+        // UI. Tombstones stay in storage so the server-side merge propagates
+        // the deletion to every device instead of resurrecting the comment.
+        const data = storeRead('mistvil_comments');
+        if (data) {
+          const rawList = JSON.parse(data);
+          const list = (Array.isArray(rawList) ? rawList : [])
+            .filter((c: any) => c && typeof c === 'object' && typeof c.id === 'string' && !c.deleted);
+          return list as unknown as T;
+        }
+        return defaultValue;
+      }
+
+      if (key === 'novels') {
+        const data = storeRead(`mistvil_novels`);
+        if (data) {
+          const rawList = JSON.parse(data);
+          // Defensive normalization: the novels list is synced from a
+          // world-writable endpoint, so a single malformed record (missing
+          // views/genres/…) used to crash every page that rendered it,
+          // leaving visitors with a blank white screen. Drop entries that
+          // aren't novel-shaped and default the fields the UI dereferences.
+          const novelsList: Novel[] = (Array.isArray(rawList) ? rawList : [])
+            .filter((n: any) => n && typeof n === 'object' && typeof n.id === 'string')
+            .map((n: any) => ({
+              ...n,
+              titleAr: typeof n.titleAr === 'string' ? n.titleAr : (typeof n.titleEn === 'string' ? n.titleEn : 'بدون عنوان'),
+              titleEn: typeof n.titleEn === 'string' ? n.titleEn : '',
+              author: typeof n.author === 'string' ? n.author : '',
+              translatorId: typeof n.translatorId === 'string' ? n.translatorId : '',
+              translatorName: typeof n.translatorName === 'string' ? n.translatorName : '',
+              cover: typeof n.cover === 'string' ? n.cover : '',
+              chaptersCount: typeof n.chaptersCount === 'number' ? n.chaptersCount : 0,
+              views: typeof n.views === 'number' ? n.views : 0,
+              likes: typeof n.likes === 'number' ? n.likes : 0,
+              bookmarksCount: typeof n.bookmarksCount === 'number' ? n.bookmarksCount : 0,
+              rating: typeof n.rating === 'number' ? n.rating : 0,
+              ratingCount: typeof n.ratingCount === 'number' ? n.ratingCount : 0,
+              status: typeof n.status === 'string' ? n.status : 'AVAILABLE',
+              language: typeof n.language === 'string' ? n.language : '',
+              genres: Array.isArray(n.genres) ? n.genres : [],
+              description: typeof n.description === 'string' ? n.description : '',
+              createdAt: typeof n.createdAt === 'string' ? n.createdAt : new Date(0).toISOString()
+            }));
+          const chapsData = storeRead(`mistvil_chapters`);
+          const chapsList = chapsData ? JSON.parse(chapsData) as Chapter[] : [];
+
+          const updated = novelsList.map(n => {
+            let nChaps = chapsList.filter(c => c.novelId === n.id);
+
+            // Scheduled (future publishAt) chapters never count as
+            // published — for anyone, owner and translator included. Until
+            // their time arrives they exist only in the translator panel's
+            // Activity & Scheduling page.
+            nChaps = nChaps.filter(c => !c.publishAt || new Date(c.publishAt) <= new Date());
+            
+            const actualCount = nChaps.length;
+            return { ...n, chaptersCount: actualCount };
+          });
+          return updated as unknown as T;
+        }
+      }
+
+      const data = storeRead(`mistvil_${key}`);
+      return data ? JSON.parse(data) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  // Keys whose latest local write has NOT yet been confirmed by the server.
+  // While a key is pending, syncWithServer must NOT pull the server's copy
+  // over it — that pull is exactly what made freshly published novels
+  // "disappear": the 4-second poll fetched the server's OLD list before the
+  // publish POST finished (or after it failed) and overwrote localStorage.
+  private static pendingSync = new Map<string, string>();
+
+  private static pushToServer(key: string, serialized: string): void {
+    this.pendingSync.set(key, serialized);
+    fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: `{"key":${JSON.stringify(key)},"value":${serialized}}`
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        // Only clear if no newer local write replaced this one meanwhile
+        if (this.pendingSync.get(key) === serialized) {
+          this.pendingSync.delete(key);
+        }
+      })
+      .catch((err) => {
+        // Keep the key pending; syncWithServer retries it every cycle
+        // instead of overwriting local data with the stale server copy.
+        console.error(`Error syncing key "${key}" to backend (will retry):`, err);
+      });
+  }
+
+  private static dispatchKeyEvent(key: string): void {
+    if (key === 'novels') {
+      window.dispatchEvent(new Event('novels-updated'));
+    } else if (key === 'notifications') {
+      window.dispatchEvent(new Event('notifications-updated'));
+    } else if (key === 'ads') {
+      window.dispatchEvent(new Event('ads-updated'));
+    } else if (key === 'site_name' || key === 'site_logo' || key === 'site_banner') {
+      window.dispatchEvent(new Event('site-settings-updated'));
+    } else if (key.startsWith('footer_')) {
+      window.dispatchEvent(new Event('footer-settings-updated'));
+    } else {
+      window.dispatchEvent(new Event(`${key}-updated`));
+    }
+  }
+
+  static set<T>(key: string, value: T): boolean {
+    try {
+      const serialized = JSON.stringify(value);
+      storeWrite(`mistvil_${key}`, serialized);
+
+      // Private per-user keys stay on this device only (no events, no server sync)
+      if (PRIVATE_LOCAL_KEYS.has(key)) return true;
+
+      // Dispatch standard custom events so that App.tsx updates reactively and instantly
+      this.dispatchKeyEvent(key);
+
+      // Sync shared site content to the backend server database asynchronously,
+      // with retry protection against the polling overwrite race.
+      this.pushToServer(key, serialized);
+      return true;
+    } catch (e) {
+      // Most common cause: QuotaExceededError from oversized base64 images.
+      // Callers can now detect the failure instead of showing a fake success.
+      console.error("Error writing to localStorage", e);
+      return false;
+    }
+  }
+
+  // Delete a comment by writing a tombstone instead of removing it from the
+  // array. get('comments') hides tombstones, and the server-side merge keeps
+  // them, so the deletion reaches every device (a plain removal would be
+  // "resurrected" by the merge with any device that still had the comment).
+  static deleteComment(commentId: string): boolean {
+    try {
+      const raw = storeRead('mistvil_comments');
+      const list = raw ? JSON.parse(raw) : [];
+      const updated = (Array.isArray(list) ? list : []).map((c: any) =>
+        c && c.id === commentId
+          ? { ...c, deleted: true, updatedAt: new Date().toISOString() }
+          : c
+      );
+      const serialized = JSON.stringify(updated);
+      storeWrite('mistvil_comments', serialized);
+      this.dispatchKeyEvent('comments');
+      this.pushToServer('comments', serialized);
+      return true;
+    } catch (e) {
+      console.error('Error deleting comment', e);
+      return false;
+    }
+  }
+
+  // Local-only write: never pushed to the shared server database.
+  // Used during first-visit initialization so a fresh visitor's empty
+  // defaults do not wipe the site's real content for everyone.
+  static setLocal<T>(key: string, value: T): void {
+    try {
+      storeWrite(`mistvil_${key}`, JSON.stringify(value));
+    } catch (e) {
+      console.error("Error writing to storage", e);
+    }
+  }
+
+  // ETag of the last database payload we processed; lets the fast poll
+  // answer with an empty 304 when nothing changed on the server.
+  private static lastSyncEtag: string | null = null;
+
+  static async syncWithServer(): Promise<void> {
+    try {
+      const response = await fetch('/api/db', {
+        headers: this.lastSyncEtag ? { 'If-None-Match': this.lastSyncEtag } : {}
+      });
+      if (response.status === 304) return; // nothing changed since last poll
+      if (!response.ok) return;
+      const etag = response.headers.get('etag');
+      if (etag) this.lastSyncEtag = etag;
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn("Skipping database sync: Server did not return a JSON response (content-type:", contentType, ")");
+        return;
+      }
+
+      const responseText = await response.text();
+      const trimmedText = responseText.trim();
+      if (!trimmedText || trimmedText.startsWith('<!doctype') || trimmedText.startsWith('<')) {
+        console.warn("Skipping database sync: Received HTML or empty response instead of valid JSON database payload.");
+        return;
+      }
+      
+      const serverDb = JSON.parse(trimmedText);
+      
+      const keysToSync = [
+        'novels', 'chapters', 'news', 'teams', 'suggestions', 'comments',
+        'reviews', 'reservations', 'notifications', 'reports',
+        'translator_requests', 'ads', 'role_assignments', 'user_badges', 'user_directory',
+        'site_name', 'site_logo', 'site_banner',
+        'footer_description', 'footer_email', 'footer_support_text',
+        'footer_community_text', 'footer_socials'
+      ];
+      
+      for (const key of keysToSync) {
+        // A local write to this key hasn't been confirmed by the server yet
+        // (publish POST still in flight, or it failed). Pulling the server's
+        // stale copy now would erase the user's new data — retry the push
+        // instead and skip this key for this cycle.
+        const pendingValue = this.pendingSync.get(key);
+        if (pendingValue !== undefined) {
+          this.pushToServer(key, pendingValue);
+          continue;
+        }
+        if (key in serverDb) {
+          const localValStr = storeRead(`mistvil_${key}`);
+          const serverValStr = JSON.stringify(serverDb[key]);
+
+          if (localValStr !== serverValStr) {
+            storeWrite(`mistvil_${key}`, serverValStr);
+            
+            // Dispatch standard custom events so that App.tsx receives updates reactive
+            if (key === 'novels') {
+              window.dispatchEvent(new Event('novels-updated'));
+            } else if (key === 'notifications') {
+              window.dispatchEvent(new Event('notifications-updated'));
+            } else if (key === 'ads') {
+              window.dispatchEvent(new Event('ads-updated'));
+            } else if (key === 'site_name' || key === 'site_logo' || key === 'site_banner') {
+              window.dispatchEvent(new Event('site-settings-updated'));
+            } else if (key.startsWith('footer_')) {
+              window.dispatchEvent(new Event('footer-settings-updated'));
+            } else {
+              // General trigger for other state variables
+              window.dispatchEvent(new Event(`${key}-updated`));
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to sync database with server:", err);
+    }
+  }
+
+  static initialize() {
+    // First visit on this browser: seed the LOCAL cache only. The real site
+    // content is then pulled from the server by syncWithServer(). Writing
+    // these empty defaults with set() would push them to /api/db and erase
+    // the shared database for every visitor.
+    const isCleaned = storeRead('mistvil_cleaned_v6');
+    if (!isCleaned || !storeRead('mistvil_initialized')) {
+      this.setLocal('novels', INITIAL_NOVELS);
+      this.setLocal('news', INITIAL_NEWS);
+      this.setLocal('teams', INITIAL_TEAMS);
+      this.setLocal('suggestions', INITIAL_SUGGESTIONS);
+      this.setLocal('comments', INITIAL_COMMENTS);
+      this.setLocal('reviews', INITIAL_REVIEWS);
+      this.setLocal('reservations', [] as Reservation[]);
+      this.setLocal('notifications', [] as Notification[]);
+      this.setLocal('reports', [] as Report[]);
+      this.setLocal('translator_requests', [] as TranslatorRequest[]);
+      this.setLocal('reading_history', [] as any[]);
+      this.setLocal('bookmarks', [] as string[]);
+      this.setLocal('current_role', 'GUEST'); // Default to GUEST to secure the platform
+      this.setLocal('ads', INITIAL_ADS);
+      this.setLocal('chapters', [] as Chapter[]);
+
+      storeWrite('mistvil_initialized', 'true');
+      storeWrite('mistvil_cleaned_v6', 'true');
+    }
+  }
+}

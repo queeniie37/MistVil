@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "mistvil",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,8 +7,7 @@
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
-    "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
+    "clean": "rm -rf dist server.js mistvil_db.json",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

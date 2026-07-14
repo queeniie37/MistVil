@@ -1,6 +1,6 @@
 {
-  "name": "BerryMist",
-  "description": "BerryMist is a premium translated novel reading platform featuring an advanced chapter tracking system, personalized reading modes, statistics, and bookmarked history.",
+  "name": "MistVil",
+  "description": "منصة عربية فاخرة لاقتراح وترجمة ونشر وقراءة الروايات بنظام حجز وتفاعل متطور",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

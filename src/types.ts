@@ -1,139 +1,236 @@
-export interface Chapter {
+export type UserRole = 'GUEST' | 'MEMBER' | 'TRANSLATOR' | 'SUPERVISOR' | 'OWNER' | 'WRITER';
+
+export interface User {
   id: string;
-  novelId: string;
-  title: string;
-  chapterNumber: number;
-  content: string[]; // List of paragraphs to support bookmarking/notes line-by-line
-  translatorNotes?: string;
-  translationNotesMap?: { [paragraphIndex: number]: string }; // Paragraph-specific translator's notes
-  termsMap?: { [term: string]: { translation: string; explanation: string } }; // Term hover definitions
-  publishDate: string;
-  wordCount: number;
+  username: string;
+  email: string;
+  role: UserRole;
+  xp: number;
+  level: number;
+  avatar: string;
+  discord?: string;
+  telegram?: string;
+  paypalEmail?: string;
+  bio?: string;
+  customStatus?: string;
+  banner?: string;
+  supportLink?: string;
+  // Owner-managed social media links (+/× on the profile edit page)
+  socialLinks?: { id: string; name: string; icon: string; url: string }[];
 }
+
+export type NovelStatus = 'AVAILABLE' | 'RESERVED' | 'TRANSLATING' | 'HIATUS' | 'COMPLETED' | 'ONGOING' | 'PENDING' | 'CANCELLED' | 'PENDING_APPROVAL';
 
 export interface Novel {
   id: string;
-  title: string;
-  englishTitle?: string;
-  coverImage: string;
+  titleAr: string;
+  titleEn: string;
+  titleOriginal?: string;
   author: string;
-  translator: string;
-  description: string;
-  genres: string[];
-  tags: string[];
-  rating: number;
+  translatorId: string;
+  translatorName: string;
+  teamId?: string;
+  teamName?: string;
+  cover: string; // 2:3 Cover Image (Local mock asset or WEBP link)
+  banner?: string;
   chaptersCount: number;
-  status: "مستمرة" | "مكتملة"; // Ongoing or Completed
-  viewCount: number;
-  chapters: Chapter[];
+  views: number;
+  likes: number;
+  bookmarksCount: number;
+  rating: number;
+  ratingCount: number;
+  status: NovelStatus;
+  language: string; // الكورية، الصينية، اليابانية، إلخ
+  genres: string[];
+  description: string;
+  updatesLink?: string;
+  createdAt: string;
+  downloadAllowed?: boolean; // Managed by Owner
 }
 
-export interface ReadingSettings {
-  fontFamily: "Tajawal" | "Cairo" | "Amiri";
-  fontSize: number; // in pixels (e.g., 18, 20, 24)
-  lineHeight: "normal" | "relaxed" | "loose";
-  theme: "darkFog" | "sepia" | "midnight" | "lightCream";
-  containerWidth: "compact" | "comfortable" | "wide";
-  autoScrollSpeed: number; // 0 = disabled, 1-10 speed levels
-}
-
-export interface LibraryEntry {
+export interface Chapter {
+  id: string;
   novelId: string;
-  status: "reading" | "plan" | "completed" | "favorite";
-  addedAt: string;
-  lastReadChapterId?: string;
-  lastReadChapterNum?: number;
-  progressPercentage?: number;
-  lastReadAt?: string;
+  number: number;
+  title: string;
+  content: string; // Text containing multiple paragraphs
+  views: number;
+  createdAt: string;
+  isDraft: boolean;
+  publishAt?: string; // Scheduled datetime ISO string
 }
 
-export interface BookmarkedParagraph {
+export interface ChapterRevision {
+  id: string;
+  chapterId: string;
+  novelId: string;
+  number: number;
+  title: string;
+  content: string;
+  modifiedAt: string;
+  wordsCount: number;
+}
+
+export interface Suggestion {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  originalLink?: string;
+  novelUpdatesLink?: string;
+  cover: string;
+  genres: string[];
+  description: string;
+  suggestedBy: string; // username
+  suggestedById: string;
+  votes: number;
+  votedUsers: string[]; // User IDs
+  status: 'PENDING' | 'ACCEPTED' | 'TRANSLATING' | 'RESERVED' | 'REJECTED';
+  createdAt: string;
+  reason?: string; // In case of rejection or approval note
+}
+
+export interface Reservation {
   id: string;
   novelId: string;
   novelTitle: string;
-  chapterId: string;
-  chapterTitle: string;
-  chapterNumber: number;
-  paragraphIndex: number;
-  text: string;
-  note?: string;
-  bookmarkedAt: string;
+  translatorId: string;
+  translatorName: string;
+  startAt: string; // ISO string
+  endAt: string; // ISO string (e.g., 30 days from start)
+  status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
+  extensionRequested: boolean;
+  extensionReason?: string;
+  cancelledReason?: string;
 }
 
-export interface ChapterComment {
+export interface Notification {
   id: string;
-  chapterId: string;
-  username: string;
-  userAvatar: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'SYSTEM' | 'CHAPTER' | 'COMMENT' | 'SUPPORT' | 'RESERVATION' | 'ROLE';
+  isRead: boolean;
+  createdAt: string;
+  novelId?: string;
+  chapterId?: string;
+}
+
+export interface CommentReply {
+  id: string;
+  authorName: string;
+  authorAvatar?: string;
+  authorRole: UserRole;
   content: string;
   createdAt: string;
+  isSpoiler?: boolean;
+}
+
+export interface Comment {
+  id: string;
+  refId: string; // novelId or chapterId
+  refType: 'NOVEL' | 'CHAPTER';
+  authorName: string;
+  authorAvatar?: string;
+  authorRole: UserRole;
+  content: string;
   likes: number;
-}
-
-export interface ReadingStats {
-  totalChaptersRead: number;
-  totalWordsRead: number;
-  currentStreak: number;
-  lastReadDate: string; // YYYY-MM-DD
-  weeklyHistory: { [date: string]: number }; // date -> chapters read count
-  badges: Badge[];
-}
-
-export interface Badge {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlockedAt?: string;
-}
-
-export interface UserProfile {
-  username: string;
-  email: string;
-  avatar: string; // Avatar identifier or URL
-  bio: string;
-  title: string; // Reading rank title
+  likedBy: string[]; // User IDs
+  replies: CommentReply[];
   createdAt: string;
-  role?: 'reader' | 'translator' | 'writer' | 'owner';
-  level?: number;
-  xp?: number;
-  paypal?: string;
-  telegram?: string;
-  discord?: string;
-  favorites?: string[]; // Novel IDs
+  isSpoiler?: boolean;
+  // Last modification time (likes/replies/deletion). The server merges
+  // concurrent writes per-comment and keeps the newest version.
+  updatedAt?: string;
+  // Tombstone: deleted comments are kept (hidden) so the deletion survives
+  // the server-side merge instead of being resurrected by another device.
+  deleted?: boolean;
 }
 
-export interface RoleRequest {
+export interface Review {
   id: string;
-  email: string;
+  novelId: string;
+  authorName: string;
+  authorAvatar?: string;
+  rating: number;
+  pros: string;
+  cons: string;
+  verdict: string;
+  recommend: boolean;
+  likes: number;
+  likedBy: string[]; // User IDs
+  createdAt: string;
+}
+
+export interface Report {
+  id: string;
+  type: 'NOVEL' | 'CHAPTER' | 'COMMENT';
+  targetId: string;
+  targetName: string; // e.g. Name of Novel, Title of Chapter or excerpt of comment
+  reason: string;
+  details?: string;
+  reportedBy: string;
+  status: 'PENDING' | 'RESOLVED';
+  createdAt: string;
+}
+
+export interface TranslatorRequest {
+  id: string;
   username: string;
-  requestedRole: 'translator' | 'writer';
-  status: 'pending' | 'approved' | 'rejected';
-  date: string;
+  email: string;
+  discord?: string;
+  telegram?: string;
+  experience: string;
+  languages: string[];
+  reason: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdAt: string;
+  joinType?: 'INDIVIDUAL' | 'TEAM';
 }
 
-export interface PendingNovel {
-  id: string;
-  novel: Novel;
-  submittedBy: string; // Email of submitter
-  status: 'pending' | 'approved' | 'rejected';
-  date: string;
-}
-
-export interface TrashItem {
-  id: string;
-  type: 'novel' | 'chapter';
-  title: string;
-  parentNovelId?: string; // If chapter, store parent novel ID
-  data: any; // Entire Novel or Chapter object
-  deletedAt: string;
-}
-
-export interface Announcement {
+export interface News {
   id: string;
   title: string;
-  content: string;
-  date: string;
-  author: string;
+  content?: string;
+  icon: string; // lucide icon name or emoji
+  color: string; // hex or tailwind text class
+  link?: string;
+  novelId?: string;
+  chapterId?: string;
+  isActive: boolean;
+  createdAt: string;
 }
+
+export interface Team {
+  id: string;
+  name: string;
+  logo: string;
+  banner?: string;
+  bio: string;
+  members: { username: string; role: string; avatar: string }[];
+  novelsCount: number;
+  createdAt: string;
+  supportUrl?: string;
+  works?: string[];
+}
+
+export interface Ad {
+  id: string;
+  title: string;
+  image: string; // URL or Base64 data
+  content: string; // Details/Information about the ad
+  showInTicker: boolean; // Option to show in moving ticker bar
+  createdAt: string;
+}
+
+export interface EditRequest {
+  id: string;
+  novelName: string;
+  chapterName: string;
+  details: string;
+  translatorId: string;
+  translatorName: string;
+  status: 'PENDING' | 'RESOLVED';
+  createdAt: string;
+}
+
 
