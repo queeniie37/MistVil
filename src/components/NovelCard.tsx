@@ -45,7 +45,7 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
   return (
     <div 
       onClick={() => onClick(novel.id)}
-      className="group relative bg-[#1A1625] rounded-2xl border border-white/5 hover:border-violet-500/30 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_24px_rgba(139,92,246,0.15)] cursor-pointer glass-card-shine"
+      className="group relative bg-[#131F33] rounded-2xl border border-white/5 hover:border-violet-500/30 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_24px_rgba(56,189,248,0.15)] cursor-pointer glass-card-shine"
     >
       {/* Ranking Badge if present */}
       {ranking !== undefined && (
@@ -64,7 +64,7 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
           referrerPolicy="no-referrer"
         />
         {/* Soft Shadow Veil */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1625] via-[#1A1625]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#131F33] via-[#131F33]/20 to-transparent" />
         
         {/* Absolute Badges on Cover */}
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">

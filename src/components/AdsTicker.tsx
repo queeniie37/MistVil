@@ -43,7 +43,7 @@ export default function AdsTicker({ onAdClick, refreshTrigger }: AdsTickerProps)
       </div>
 
       {/* Static Header Label on the Right */}
-      <div className="absolute right-0 top-0 bottom-0 z-10 w-36 bg-[#1A1326] border-l border-violet-500/10 flex items-center justify-center gap-2 px-3 shadow-[10px_0_20px_rgba(15,11,20,0.9)]">
+      <div className="absolute right-0 top-0 bottom-0 z-10 w-36 bg-[#142136] border-l border-violet-500/10 flex items-center justify-center gap-2 px-3 shadow-[10px_0_20px_rgba(10,17,32,0.9)]">
         <Volume2 size={13} className="text-fuchsia-400 animate-bounce" />
         <span className="font-extrabold text-[11px] text-fuchsia-200 tracking-wider">شريط الإعلانات</span>
         <Sparkles size={11} className="text-yellow-400 animate-pulse" />

@@ -154,7 +154,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
           {/* Hamburger button for mobile/tablet */}
           <button 
             onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-600/10 border border-violet-500/25 text-violet-300 hover:text-white hover:bg-violet-600/30 transition-all cursor-pointer shadow-[0_0_15px_rgba(139,92,246,0.12)] whitespace-nowrap"
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-600/10 border border-violet-500/25 text-violet-300 hover:text-white hover:bg-violet-600/30 transition-all cursor-pointer shadow-[0_0_15px_rgba(56,189,248,0.12)] whitespace-nowrap"
             title="الأقسام والصفحات"
           >
             <Menu size={16} />
@@ -166,9 +166,9 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
             className="flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none"
           >
             {isImageSource(safeSiteLogo) ? (
-              <img src={safeSiteLogo} alt="Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.6)] animate-pulse" referrerPolicy="no-referrer" />
+              <img src={safeSiteLogo} alt="Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.6)] animate-pulse" referrerPolicy="no-referrer" />
             ) : (
-              <img src="/site_logo_v2.png" alt="Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.6)] animate-pulse" referrerPolicy="no-referrer" />
+              <img src="/site_logo_v2.png" alt="Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.6)] animate-pulse" referrerPolicy="no-referrer" />
             )}
             <span className="font-extrabold text-lg sm:text-2xl tracking-tight bg-gradient-to-r from-violet-400 via-purple-400 to-rose-400 bg-clip-text text-transparent">
               {safeSiteName}
@@ -357,7 +357,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
                     </button>
                   ) : (
                     <>
-                      {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com') && (
+                      {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com') && (
                         <button 
                           onClick={() => { onNavigate('admin'); setProfileOpen(false); }}
                           className="flex items-center justify-between w-full p-2 hover:bg-white/5 rounded-xl text-sm text-purple-200 hover:text-white transition-all text-right cursor-pointer"
@@ -367,7 +367,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
                         </button>
                       )}
 
-                      {(currentUser.role === 'TRANSLATOR' || currentUser.role === 'OWNER' || currentUser.role === 'WRITER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com') && (
+                      {(currentUser.role === 'TRANSLATOR' || currentUser.role === 'OWNER' || currentUser.role === 'WRITER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com') && (
                         <button 
                           onClick={() => { onNavigate('translator-panel'); setProfileOpen(false); }}
                           className="flex items-center justify-between w-full p-2 hover:bg-white/5 rounded-xl text-sm text-purple-200 hover:text-white transition-all text-right cursor-pointer"
@@ -451,7 +451,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
             >
               ✒️ كاتب ومؤلف
             </button>
-            {currentUser.email?.toLowerCase() === 'mistvil11@gmail.com' ? (
+            {currentUser.email?.toLowerCase() === 'mistvil112@gmail.com' ? (
               <button 
                 onClick={() => { onRoleChange('OWNER'); setRoleSelectorOpen(false); }}
                 className={`p-2.5 col-span-2 rounded-xl border font-semibold transition-all ${currentUser.role === 'OWNER' ? 'bg-violet-600 text-white border-violet-500' : 'bg-white/5 text-purple-300 border-white/5 hover:bg-white/10'}`}

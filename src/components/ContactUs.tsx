@@ -198,7 +198,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs text-right"
+                    className="w-full bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs text-right"
                     placeholder="مثال: يوسف أحمد"
                   />
                 </div>
@@ -212,7 +212,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs font-mono text-left"
+                    className="w-full bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs font-mono text-left"
                     placeholder="user@example.com"
                   />
                 </div>
@@ -226,7 +226,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs text-right"
+                className="w-full bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl py-2 px-3 text-white text-xs text-right"
                 placeholder="مثال: طلب شراكة / بلاغ عن مشكلة بفصل"
               />
             </div>
@@ -238,7 +238,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
                 rows={6}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl p-3 text-white text-xs text-right leading-relaxed resize-y"
+                className="w-full bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl p-3 text-white text-xs text-right leading-relaxed resize-y"
                 placeholder="اكتب رسالتك بالتفصيل هنا..."
               />
             </div>

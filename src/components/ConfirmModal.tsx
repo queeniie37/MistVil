@@ -26,7 +26,7 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-md bg-[#14101D] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200 p-6 flex flex-col gap-5">
+      <div className="relative w-full max-w-md bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200 p-6 flex flex-col gap-5">
         
         {/* Icon & Title */}
         <div className="flex items-start gap-4 flex-row-reverse">

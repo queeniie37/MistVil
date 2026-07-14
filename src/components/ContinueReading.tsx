@@ -37,7 +37,7 @@ export default function ContinueReading({ progressItems, novels, onChapterClick 
             <div 
               key={item.novelId}
               onClick={() => onChapterClick(novel.id, item.chapterNumber)}
-              className="group relative bg-[#1A1625]/60 hover:bg-[#1A1625] border border-white/5 hover:border-violet-500/20 rounded-2xl p-3 flex gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-1"
+              className="group relative bg-[#131F33]/60 hover:bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl p-3 flex gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-1"
             >
               {/* Cover mini */}
               <div className="relative w-12 h-16 rounded-xl overflow-hidden bg-black/20 shrink-0">

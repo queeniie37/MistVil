@@ -2,38 +2,72 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-100: #EDE7FE;
-  --color-primary-200: #D9CCFD;
-  --color-primary-300: #C4B5FD;
-  --color-primary-400: #A78BFA;
-  --color-primary-500: #8B5CF6;
-  --color-primary-600: #7C3AED;
-  --color-primary-700: #6D28D9;
-  --color-primary-800: #5B21B6;
+  /* MistVil palette: cool misty blues — primary (sky/steel) scale */
+  --color-primary-100: #E0F2FE;
+  --color-primary-200: #BAE6FD;
+  --color-primary-300: #7DD3FC;
+  --color-primary-400: #38BDF8;
+  --color-primary-500: #0EA5E9;
+  --color-primary-600: #0284C7;
+  --color-primary-700: #0369A1;
+  --color-primary-800: #075985;
 
-  --color-rose-300: #E89BB8;
-  --color-rose-400: #DB6F96;
-  --color-rose-500: #C84B7A;
-  --color-rose-600: #A63C64;
-  --color-rose-700: #882F50;
+  /* Brand remap: the UI is written with violet/purple/rose/fuchsia utility
+     classes; these overrides re-skin them site-wide to the mist palette. */
+  --color-violet-200: #BAE6FD;
+  --color-violet-300: #7DD3FC;
+  --color-violet-400: #38BDF8;
+  --color-violet-500: #0EA5E9;
+  --color-violet-600: #0284C7;
+  --color-violet-700: #0369A1;
+  --color-violet-800: #075985;
+  --color-violet-900: #0C4A6E;
+  --color-violet-950: #082F49;
 
-  --color-bg-base: #0F0B14;
-  --color-bg-surface: #14101D;
-  --color-bg-card: #1A1625;
-  --color-bg-elevated: #221B30;
-  --color-bg-hover: #2A2240;
-  --color-bg-active: #322848;
-  --color-bg-overlay: #2E2640;
+  /* Secondary "mist slate" — cool blue-grey tints used for body text */
+  --color-purple-100: #E3ECF6;
+  --color-purple-200: #C9D8EA;
+  --color-purple-300: #A7BCD6;
+  --color-purple-400: #7F99BA;
+  --color-purple-500: #5D789C;
+  --color-purple-600: #475A7D;
+  --color-purple-700: #364761;
+  --color-purple-800: #253349;
+  --color-purple-900: #192438;
+  --color-purple-950: #101827;
+
+  /* Accent: sea-mist teal */
+  --color-rose-300: #5EEAD4;
+  --color-rose-400: #2DD4BF;
+  --color-rose-500: #14B8A6;
+  --color-rose-600: #0D9488;
+  --color-rose-700: #0F766E;
+
+  /* Highlight: cyan */
+  --color-fuchsia-200: #A5F3FC;
+  --color-fuchsia-300: #67E8F9;
+  --color-fuchsia-400: #22D3EE;
+  --color-fuchsia-500: #06B6D4;
+  --color-fuchsia-600: #0891B2;
+  --color-fuchsia-950: #083344;
+
+  --color-bg-base: #0A1120;
+  --color-bg-surface: #0E1626;
+  --color-bg-card: #131F33;
+  --color-bg-elevated: #182640;
+  --color-bg-hover: #1E3050;
+  --color-bg-active: #24395E;
+  --color-bg-overlay: #21334F;
 
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", "Cairo", system-ui, sans-serif;
   --font-naskh: "Noto Naskh Arabic", "Amiri", serif;
 }
 
 :root {
-  --glass-bg: rgba(26, 22, 37, 0.55);
-  --glass-border: rgba(245, 241, 255, 0.08);
+  --glass-bg: rgba(19, 31, 51, 0.55);
+  --glass-border: rgba(241, 246, 252, 0.08);
   --glass-blur: blur(20px) saturate(140%);
-  --glass-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(245,241,255,0.05);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(241,246,252,0.05);
 
   --elevation-1: 0 1px 2px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.25);
   --elevation-2: 0 2px 6px rgba(0,0,0,.40), 0 1px 2px rgba(0,0,0,.28);
@@ -41,8 +75,8 @@
   --elevation-4: 0 12px 30px rgba(0,0,0,.50), 0 4px 10px rgba(0,0,0,.32);
   --elevation-5: 0 24px 50px rgba(0,0,0,.60), 0 8px 18px rgba(0,0,0,.38);
 
-  --glow-violet: 0 0 0 1px rgba(139,92,246,.40), 0 6px 24px rgba(139,92,246,.35);
-  --glow-rose: 0 0 0 1px rgba(200,75,122,.40), 0 6px 24px rgba(200,75,122,.35);
+  --glow-violet: 0 0 0 1px rgba(56,189,248,.40), 0 6px 24px rgba(56,189,248,.35);
+  --glow-rose: 0 0 0 1px rgba(45,212,191,.40), 0 6px 24px rgba(45,212,191,.35);
 }
 
 html {
@@ -51,8 +85,8 @@ html {
 }
 
 body {
-  background-color: #0F0B14;
-  color: #F5F1FF;
+  background-color: #0A1120;
+  color: #F1F6FC;
   font-family: "IBM Plex Sans Arabic", "Tajawal", "Cairo", system-ui, sans-serif;
   overflow-x: hidden;
   direction: rtl;
@@ -94,7 +128,7 @@ img, video {
   left: -150%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(105deg, transparent 42%, rgba(245,241,255,0.07) 50%, transparent 58%);
+  background: linear-gradient(105deg, transparent 42%, rgba(241,246,252,0.07) 50%, transparent 58%);
   transition: all 0.6s ease;
 }
 
@@ -109,16 +143,16 @@ img, video {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0F0B14;
+  background: #0A1120;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2240;
+  background: #1E3050;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED;
+  background: #0284C7;
 }
 
 /* Breaking News Ticker animations */
@@ -145,11 +179,11 @@ img, video {
 
 /* Mist Glow effect */
 .mist-glow-violet {
-  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%);
 }
 
 .mist-glow-rose {
-  background: radial-gradient(circle, rgba(200,75,122,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(45,212,191,0.12) 0%, transparent 70%);
 }
 
 @keyframes float-ambient {
@@ -201,7 +235,7 @@ img, video {
   transform: rotate(-25deg);
   font-size: 2.5rem;
   font-weight: 800;
-  color: rgba(139, 92, 246, 0.04);
+  color: rgba(56, 189, 248, 0.04);
   pointer-events: none;
   white-space: nowrap;
   user-select: none;
@@ -216,7 +250,7 @@ img, video {
   transform: rotate(-25deg);
   font-size: 2.5rem;
   font-weight: 800;
-  color: rgba(200, 75, 122, 0.04);
+  color: rgba(45, 212, 191, 0.04);
   pointer-events: none;
   white-space: nowrap;
   user-select: none;

@@ -537,7 +537,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     const allNotifs = MistVilDatabase.get<any[]>('notifications', []);
     const usersDb = MistVilDatabase.get<any[]>('users_db', []);
     // Find all owner users
-    const owners = usersDb.filter(u => u && (u.role === 'OWNER' || u.email?.toLowerCase() === 'mistvil11@gmail.com'));
+    const owners = usersDb.filter(u => u && (u.role === 'OWNER' || u.email?.toLowerCase() === 'mistvil112@gmail.com'));
     const ownerIds = owners.map(u => u.id);
     if (ownerIds.length === 0) ownerIds.push('mistvil-owner'); // Fallback
 
@@ -560,7 +560,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
   // Delete comment handler for Owner
   const handleDeleteComment = (commentId: string) => {
-    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil11@gmail.com') {
+    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
       alert('عذراً، هذه الصلاحية مخصصة لمالك الموقع فقط!');
       return;
     }
@@ -783,7 +783,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     setNewChapterNumber('');
   };
 
-  const isOwner = currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com';
+  const isOwner = currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com';
   const isTranslatorOrOwner = isOwner || (novel && novel.translatorId === currentUser.id);
 
   const handleDeleteNovel = () => {
@@ -850,7 +850,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
   };
 
   const handleDeleteChapterByOwner = (chapterId: string, chapterNumber: number) => {
-    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil11@gmail.com') {
+    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
       alert('عذراً، هذه الصلاحية مخصصة لمالك الموقع فقط!');
       return;
     }
@@ -926,7 +926,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
         {/* 1. Novel selector/display */}
         <div className="flex flex-col gap-1.5 text-right w-full mb-4">
           <div className="relative w-full">
-            <div className="w-full bg-[#13101E] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-purple-300 text-right flex justify-between items-center select-none cursor-default">
+            <div className="w-full bg-[#0F1828] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-purple-300 text-right flex justify-between items-center select-none cursor-default">
               <ChevronDown size={14} className="text-purple-400" />
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white">{novel.titleAr}</span>
@@ -949,7 +949,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             placeholder="مثال: 5"
             value={newChapterNumber}
             onChange={(e) => setNewChapterNumber(e.target.value === '' ? '' : Number(e.target.value))}
-            className="w-full bg-[#13101E] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-white text-right outline-none focus:border-violet-500 font-sans placeholder-purple-300/40 font-mono"
+            className="w-full bg-[#0F1828] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-white text-right outline-none focus:border-violet-500 font-sans placeholder-purple-300/40 font-mono"
           />
         </div>
 
@@ -966,14 +966,14 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             placeholder="عنوان الفصل"
             value={newChapterTitle}
             onChange={(e) => setNewChapterTitle(e.target.value)}
-            className="w-full bg-[#13101E] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-white text-right outline-none focus:border-violet-500 font-sans placeholder-purple-300/40"
+            className="w-full bg-[#0F1828] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-white text-right outline-none focus:border-violet-500 font-sans placeholder-purple-300/40"
           />
         </div>
 
         {/* 4. Rich Chapter Content Editor */}
-        <div className="flex flex-col border border-white/5 hover:border-white/10 bg-[#13101E] rounded-xl overflow-hidden mb-3">
+        <div className="flex flex-col border border-white/5 hover:border-white/10 bg-[#0F1828] rounded-xl overflow-hidden mb-3">
           {/* Editor Toolbar */}
-          <div className="flex justify-between items-center px-4 py-3 bg-[#171324] border-b border-white/5 select-none">
+          <div className="flex justify-between items-center px-4 py-3 bg-[#121E33] border-b border-white/5 select-none">
             {/* Left toolbar options: Undo/Redo */}
             <div className="flex gap-2">
               <button
@@ -1040,7 +1040,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             contentEditable
             onInput={handleEditorInput}
             placeholder="محتوى الفصل"
-            className="w-full bg-[#13101E] px-4 py-4 text-xs text-white text-right outline-none font-sans min-h-[50vh] overflow-y-auto placeholder-purple-300/40 border border-white/5 rounded-xl empty:before:content-[attr(placeholder)] empty:before:text-purple-300/40 empty:before:pointer-events-none focus:border-violet-500 transition-all [&_img]:max-h-[750px] [&_img]:w-full [&_img]:max-w-[700px] [&_img]:my-6 [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:shadow-[0_10px_35px_rgba(0,0,0,0.6)] [&_img]:border [&_img]:border-white/10 [&_img]:block [&_img]:object-contain [&_img]:bg-black/30 [&_img]:p-1.5 hover:[&_img]:border-violet-500/40 hover:[&_img]:scale-[1.01] [&_img]:transition-all [&_img]:duration-300"
+            className="w-full bg-[#0F1828] px-4 py-4 text-xs text-white text-right outline-none font-sans min-h-[50vh] overflow-y-auto placeholder-purple-300/40 border border-white/5 rounded-xl empty:before:content-[attr(placeholder)] empty:before:text-purple-300/40 empty:before:pointer-events-none focus:border-violet-500 transition-all [&_img]:max-h-[750px] [&_img]:w-full [&_img]:max-w-[700px] [&_img]:my-6 [&_img]:mx-auto [&_img]:rounded-2xl [&_img]:shadow-[0_10px_35px_rgba(0,0,0,0.6)] [&_img]:border [&_img]:border-white/10 [&_img]:block [&_img]:object-contain [&_img]:bg-black/30 [&_img]:p-1.5 hover:[&_img]:border-violet-500/40 hover:[&_img]:scale-[1.01] [&_img]:transition-all [&_img]:duration-300"
           />
         </div>
 
@@ -1087,7 +1087,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
           {/* Conditional Date-time Input with smooth collapse/fade */}
           {publishTimeType === 'schedule' && (
-            <div className="mt-2.5 p-4 rounded-xl bg-[#13101E] border border-white/5 animate-in slide-in-from-top-2 duration-200 text-right">
+            <div className="mt-2.5 p-4 rounded-xl bg-[#0F1828] border border-white/5 animate-in slide-in-from-top-2 duration-200 text-right">
               <input 
                 type="datetime-local"
                 lang="en"
@@ -1095,7 +1095,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                 onChange={(e) => setNewChapterPublishAt(e.target.value)}
                 min={getMinScheduleDate()}
                 max={getMaxScheduleDate()}
-                className="w-full bg-[#1A1625] border border-white/10 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-violet-500 text-white font-mono text-right"
+                className="w-full bg-[#131F33] border border-white/10 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-violet-500 text-white font-mono text-right"
               />
               <span className="text-[10px] text-purple-400/80 mt-1.5 block">اختر التاريخ والوقت لتسجيل وقت النشر التلقائي للفصل. سيظل الفصل مجدولاً وغير متاح للقراءة قبل هذا الوقت.</span>
             </div>
@@ -1320,7 +1320,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
       {/* Translator & Owner: Edit Novel Status Panel */}
       {(currentUser.id === novel.translatorId || isOwner) && novel.status !== 'PENDING' && (
-        <div className="w-full mt-4 p-4 rounded-2xl bg-[#1A1625] border border-violet-500/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+        <div className="w-full mt-4 p-4 rounded-2xl bg-[#131F33] border border-violet-500/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2 text-right">
             <Edit2 size={16} className="text-violet-400" />
             <span className="text-purple-200">صلاحيات الإدارة: تحديث حالة الرواية الحالية:</span>
@@ -1382,7 +1382,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                 alert(`تم تغيير حالة الرواية إلى (${statusNames[newStatus]}) بنجاح.`);
                 window.dispatchEvent(new Event('novels-updated'));
               }}
-              className="bg-[#13101E] text-purple-200 border border-white/10 rounded-lg px-2.5 py-1.5 cursor-pointer text-xs focus:border-violet-500"
+              className="bg-[#0F1828] text-purple-200 border border-white/10 rounded-lg px-2.5 py-1.5 cursor-pointer text-xs focus:border-violet-500"
             >
               <option value="ONGOING">مستمرة</option>
               <option value="HIATUS">متوقفة مؤقتاً</option>
@@ -1478,7 +1478,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                         className={`group p-4 rounded-2xl flex items-center justify-between gap-2 cursor-pointer transition-all text-right border ${
                           isRead
                             ? 'bg-violet-900/15 border-violet-500/40 hover:bg-violet-900/25 hover:border-violet-400'
-                            : 'bg-[#1A1625] border-white/5 hover:border-violet-500/20 hover:bg-violet-950/5'
+                            : 'bg-[#131F33] border-white/5 hover:border-violet-500/20 hover:bg-violet-950/5'
                         }`}
                       >
                         <div className="min-w-0">
@@ -1554,7 +1554,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                     }}
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="flex-1 min-w-0 bg-[#1A1625] border border-white/5 focus:border-violet-500 outline-none rounded-2xl px-4 py-3.5 text-white placeholder-purple-300/40 text-xs text-right transition-all"
+                    className="flex-1 min-w-0 bg-[#131F33] border border-white/5 focus:border-violet-500 outline-none rounded-2xl px-4 py-3.5 text-white placeholder-purple-300/40 text-xs text-right transition-all"
                   />
                   <button
                     type="submit"
@@ -1584,7 +1584,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               <div className="flex flex-col gap-4">
                 {comments.length > 0 ? (
                   comments.map((comment) => (
-                    <div key={comment.id} className="p-4 bg-[#1A1625]/60 border border-white/5 rounded-2xl text-right flex flex-col gap-3">
+                    <div key={comment.id} className="p-4 bg-[#131F33]/60 border border-white/5 rounded-2xl text-right flex flex-col gap-3">
                       
                       {/* Comment Header */}
                       <div className="flex items-center gap-3">
@@ -1661,7 +1661,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                         >
                           <span>🚩 إبلاغ</span>
                         </button>
-                        {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com') && (
+                        {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com') && (
                           <button
                             type="button"
                             onClick={() => handleDeleteComment(comment.id)}
@@ -1724,7 +1724,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
       {reportingComment && (
         <div className="fixed inset-0 z-[300] bg-black/85 backdrop-blur-md flex justify-center items-center p-4">
-          <div className="w-full max-w-md bg-[#161221] border border-white/10 rounded-3xl p-6 text-right shadow-2xl">
+          <div className="w-full max-w-md bg-[#101A2C] border border-white/10 rounded-3xl p-6 text-right shadow-2xl">
             <h3 className="text-base font-bold text-white mb-2">🚨 الإبلاغ عن تعليق مسيء</h3>
             <p className="text-xs text-purple-300 mb-4">
               أنت بصدد الإبلاغ عن تعليق بواسطة <span className="text-violet-400 font-bold">{reportingComment.authorName}</span>:
@@ -1738,7 +1738,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             <select
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
-              className="w-full bg-[#1e192c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white mb-4 outline-none focus:border-violet-500"
+              className="w-full bg-[#17253C] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white mb-4 outline-none focus:border-violet-500"
             >
               <option value="محتوى مسيء / غير لائق">محتوى مسيء / غير لائق / شتائم</option>
               <option value="حرق للأحداث دون تحذير">حرق للأحداث دون تحذير</option>
@@ -1751,7 +1751,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               placeholder="اكتب أي ملاحظات إضافية تساعد المالك في مراجعة البلاغ..."
               value={reportDetails}
               onChange={(e) => setReportDetails(e.target.value)}
-              className="w-full h-20 bg-[#1e192c] border border-white/10 rounded-xl px-3 py-2 text-xs text-white mb-5 outline-none focus:border-violet-500 resize-none"
+              className="w-full h-20 bg-[#17253C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white mb-5 outline-none focus:border-violet-500 resize-none"
             />
 
             <div className="flex gap-2.5">

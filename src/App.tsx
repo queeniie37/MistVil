@@ -47,19 +47,19 @@ const SOCIAL_PLATFORMS = [
 const FALLBACK_COVER =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A1625"/><stop offset="1" stop-color="#2A2240"/></linearGradient></defs><rect width="300" height="450" fill="url(#g)"/><text x="150" y="215" font-size="90" text-anchor="middle">🌫️</text><text x="150" y="270" font-size="20" fill="#8B5CF6" text-anchor="middle" font-family="sans-serif">MistVil</text></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#131F33"/><stop offset="1" stop-color="#1E3050"/></linearGradient></defs><rect width="300" height="450" fill="url(#g)"/><text x="150" y="215" font-size="90" text-anchor="middle">🌫️</text><text x="150" y="270" font-size="20" fill="#38BDF8" text-anchor="middle" font-family="sans-serif">MistVil</text></svg>`
   );
 const FALLBACK_AVATAR =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="#2A2240"/><text x="60" y="80" font-size="56" text-anchor="middle">🌫️</text></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="#1E3050"/><text x="60" y="80" font-size="56" text-anchor="middle">🌫️</text></svg>`
   );
 
 // Shown instead of the admin/translator panels for users without the required role
 function AccessDeniedPanel({ message, isGuest, onNavigateHome }: { message: string; isGuest: boolean; onNavigateHome: () => void }) {
   return (
     <div className="w-full text-center mt-12 pb-12 animate-in fade-in duration-300">
-      <div className="max-w-md mx-auto p-8 bg-[#1A1625] border border-white/5 rounded-3xl flex flex-col items-center gap-4">
+      <div className="max-w-md mx-auto p-8 bg-[#131F33] border border-white/5 rounded-3xl flex flex-col items-center gap-4">
         <Shield size={40} className="text-rose-400" />
         <h2 className="text-lg font-extrabold text-white">هذه الصفحة محمية 🔒</h2>
         <p className="text-xs text-purple-300 leading-relaxed">{message}</p>
@@ -276,7 +276,7 @@ export default function App() {
     // Load from local database
     const savedUser = MistVilDatabase.get<User | null>('current_user_data', null);
     if (savedUser) {
-      if (savedUser.role === 'OWNER' && savedUser.email !== 'mistvil11@gmail.com') {
+      if (savedUser.role === 'OWNER' && savedUser.email !== 'mistvil112@gmail.com') {
         const fallbackUser = DEFAULT_USERS.GUEST;
         setCurrentUser(fallbackUser);
         MistVilDatabase.set('current_user_data', fallbackUser);
@@ -323,7 +323,7 @@ export default function App() {
       const saved = MistVilDatabase.get<User | null>('current_user_data', null);
       if (!saved || !saved.email) return;
       const email = saved.email.toLowerCase();
-      if (email === 'mistvil11@gmail.com') return;
+      if (email === 'mistvil112@gmail.com') return;
       const assignments = MistVilDatabase.get<Record<string, string>>('role_assignments', {});
       const assigned = assignments[email];
       if (assigned && assigned !== saved.role) {
@@ -699,8 +699,8 @@ export default function App() {
 
   // Update dynamic simulated user role
   const handleRoleChange = (newRole: UserRole) => {
-    if (newRole === 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil11@gmail.com') {
-      alert('خطأ أمني: رتبة المالك مخصصة حصرياً لمالك الموقع! يرجى تسجيل الدخول بحساب المالك (mistvil11@gmail.com) أولاً للوصول إلى لوحة الإدارة.');
+    if (newRole === 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
+      alert('خطأ أمني: رتبة المالك مخصصة حصرياً لمالك الموقع! يرجى تسجيل الدخول بحساب المالك (mistvil112@gmail.com) أولاً للوصول إلى لوحة الإدارة.');
       return;
     }
     MistVilDatabase.set('current_role', newRole);
@@ -799,7 +799,7 @@ export default function App() {
 
   // Safe navigation
   const handleNavigate = (page: string, params: any = null) => {
-    const isOwner = currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com';
+    const isOwner = currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com';
     const isTranslatorOrWriter = currentUser.role === 'TRANSLATOR' || currentUser.role === 'WRITER';
 
     if (page === 'admin') {
@@ -988,7 +988,7 @@ export default function App() {
     .slice(0, 20), [activeNovels]);
 
   return (
-    <div className="relative min-h-screen bg-[#0F0B14] text-purple-100 flex flex-col justify-between selection:bg-violet-600/30">
+    <div className="relative min-h-screen bg-[#0A1120] text-purple-100 flex flex-col justify-between selection:bg-violet-600/30">
       
       {/* Ambient background particles and mist glow elements */}
       <div className="absolute top-0 left-0 w-full h-[600px] pointer-events-none overflow-hidden z-0">
@@ -1039,13 +1039,13 @@ export default function App() {
                 className="absolute inset-0 bg-cover bg-center transition-all duration-500 hover:scale-[1.01]"
                 style={{ backgroundImage: `url(${safeSiteBanner})`, filter: 'brightness(0.35)' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-l from-[#0F0B14] via-[#0F0B14]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-l from-[#0A1120] via-[#0A1120]/40 to-transparent" />
               <div className="relative z-10 flex flex-col gap-2 max-w-2xl">
                 <h1 className="text-2xl md:text-4xl font-extrabold text-white flex items-center gap-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                   {isImageSource(safeSiteLogo) ? (
-                    <img src={safeSiteLogo} alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]" referrerPolicy="no-referrer" />
+                    <img src={safeSiteLogo} alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.6)]" referrerPolicy="no-referrer" />
                   ) : (
-                    <img src="/site_logo_v2.png" alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]" referrerPolicy="no-referrer" />
+                    <img src="/site_logo_v2.png" alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.6)]" referrerPolicy="no-referrer" />
                   )}
                   <span>{safeSiteName}</span>
                 </h1>
@@ -1063,7 +1063,7 @@ export default function App() {
                 <div className="absolute top-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[80px]" />
                 <div className="absolute bottom-0 right-0 w-64 h-64 bg-rose-600/10 rounded-full blur-[80px]" />
                 
-                <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(139,92,246,0.5)] mb-4 block" referrerPolicy="no-referrer" />
+                <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(56,189,248,0.5)] mb-4 block" referrerPolicy="no-referrer" />
                 <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">أهلاً بك في منصة {safeSiteName} الفاخرة!</h2>
                 <p className="text-purple-300 text-sm md:text-base leading-relaxed max-w-3xl">
                   لا توجد روايات منشورة بالمنصة حتى الآن. ترقبوا قريباً أولى الروايات والفصول المترجمة الحصرية! ✨
@@ -1128,7 +1128,7 @@ export default function App() {
                         <div 
                           key={novel.id}
                           onClick={() => handleReadChapter(novel.id, novel.chaptersCount)}
-                          className="p-4 bg-[#14101D] hover:bg-[#1A1625] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 cursor-pointer transition-all hover:-translate-y-0.5 group relative"
+                          className="p-4 bg-[#0E1626] hover:bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 cursor-pointer transition-all hover:-translate-y-0.5 group relative"
                         >
                           {/* Purple "جديد" (New) ribbon badge as requested in specs */}
                           <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-[9px] font-bold bg-violet-600 text-white shadow-md animate-pulse">
@@ -1228,7 +1228,7 @@ export default function App() {
         {/* ==================== SCREEN 5: TRANSLATORS CLAIMS / SUGGESTIONS LIST ==================== */}
         {currentPage === 'suggestions' && (
           <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
-            <div className="p-6 bg-[#1A1625] rounded-3xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-6 bg-[#131F33] rounded-3xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                   <Compass size={24} className="text-rose-400 animate-pulse" />
@@ -1255,7 +1255,7 @@ export default function App() {
             <div className="flex flex-col gap-4">
               {suggestions.filter(s => s.status === 'PENDING').length > 0 ? (
                 suggestions.filter(s => s.status === 'PENDING').map((sug) => (
-                  <div key={sug.id} className="p-5 bg-[#1A1625] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right">
+                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right">
                     <img src={sug.cover} alt={sug.titleAr} className="w-24 h-36 rounded-xl object-cover border border-white/5 shrink-0 shadow-lg" />
                     
                     <div className="flex-1 w-full flex flex-col justify-between">
@@ -1381,7 +1381,7 @@ export default function App() {
                         value={joinName}
                         onChange={(e) => setJoinName(e.target.value)}
                         placeholder={joinType === 'INDIVIDUAL' ? 'أدخل اسمك الفني كمترجم...' : 'أدخل اسم الفريق المُراد تسجيله...'}
-                        className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
                       />
                     </div>
                   </div>
@@ -1396,7 +1396,7 @@ export default function App() {
                         value={joinLanguages}
                         onChange={(e) => setJoinLanguages(e.target.value)}
                         placeholder="مثال: الكورية، الإنجليزية، اليابانية..."
-                        className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
                       />
                     </div>
 
@@ -1409,7 +1409,7 @@ export default function App() {
                         value={joinContact}
                         onChange={(e) => setJoinContact(e.target.value)}
                         placeholder="مثال: dsc.gg/yourteam أو معرف تليجرام..."
-                        className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
                       />
                     </div>
                   </div>
@@ -1424,7 +1424,7 @@ export default function App() {
                         value={joinExperience}
                         onChange={(e) => setJoinExperience(e.target.value)}
                         placeholder="أدخل أسماء الروايات أو الفصول التي قمت بترجمتها سابقاً..."
-                        className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
                       />
                     </div>
 
@@ -1437,7 +1437,7 @@ export default function App() {
                         value={joinReason}
                         onChange={(e) => setJoinReason(e.target.value)}
                         placeholder="لماذا تود نشر ترجماتك أو نقل فريقك الفاخر للعمل على منصة ميست فيل؟..."
-                        className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
                       />
                     </div>
                   </div>
@@ -1455,7 +1455,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {teams.map((team) => (
-                <div key={team.id} className="p-6 bg-[#1A1625] border border-white/5 rounded-3xl flex flex-col justify-between text-right shadow-md">
+                <div key={team.id} className="p-6 bg-[#131F33] border border-white/5 rounded-3xl flex flex-col justify-between text-right shadow-md">
                   <div>
                     <div 
                       onClick={() => setSelectedTeam(team)}
@@ -1508,7 +1508,7 @@ export default function App() {
         {/* ==================== SCREEN: FULL NOTIFICATIONS PAGE ==================== */}
         {currentPage === 'notifications' && (
           <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
-            <div className="p-6 bg-[#1A1625] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">
+            <div className="p-6 bg-[#131F33] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2 font-sans">
                   <Bell className="text-rose-400" size={24} />
@@ -1519,7 +1519,7 @@ export default function App() {
               <span className="text-3xl">📣</span>
             </div>
 
-            <div className="p-6 bg-[#14101D] border border-white/5 rounded-3xl">
+            <div className="p-6 bg-[#0E1626] border border-white/5 rounded-3xl">
               <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6 flex-wrap gap-3">
                 <h3 className="font-extrabold text-sm text-white">قائمة الإشعارات الواردة</h3>
                 <div className="flex gap-2">
@@ -1621,7 +1621,7 @@ export default function App() {
                   backgroundImage: `url(${currentUser.banner || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200'})` 
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-t from-[#0F0B14] via-black/40 to-transparent" />
+                <div className="w-full h-full bg-gradient-to-t from-[#0A1120] via-black/40 to-transparent" />
               </div>
 
               {/* Inner card profile info overlapping the banner */}
@@ -1630,7 +1630,7 @@ export default function App() {
                   <img 
                     src={currentUser.avatar} 
                     alt={currentUser.username} 
-                    className="w-24 h-24 rounded-full border-4 border-[#0F0B14] bg-[#0F0B14] shadow-2xl relative z-10" 
+                    className="w-24 h-24 rounded-full border-4 border-[#0A1120] bg-[#0A1120] shadow-2xl relative z-10" 
                     referrerPolicy="no-referrer"
                   />
                   <div className="pb-2">
@@ -1672,7 +1672,7 @@ export default function App() {
               </div>
 
               {/* Biography, Support Methods and Stats */}
-              <div className="p-6 pt-0 border-t border-white/5 bg-[#14101D]/90">
+              <div className="p-6 pt-0 border-t border-white/5 bg-[#0E1626]/90">
                 <div className={`grid grid-cols-1 ${['OWNER', 'TRANSLATOR', 'WRITER'].includes(currentUser.role) ? 'md:grid-cols-2' : ''} gap-6 mt-6`}>
                   {/* Bio & Details */}
                   <div className="text-right flex flex-col gap-3">
@@ -1731,7 +1731,7 @@ export default function App() {
                   </div>
                   <button 
                     onClick={() => setShowProfileFavorites(!showProfileFavorites)}
-                    className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center ${showProfileFavorites ? 'border-violet-500/50 bg-violet-500/10 shadow-[0_0_15px_rgba(139,92,246,0.15)] scale-102' : 'bg-white/5 border-white/5 hover:border-violet-500/20'}`}
+                    className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center ${showProfileFavorites ? 'border-violet-500/50 bg-violet-500/10 shadow-[0_0_15px_rgba(56,189,248,0.15)] scale-102' : 'bg-white/5 border-white/5 hover:border-violet-500/20'}`}
                   >
                     <span className="text-[10px] text-purple-400 block mb-1">الروايات المفضلة</span>
                     <span className="font-extrabold text-white text-base flex items-center gap-1">
@@ -1764,7 +1764,7 @@ export default function App() {
                         <div 
                           key={novel.id}
                           onClick={() => handleNavigate('novel', { id: novel.id })}
-                          className="bg-[#14101D] border border-white/5 hover:border-violet-500/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/15 group flex flex-col justify-between h-full"
+                          className="bg-[#0E1626] border border-white/5 hover:border-violet-500/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/15 group flex flex-col justify-between h-full"
                         >
                           <div className="relative aspect-[3/4] overflow-hidden">
                             <img 
@@ -1803,7 +1803,7 @@ export default function App() {
                       ))}
                   </div>
                 ) : (
-                  <div className="py-12 px-4 text-center bg-[#14101D]/50 rounded-2xl border border-dashed border-white/5 text-purple-400 animate-in fade-in duration-300">
+                  <div className="py-12 px-4 text-center bg-[#0E1626]/50 rounded-2xl border border-dashed border-white/5 text-purple-400 animate-in fade-in duration-300">
                     <Heart size={32} className="mx-auto mb-3 text-purple-500/50" />
                     <p className="text-xs font-semibold">مفضلتك فارغة تماماً حالياً!</p>
                     <p className="text-[10px] text-purple-400 mt-1">ابدأ بإضافة رواياتك الفخمة المفضلة من المكتبة لتظهر هنا.</p>
@@ -1842,7 +1842,7 @@ export default function App() {
                             <div 
                               key={novel.id}
                               onClick={() => handleNavigate('novel', { id: novel.id })}
-                              className="p-3 bg-[#14101D] hover:bg-[#1C1628] border border-white/5 hover:border-violet-500/20 rounded-xl flex items-center gap-3 cursor-pointer transition-all text-right"
+                              className="p-3 bg-[#0E1626] hover:bg-[#16243B] border border-white/5 hover:border-violet-500/20 rounded-xl flex items-center gap-3 cursor-pointer transition-all text-right"
                             >
                               <img src={novel.cover} alt={novel.titleAr} className="w-10 h-14 rounded-lg object-cover border border-white/5" />
                               <div className="flex-1 text-right">
@@ -1856,7 +1856,7 @@ export default function App() {
                           ))}
                       </div>
                     ) : (
-                      <div className="p-6 text-center bg-[#14101D]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
+                      <div className="p-6 text-center bg-[#0E1626]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
                         {currentUser.role === 'WRITER' ? 'لم تقم بتأليف أي رواية حتى الآن.' : 'لم تقم بترجمة أي رواية مسجلة باسمك بعد.'}
                       </div>
                     )}
@@ -1878,7 +1878,7 @@ export default function App() {
                             return (
                               <div 
                                 key={res.id}
-                                className="p-3 bg-[#14101D] border border-white/5 rounded-xl flex flex-col justify-between"
+                                className="p-3 bg-[#0E1626] border border-white/5 rounded-xl flex flex-col justify-between"
                               >
                                 <div className="flex justify-between items-start gap-2">
                                   <h5 className="font-bold text-[11px] text-white truncate text-right">{res.novelTitle}</h5>
@@ -1895,7 +1895,7 @@ export default function App() {
                           })}
                       </div>
                     ) : (
-                      <div className="p-6 text-center bg-[#14101D]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
+                      <div className="p-6 text-center bg-[#0E1626]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
                         لا توجد أي روايات محجوزة باسمك في الوقت الحالي.
                       </div>
                     )}
@@ -1958,7 +1958,7 @@ export default function App() {
               </button>
               <h2 className="text-lg md:text-xl font-extrabold text-white">تعديل الملف الشخصي ⚙️</h2>
             </div>
-              <div className="p-6 bg-[#1A1625] rounded-3xl border border-violet-500/20 shadow-2xl relative overflow-hidden mb-6 animate-in slide-in-from-top-4 duration-300">
+              <div className="p-6 bg-[#131F33] rounded-3xl border border-violet-500/20 shadow-2xl relative overflow-hidden mb-6 animate-in slide-in-from-top-4 duration-300">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
                 <div className="flex items-center gap-3 border-b border-white/5 pb-4 mb-6">
                   <Settings className="text-[#FF2255]" size={20} />
@@ -2151,7 +2151,7 @@ export default function App() {
                             <select
                               value={newSocialPlatform}
                               onChange={(e) => setNewSocialPlatform(e.target.value)}
-                              className="flex-1 bg-[#0F0C17] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white outline-none focus:border-violet-500/50 text-right"
+                              className="flex-1 bg-[#0B1322] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white outline-none focus:border-violet-500/50 text-right"
                             >
                               <option value="">— اختر موقعاً لإضافته —</option>
                               {SOCIAL_PLATFORMS.filter(pf => !editSocialLinks.some(l => l.id === pf.id)).map(pf => (
@@ -2260,14 +2260,14 @@ export default function App() {
       {/* ==================== TEAM DETAILS MODAL ==================== */}
       {selectedTeam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="relative w-full max-w-2xl bg-[#14101D] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-2xl bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200">
             
             {/* Cover Banner */}
             <div className="relative h-40 w-full overflow-hidden bg-gradient-to-r from-violet-950 to-purple-950">
               {selectedTeam.banner && (
                 <img src={selectedTeam.banner} alt="Banner" className="w-full h-full object-cover opacity-35" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#14101D] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0E1626] to-transparent" />
               
               {/* Close Button */}
               <button 
@@ -2279,7 +2279,7 @@ export default function App() {
 
               {/* Team Info Header inside Banner */}
               <div className="absolute bottom-4 right-6 flex items-center gap-4">
-                <span className="text-4xl p-3 bg-[#1A1625] border border-white/10 rounded-2xl shadow-xl">{selectedTeam.logo}</span>
+                <span className="text-4xl p-3 bg-[#131F33] border border-white/10 rounded-2xl shadow-xl">{selectedTeam.logo}</span>
                 <div>
                   <h3 className="text-lg md:text-xl font-extrabold text-white">
                     <span>{selectedTeam.name}</span>
@@ -2379,7 +2379,7 @@ export default function App() {
             </div>
             
             {/* Modal Footer */}
-            <div className="p-4 bg-[#1A1625] border-t border-white/5 flex justify-end">
+            <div className="p-4 bg-[#131F33] border-t border-white/5 flex justify-end">
               <button 
                 onClick={() => setSelectedTeam(null)}
                 className="px-5 py-2 bg-white/5 hover:bg-white/10 text-purple-200 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
@@ -2393,7 +2393,7 @@ export default function App() {
       )}
 
       {/* Shared Full-Featured Footer */}
-      <footer className="w-full bg-[#14101D] border-t border-white/5 py-12 px-6 lg:px-12 text-right relative overflow-hidden select-none">
+      <footer className="w-full bg-[#0E1626] border-t border-white/5 py-12 px-6 lg:px-12 text-right relative overflow-hidden select-none">
         
         {/* Main Footer columns */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
@@ -2402,9 +2402,9 @@ export default function App() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               {isImageSource(safeSiteLogo) ? (
-                <img src={safeSiteLogo} alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.4)]" referrerPolicy="no-referrer" />
+                <img src={safeSiteLogo} alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.4)]" referrerPolicy="no-referrer" />
               ) : (
-                <img src="/site_logo_v2.png" alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(139,92,246,0.4)]" referrerPolicy="no-referrer" />
+                <img src="/site_logo_v2.png" alt="Logo" className="w-8 h-8 rounded-full object-cover filter drop-shadow-[0_0_10px_rgba(56,189,248,0.4)]" referrerPolicy="no-referrer" />
               )}
               <span className="font-extrabold text-xl bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent">
                 {safeSiteName}

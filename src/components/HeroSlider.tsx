@@ -59,7 +59,7 @@ export default function HeroSlider({ featuredNovels, onStartReading, onViewDetai
           style={{ backgroundImage: `url(${currentNovel.cover})`, filter: 'brightness(0.3) blur(6px)' }}
         />
         {/* Soft color mist glow layers */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F0B14] via-[#0F0B14]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1120] via-[#0A1120]/60 to-transparent" />
         <div className="absolute top-10 left-10 w-96 h-96 rounded-full mist-glow-violet blur-[100px] opacity-30 animate-float-slow" />
         <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full mist-glow-rose blur-[100px] opacity-25 animate-float-slow" style={{ animationDelay: '5s' }} />
       </div>

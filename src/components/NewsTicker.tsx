@@ -30,7 +30,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
 
   return (
     <div 
-      className="relative w-full h-12 bg-[#14101D] border-b border-white/5 overflow-hidden flex items-center select-none"
+      className="relative w-full h-12 bg-[#0E1626] border-b border-white/5 overflow-hidden flex items-center select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -40,7 +40,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
           key={currentIndex}
           onClick={() => onNewsClick(currentItem)}
           className="whitespace-nowrap flex items-center gap-3 text-purple-100 hover:text-white cursor-pointer select-none text-sm font-semibold tracking-wide animate-ticker-ltr hover:[animation-play-state:paused]"
-          style={{ textShadow: '0 0 10px rgba(139, 92, 246, 0.4)' }}
+          style={{ textShadow: '0 0 10px rgba(56, 189, 248, 0.4)' }}
         >
           <span 
             className="text-xs px-2 py-0.5 rounded-full font-bold"
@@ -55,7 +55,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
       </div>
 
       {/* Static Badge on the Right (z-index higher, covers moving text) */}
-      <div className="absolute right-0 top-0 bottom-0 z-10 w-32 bg-[#1A1625] border-l border-white/5 flex items-center justify-center gap-2 px-3 shadow-[10px_0_20px_rgba(15,11,20,0.9)]">
+      <div className="absolute right-0 top-0 bottom-0 z-10 w-32 bg-[#131F33] border-l border-white/5 flex items-center justify-center gap-2 px-3 shadow-[10px_0_20px_rgba(10,17,32,0.9)]">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>

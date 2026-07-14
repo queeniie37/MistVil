@@ -756,7 +756,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
     <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Header banner */}
-      <div className="p-6 bg-[#1A1625] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">
+      <div className="p-6 bg-[#131F33] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <Shield className="text-rose-400" size={24} />
@@ -932,7 +932,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
               </div>
 
               {rows.length === 0 ? (
-                <div className="py-12 text-center bg-[#14101D]/50 rounded-2xl border border-dashed border-white/5 text-purple-400">
+                <div className="py-12 text-center bg-[#0E1626]/50 rounded-2xl border border-dashed border-white/5 text-purple-400">
                   <Award size={32} className="mx-auto mb-3 text-purple-500/50" />
                   <p className="text-xs font-semibold">لا يوجد مشتركون مسجلون في الدليل حتى الآن.</p>
                   <p className="text-[10px] mt-1">يظهر كل عضو هنا تلقائياً بعد أول تسجيل دخول له بعد هذا التحديث.</p>
@@ -941,7 +941,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                 <div className="overflow-x-auto rounded-2xl border border-white/5">
                   <table className="w-full text-right text-xs min-w-[900px]">
                     <thead>
-                      <tr className="bg-[#1D172B] text-purple-300 text-[10px]">
+                      <tr className="bg-[#17253D] text-purple-300 text-[10px]">
                         <th className="py-3 px-4">العضو</th>
                         <th className="py-3 px-3">الرتبة</th>
                         <th className="py-3 px-3">روايات قرأها</th>
@@ -997,7 +997,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                               <select
                                 value={badgeSelections[m.id] || ''}
                                 onChange={(e) => setBadgeSelections(prev => ({ ...prev, [m.id]: e.target.value }))}
-                                className="flex-1 bg-[#0F0C17] border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white outline-none focus:border-violet-500/50"
+                                className="flex-1 bg-[#0B1322] border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white outline-none focus:border-violet-500/50"
                               >
                                 <option value="">— اختر وساماً للمنح —</option>
                                 <optgroup label="🏅 أوسمة إنجازات القارئ">
@@ -1050,7 +1050,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                     key={req.id} 
                     className={`p-5 rounded-2xl border flex flex-col gap-4 transition-all duration-300 ${
                       req.status === 'PENDING'
-                        ? 'bg-[#1D172B] border-violet-500/30'
+                        ? 'bg-[#17253D] border-violet-500/30'
                         : req.status === 'ACCEPTED'
                           ? 'bg-green-950/10 border-green-500/20'
                           : 'bg-red-950/10 border-red-500/20'
@@ -1135,7 +1135,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center bg-[#1A1625] rounded-2xl border border-dashed border-white/5">
+              <div className="p-12 text-center bg-[#131F33] rounded-2xl border border-dashed border-white/5">
                 <p className="text-sm text-purple-400">لا توجد أي طلبات انضمام كمترجمين حالياً.</p>
               </div>
             )}
@@ -1147,7 +1147,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
           <div className="flex flex-col gap-4 text-right">
             {pendingNovels.length > 0 ? (
               pendingNovels.map((novel) => (
-                <div key={novel.id} className="p-5 bg-[#1A1625] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5">
+                <div key={novel.id} className="p-5 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5">
                   <img src={novel.cover} alt={novel.titleAr} className="w-20 h-28 rounded-xl object-cover border border-white/5 mx-auto md:mx-0" />
                   
                   <div className="flex-1 flex flex-col justify-between">
@@ -1185,7 +1185,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                           value={rejectReason[novel.id] || ''}
                           onChange={(e) => setRejectReason({ ...rejectReason, [novel.id]: e.target.value })}
                           placeholder="النبذة مكررة أو غير واضحة، الكاتب محمي، يرجى إعادة صياغتها..."
-                          className="w-full bg-[#14101D] border border-white/5 rounded-xl p-2 text-xs text-white"
+                          className="w-full bg-[#0E1626] border border-white/5 rounded-xl p-2 text-xs text-white"
                         />
                         <button 
                           onClick={() => handleRejectNovel(novel.id)}
@@ -1220,7 +1220,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
               {allNovels.filter(n => n.status !== 'PENDING').length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {allNovels.filter(n => n.status !== 'PENDING').map((novel) => (
-                    <div key={novel.id} className="p-4 bg-[#14101D] border border-white/5 rounded-2xl flex gap-4 items-center justify-between">
+                    <div key={novel.id} className="p-4 bg-[#0E1626] border border-white/5 rounded-2xl flex gap-4 items-center justify-between">
                       <div className="flex gap-3 items-center min-w-0">
                         <img src={novel.cover} alt={novel.titleAr} className="w-12 h-16 rounded-lg object-cover border border-white/5" />
                         <div className="min-w-0">
@@ -1262,7 +1262,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
             {activeReservations.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeReservations.map((res) => (
-                  <div key={res.id} className="p-4 bg-[#1A1625] border border-white/5 rounded-2xl flex flex-col justify-between text-right animate-in fade-in">
+                  <div key={res.id} className="p-4 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col justify-between text-right animate-in fade-in">
                     <div>
                       <h4 className="font-extrabold text-xs text-white truncate">{res.novelTitle}</h4>
                       <p className="text-[10px] text-purple-400 mt-0.5">المترجم الحاجز: <span className="font-bold text-white">{res.translatorName}</span></p>
@@ -1333,7 +1333,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
         {/* TAB 4: Identity Settings */}
         {activeTab === 'settings' && (
           <div className="flex flex-col gap-6 text-right animate-in fade-in duration-300">
-            <div className="p-6 bg-[#1A1625] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
+            <div className="p-6 bg-[#131F33] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
               <div className="absolute bottom-0 right-0 w-48 h-48 bg-rose-600/5 rounded-full blur-[60px]" />
 
@@ -1465,7 +1465,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
             </div>
 
             {/* Footer and Social Links customization */}
-            <div className="p-6 bg-[#1A1625] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden mt-6">
+            <div className="p-6 bg-[#131F33] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden mt-6">
               <div className="absolute top-0 right-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
               <div className="flex items-center gap-3 border-b border-white/5 pb-4 mb-6">
                 <Settings className="text-[#FF2255]" size={20} />
@@ -1584,7 +1584,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
         {/* TAB: Member Ranks Management */}
         {activeTab === 'users' && (
           <div className="flex flex-col gap-6 text-right animate-in fade-in duration-300">
-            <div className="p-6 bg-[#1A1625] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
+            <div className="p-6 bg-[#131F33] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
               <div className="absolute bottom-0 right-0 w-48 h-48 bg-rose-600/5 rounded-full blur-[60px]" />
 
@@ -1597,7 +1597,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
               </div>
 
               <div className="flex flex-col gap-4">
-                {users.filter(u => (u.email || '').toLowerCase() !== 'mistvil11@gmail.com').map((user) => {
+                {users.filter(u => (u.email || '').toLowerCase() !== 'mistvil112@gmail.com').map((user) => {
                   const novelsCount = MistVilDatabase.get<Novel[]>('novels', [])
                     .filter(n => n.translatorId === user.id && n.status !== 'PENDING').length;
 
@@ -1652,7 +1652,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                               <select 
                                 value={newRoleVal}
                                 onChange={(e) => setNewRoleVal(e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-[#151120] border border-white/10 text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                                className="w-full px-3 py-2 rounded-lg bg-[#101B2E] border border-white/10 text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
                               >
                                 <option value="MEMBER">قارئ 👤</option>
                                 <option value="TRANSLATOR">مترجم وكاتب ✍️</option>
@@ -1667,7 +1667,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                                 value={roleChangeReason}
                                 onChange={(e) => setRoleChangeReason(e.target.value)}
                                 placeholder="اكتب السبب بوضوح هنا (مثال: تقديم روايات متميزة)..."
-                                className="w-full px-3 py-2 rounded-lg bg-[#151120] border border-white/10 text-xs text-white focus:outline-none focus:border-violet-500"
+                                className="w-full px-3 py-2 rounded-lg bg-[#101B2E] border border-white/10 text-xs text-white focus:outline-none focus:border-violet-500"
                                 required
                               />
                             </div>
@@ -1709,7 +1709,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                   );
                 })}
 
-                {users.filter(u => (u.email || '').toLowerCase() !== 'mistvil11@gmail.com').length === 0 && (
+                {users.filter(u => (u.email || '').toLowerCase() !== 'mistvil112@gmail.com').length === 0 && (
                   <div className="p-12 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
                     <p className="text-sm">لا يوجد أعضاء آخرون مسجلون في المنصة حالياً لتعديل رتبهم.</p>
                   </div>
@@ -1722,7 +1722,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
         {/* TAB: Offensive Comment Reports */}
         {activeTab === 'reports' && (
           <div className="flex flex-col gap-6 text-right animate-in fade-in duration-300">
-            <div className="p-6 bg-[#1A1625] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
+            <div className="p-6 bg-[#131F33] rounded-3xl border border-white/5 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-48 h-48 bg-red-600/5 rounded-full blur-[60px]" />
               <div className="absolute bottom-0 right-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
 
@@ -1817,7 +1817,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                 {editRequests.map((req) => (
                   <div 
                     key={req.id}
-                    className="p-5 bg-[#1A1625] border border-white/5 rounded-2xl flex flex-col gap-3 hover:border-violet-500/10 transition-all text-xs"
+                    className="p-5 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col gap-3 hover:border-violet-500/10 transition-all text-xs"
                   >
                     <div className="flex justify-between items-center border-b border-white/5 pb-2">
                       <div className="flex items-center gap-2">
@@ -1854,7 +1854,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center bg-[#1A1625] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
+              <div className="p-12 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
                 لا توجد أي طلبات تعديل مقدمة حالياً.
               </div>
             )}
@@ -2001,7 +2001,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                 ) : (
                   <div className="flex flex-col gap-3">
                     {deletedNovels.map((novel) => (
-                      <div key={novel.id} className="p-4 bg-[#1A1625] border border-white/5 rounded-2xl flex gap-4 items-start relative group">
+                      <div key={novel.id} className="p-4 bg-[#131F33] border border-white/5 rounded-2xl flex gap-4 items-start relative group">
                         <img src={novel.cover} alt={novel.titleAr} className="w-16 h-24 rounded-xl object-cover border border-white/5 shrink-0" />
                         
                         <div className="flex-1 min-w-0">

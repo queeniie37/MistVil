@@ -133,10 +133,10 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       case 'pink':
         return 'bg-[#FCE7F3] text-[#500724]';
       case 'purple':
-        return 'bg-[#F3E8FF] text-[#4C1D95]';
+        return 'bg-[#E0F2FE] text-[#0C4A6E]';
       case 'normal':
       default:
-        return 'bg-[#0F0B14] text-[#F5F1FF]';
+        return 'bg-[#0A1120] text-[#F1F6FC]';
     }
   };
 
@@ -153,10 +153,10 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       case 'pink':
         return 'bg-[#FBCFE8]/95 border-black/10 text-[#500724]';
       case 'purple':
-        return 'bg-[#E9D5FF]/95 border-black/10 text-[#4C1D95]';
+        return 'bg-[#D3EDFB]/95 border-black/10 text-[#0C4A6E]';
       case 'normal':
       default:
-        return 'bg-[#0F0B14]/80 border-white/5 text-[#F5F1FF]';
+        return 'bg-[#0A1120]/80 border-white/5 text-[#F1F6FC]';
     }
   };
 
@@ -172,7 +172,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     if (isLightTheme) {
       return 'bg-black/5 border border-black/10 text-black placeholder-black/40 focus:border-violet-600';
     } else {
-      return 'bg-[#14101D] border border-white/5 text-white placeholder-purple-300/40 focus:border-violet-500';
+      return 'bg-[#0E1626] border border-white/5 text-white placeholder-purple-300/40 focus:border-violet-500';
     }
   };
   
@@ -446,7 +446,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     // Send a system notification immediately to the Owner
     const allNotifs = MistVilDatabase.get<any[]>('notifications', []);
     const usersDb = MistVilDatabase.get<any[]>('users_db', []);
-    const owners = usersDb.filter(u => u && (u.role === 'OWNER' || u.email?.toLowerCase() === 'mistvil11@gmail.com'));
+    const owners = usersDb.filter(u => u && (u.role === 'OWNER' || u.email?.toLowerCase() === 'mistvil112@gmail.com'));
     const ownerIds = owners.map(u => u.id);
     if (ownerIds.length === 0) ownerIds.push('mistvil-owner'); // Fallback
 
@@ -469,7 +469,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
   // Delete comment handler for Owner
   const handleDeleteComment = (commentId: string) => {
-    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil11@gmail.com') {
+    if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
       alert('عذراً، هذه الصلاحية مخصصة لمالك الموقع فقط!');
       return;
     }
@@ -540,7 +540,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
       {/* Settings Menu Drawer */}
       {showSettings && (
-        <div className="fixed top-18 left-3 sm:left-6 z-50 w-full max-w-[340px] sm:max-w-[360px] bg-[#161221] border border-white/10 p-5 rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.85)] animate-in fade-in slide-in-from-top-4 text-right">
+        <div className="fixed top-18 left-3 sm:left-6 z-50 w-full max-w-[340px] sm:max-w-[360px] bg-[#101A2C] border border-white/10 p-5 rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.85)] animate-in fade-in slide-in-from-top-4 text-right">
           
           {/* Header */}
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/5 select-none">
@@ -557,13 +557,13 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
           <div className="mb-4">
             <div className="flex flex-wrap gap-1.5 justify-between">
               {[
-                { id: 'normal', name: 'عادي', btnBg: 'bg-[#1D172A]', btnText: 'text-[#E2D9F3]', btnBorder: 'border-violet-500/35' },
+                { id: 'normal', name: 'عادي', btnBg: 'bg-[#17253D]', btnText: 'text-[#D8E6F5]', btnBorder: 'border-violet-500/35' },
                 { id: 'black', name: 'أسود', btnBg: 'bg-black', btnText: 'text-white', btnBorder: 'border-white/20' },
                 { id: 'sepia', name: 'بني', btnBg: 'bg-[#F4ECD8]', btnText: 'text-[#5B4636]', btnBorder: 'border-[#5B4636]/20' },
                 { id: 'blue', name: 'أزرق', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' },
                 { id: 'green', name: 'أخضر', btnBg: 'bg-[#DCFCE7]', btnText: 'text-[#15803D]', btnBorder: 'border-[#15803D]/20' },
                 { id: 'pink', name: 'زهري', btnBg: 'bg-[#FCE7F3]', btnText: 'text-[#BE185D]', btnBorder: 'border-[#BE185D]/20' },
-                { id: 'purple', name: 'أرجواني', btnBg: 'bg-[#F3E8FF]', btnText: 'text-[#7E22CE]', btnBorder: 'border-[#7E22CE]/20' }
+                { id: 'purple', name: 'أرجواني', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' }
               ].map((theme) => {
                 const isActive = themeMode === theme.id;
                 return (
@@ -594,11 +594,11 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                   onChange={(e) => updateFontFamily(e.target.value as any)}
                   className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value="cairo" className="bg-[#161221] text-white">خط كايرو</option>
-                  <option value="naskh" className="bg-[#161221] text-white">خط النسخ الفاخر</option>
-                  <option value="tajawal" className="bg-[#161221] text-white">خط تجوال</option>
-                  <option value="amiri" className="bg-[#161221] text-white">الخط الأميري</option>
-                  <option value="plex" className="bg-[#161221] text-white">خط آي بي إم</option>
+                  <option value="cairo" className="bg-[#101A2C] text-white">خط كايرو</option>
+                  <option value="naskh" className="bg-[#101A2C] text-white">خط النسخ الفاخر</option>
+                  <option value="tajawal" className="bg-[#101A2C] text-white">خط تجوال</option>
+                  <option value="amiri" className="bg-[#101A2C] text-white">الخط الأميري</option>
+                  <option value="plex" className="bg-[#101A2C] text-white">خط آي بي إم</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -613,16 +613,16 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                   onChange={(e) => updateFontSize(parseInt(e.target.value))}
                   className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value={16} className="bg-[#161221] text-white">90%</option>
-                  <option value={18} className="bg-[#161221] text-white">100%</option>
-                  <option value={20} className="bg-[#161221] text-white">110%</option>
-                  <option value={22} className="bg-[#161221] text-white">120%</option>
-                  <option value={24} className="bg-[#161221] text-white">130%</option>
-                  <option value={26} className="bg-[#161221] text-white">140%</option>
-                  <option value={28} className="bg-[#161221] text-white">150%</option>
-                  <option value={30} className="bg-[#161221] text-white">160%</option>
-                  <option value={34} className="bg-[#161221] text-white">180%</option>
-                  <option value={40} className="bg-[#161221] text-white">200%</option>
+                  <option value={16} className="bg-[#101A2C] text-white">90%</option>
+                  <option value={18} className="bg-[#101A2C] text-white">100%</option>
+                  <option value={20} className="bg-[#101A2C] text-white">110%</option>
+                  <option value={22} className="bg-[#101A2C] text-white">120%</option>
+                  <option value={24} className="bg-[#101A2C] text-white">130%</option>
+                  <option value={26} className="bg-[#101A2C] text-white">140%</option>
+                  <option value={28} className="bg-[#101A2C] text-white">150%</option>
+                  <option value={30} className="bg-[#101A2C] text-white">160%</option>
+                  <option value={34} className="bg-[#101A2C] text-white">180%</option>
+                  <option value={40} className="bg-[#101A2C] text-white">200%</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -637,12 +637,12 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                   onChange={(e) => updateLineHeight(parseFloat(e.target.value))}
                   className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value={1.4} className="bg-[#161221] text-white">140%</option>
-                  <option value={1.5} className="bg-[#161221] text-white">150%</option>
-                  <option value={1.6} className="bg-[#161221] text-white">160%</option>
-                  <option value={1.7} className="bg-[#161221] text-white">170%</option>
-                  <option value={1.8} className="bg-[#161221] text-white">180%</option>
-                  <option value={2.0} className="bg-[#161221] text-white">200%</option>
+                  <option value={1.4} className="bg-[#101A2C] text-white">140%</option>
+                  <option value={1.5} className="bg-[#101A2C] text-white">150%</option>
+                  <option value={1.6} className="bg-[#101A2C] text-white">160%</option>
+                  <option value={1.7} className="bg-[#101A2C] text-white">170%</option>
+                  <option value={1.8} className="bg-[#101A2C] text-white">180%</option>
+                  <option value={2.0} className="bg-[#101A2C] text-white">200%</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -657,9 +657,9 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                   onChange={(e) => updateFontContrast(e.target.value as any)}
                   className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value="high" className="bg-[#161221] text-white">مرتفعة</option>
-                  <option value="medium" className="bg-[#161221] text-white">متوسطة</option>
-                  <option value="low" className="bg-[#161221] text-white">منخفضة</option>
+                  <option value="high" className="bg-[#101A2C] text-white">مرتفعة</option>
+                  <option value="medium" className="bg-[#101A2C] text-white">متوسطة</option>
+                  <option value="low" className="bg-[#101A2C] text-white">منخفضة</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -805,7 +805,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
           <button
             onClick={() => hasNextChapter && onNavigateChapter('next')}
             disabled={!hasNextChapter}
-            className="px-3 sm:px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 disabled:from-[#1A1625] disabled:to-[#1A1625] disabled:border-white/5 disabled:text-purple-300/30 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-violet-500/10"
+            className="px-3 sm:px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 disabled:from-[#131F33] disabled:to-[#131F33] disabled:border-white/5 disabled:text-purple-300/30 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-violet-500/10"
           >
             <span>الفصل التالي</span>
             <ChevronLeft size={14} className="text-white" />
@@ -940,7 +940,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                     >
                       <span>🚩 إبلاغ</span>
                     </button>
-                    {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil11@gmail.com') && (
+                    {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com') && (
                       <button
                         type="button"
                         onClick={() => handleDeleteComment(comment.id)}
@@ -1000,7 +1000,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
       {reportingComment && (
         <div className="fixed inset-0 z-[300] bg-black/85 backdrop-blur-md flex justify-center items-center p-4">
-          <div className="w-full max-w-md bg-[#161221] border border-white/10 rounded-3xl p-6 text-right shadow-2xl">
+          <div className="w-full max-w-md bg-[#101A2C] border border-white/10 rounded-3xl p-6 text-right shadow-2xl">
             <h3 className="text-base font-bold text-white mb-2">🚨 الإبلاغ عن تعليق مسيء</h3>
             <p className="text-xs text-purple-300 mb-4">
               أنت بصدد الإبلاغ عن تعليق بواسطة <span className="text-violet-400 font-bold">{reportingComment.authorName}</span>:
@@ -1014,7 +1014,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             <select
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
-              className="w-full bg-[#1e192c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white mb-4 outline-none focus:border-violet-500"
+              className="w-full bg-[#17253C] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white mb-4 outline-none focus:border-violet-500"
             >
               <option value="محتوى مسيء / غير لائق">محتوى مسيء / غير لائق / شتائم</option>
               <option value="حرق للأحداث دون تحذير">حرق للأحداث دون تحذير</option>
@@ -1027,7 +1027,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
               placeholder="اكتب أي ملاحظات إضافية تساعد المالك في مراجعة البلاغ..."
               value={reportDetails}
               onChange={(e) => setReportDetails(e.target.value)}
-              className="w-full h-20 bg-[#1e192c] border border-white/10 rounded-xl px-3 py-2 text-xs text-white mb-5 outline-none focus:border-violet-500 resize-none"
+              className="w-full h-20 bg-[#17253C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white mb-5 outline-none focus:border-violet-500 resize-none"
             />
 
             <div className="flex gap-2.5">

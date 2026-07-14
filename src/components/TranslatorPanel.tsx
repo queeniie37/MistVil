@@ -731,7 +731,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Banner */}
-      <div className="p-6 bg-gradient-to-r from-violet-900/40 via-purple-900/20 to-[#14101D] border border-violet-500/15 rounded-3xl mb-8 flex items-center justify-between">
+      <div className="p-6 bg-gradient-to-r from-violet-900/40 via-purple-900/20 to-[#0E1626] border border-violet-500/15 rounded-3xl mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <FileText className="text-violet-400" size={24} />
@@ -739,7 +739,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
           </h1>
           <p className="text-xs text-purple-300 mt-1">أنشئ رواياتك الخاصة، انشر فصولاً، واستلم الاقتراحات من مجتمع القراء.</p>
         </div>
-        <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]">✍️</span>
+        <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">✍️</span>
       </div>
 
       {/* Tabs */}
@@ -816,7 +816,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 {novels.map((novel) => (
                   <div 
                     key={novel.id}
-                    className="p-4 bg-[#1A1625] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 transition-all"
+                    className="p-4 bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 transition-all"
                   >
                     <img src={novel.cover} alt={novel.titleAr} className="w-16 h-24 rounded-xl object-cover shrink-0" />
                     <div className="flex-1 flex flex-col justify-between min-w-0">
@@ -864,7 +864,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                               <select
                                 value={novel.status === 'TRANSLATING' || novel.status === 'AVAILABLE' ? 'ONGOING' : novel.status}
                                 onChange={(e) => handleStatusChange(novel.id, e.target.value as any)}
-                                className="bg-[#13101E] text-purple-200 border border-white/10 rounded-lg px-2 py-1 cursor-pointer text-[10px] outline-none focus:border-violet-500"
+                                className="bg-[#0F1828] text-purple-200 border border-white/10 rounded-lg px-2 py-1 cursor-pointer text-[10px] outline-none focus:border-violet-500"
                               >
                                 <option value="ONGOING">مستمرة</option>
                                 <option value="HIATUS">متوقفة مؤقتاً</option>
@@ -913,7 +913,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   return (
                     <div 
                       key={res.id} 
-                      className="p-5 bg-[#1A1625] border border-white/5 hover:border-violet-500/10 rounded-2xl flex flex-col justify-between transition-all"
+                      className="p-5 bg-[#131F33] border border-white/5 hover:border-violet-500/10 rounded-2xl flex flex-col justify-between transition-all"
                     >
                       <div>
                         <div className="flex justify-between items-start gap-2 mb-2">
@@ -1009,7 +1009,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             {suggestions.length > 0 ? (
               <div className="flex flex-col gap-3">
                 {suggestions.map((sug) => (
-                  <div key={sug.id} className="p-5 bg-[#1A1625] border border-white/5 hover:border-violet-500/20 rounded-2xl flex flex-col md:flex-row gap-5 transition-all text-right">
+                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex flex-col md:flex-row gap-5 transition-all text-right">
                     <img src={sug.cover} alt={sug.titleAr} className="w-24 h-36 rounded-xl object-cover border border-white/5 mx-auto md:mx-0" />
                     
                     <div className="flex-1 flex flex-col justify-between">
@@ -1077,7 +1077,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     value={titleAr}
                     onChange={(e) => setTitleAr(e.target.value)}
                     placeholder="مثال: بداية ما بعد السد الأكبر"
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -1088,7 +1088,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     value={titleEn}
                     onChange={(e) => setTitleEn(e.target.value)}
                     placeholder="مثال: The Beginning of the Great Gate"
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
                   />
                 </div>
               </div>
@@ -1102,7 +1102,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     placeholder="مثال: TurtleMe"
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -1110,7 +1110,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   <select 
                     value={lang}
                     onChange={(e) => setLang(e.target.value)}
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-purple-200 text-xs transition-all text-right cursor-pointer"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-purple-200 text-xs transition-all text-right cursor-pointer"
                   >
                     <option value="الكورية">الكورية 🇰🇷</option>
                     <option value="الصينية">الصينية 🇨🇳</option>
@@ -1135,7 +1135,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             isSelected ? prev.filter(item => item !== g) : [...prev, g]
                           );
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${isSelected ? 'bg-violet-600 border-violet-500 text-white' : 'bg-[#1A1625] border-white/5 text-purple-300'}`}
+                        className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${isSelected ? 'bg-violet-600 border-violet-500 text-white' : 'bg-[#131F33] border-white/5 text-purple-300'}`}
                       >
                         {g}
                       </button>
@@ -1153,14 +1153,14 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="اكتب فصول النبذة الأولى بشكل فخم لجذب واهتمام مجتمع القراء..."
-                  className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
                 />
               </div>
 
               {/* Cover Image Upload */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-purple-200">غلاف الرواية الفاخر (اختياري - سيتم تعيين غلاف مميز تلقائياً إن تركته فارغاً)</label>
-                <div className="relative border-2 border-dashed border-white/10 hover:border-violet-500/40 rounded-2xl p-6 flex flex-col items-center justify-center bg-[#1A1625] hover:bg-white/5 transition-all text-center cursor-pointer min-h-[120px]">
+                <div className="relative border-2 border-dashed border-white/10 hover:border-violet-500/40 rounded-2xl p-6 flex flex-col items-center justify-center bg-[#131F33] hover:bg-white/5 transition-all text-center cursor-pointer min-h-[120px]">
                   <input 
                     type="file" 
                     accept="image/*"
@@ -1234,7 +1234,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   return (
                     <div 
                       key={chap.id}
-                      className="p-4 bg-[#1A1625] border border-white/5 hover:border-violet-500/10 rounded-2xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 transition-all"
+                      className="p-4 bg-[#131F33] border border-white/5 hover:border-violet-500/10 rounded-2xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 transition-all"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -1316,7 +1316,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 })}
               </div>
             ) : (
-              <div className="p-10 text-center bg-[#1A1625] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
+              <div className="p-10 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
                 لم تقم بنشر أو جدولة أي فصول بعد. اختر رواية من لوحة التحكم وابدأ بإضافة فصولك!
               </div>
             )}
@@ -1343,7 +1343,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 {deletedChapters.map((chap) => (
                   <div 
                     key={chap.id}
-                    className="p-4 bg-[#1A1625] border border-white/5 hover:border-red-500/10 rounded-2xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 transition-all"
+                    className="p-4 bg-[#131F33] border border-white/5 hover:border-red-500/10 rounded-2xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 transition-all"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -1376,7 +1376,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 ))}
               </div>
             ) : (
-              <div className="p-10 text-center bg-[#1A1625] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
+              <div className="p-10 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
                 سلة المحذوفات فارغة تماماً ولا توجد فصول مؤرشفة حالياً.
               </div>
             )}
@@ -1405,7 +1405,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     value={reqNovelName}
                     onChange={(e) => setReqNovelName(e.target.value)}
                     placeholder="مثال: بداية ما بعد السد الأكبر"
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -1416,7 +1416,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     value={reqChapterName}
                     onChange={(e) => setReqChapterName(e.target.value)}
                     placeholder="مثال: الفصل 25"
-                    className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
                   />
                 </div>
               </div>
@@ -1429,7 +1429,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   value={reqDetails}
                   onChange={(e) => setReqDetails(e.target.value)}
                   placeholder="يرجى كتابة التعديل أو التغيير المطلوب بدقة..."
-                  className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
                 />
               </div>
 
@@ -1449,7 +1449,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               {myEditRequests.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {myEditRequests.map((r: any) => (
-                    <div key={r.id} className="p-4 bg-[#1A1625] border border-white/5 rounded-xl flex justify-between items-center text-right text-xs">
+                    <div key={r.id} className="p-4 bg-[#131F33] border border-white/5 rounded-xl flex justify-between items-center text-right text-xs">
                       <div>
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${r.status === 'RESOLVED' ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>
                           {r.status === 'RESOLVED' ? 'تم التعديل ✓' : 'قيد المراجعة ⏱️'}
@@ -1509,12 +1509,12 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="bg-[#13101E] p-4 rounded-xl border border-white/5">
+                    <div className="bg-[#0F1828] p-4 rounded-xl border border-white/5">
                       <span className="text-[10px] text-purple-400 block mb-1">المشاهدات المعتمدة هذا الشهر</span>
                       <strong className="text-2xl font-extrabold text-white font-mono">{pointsInfo.viewsThisMonth}</strong>
                       <span className="text-[9px] text-purple-500 block mt-1">مشاهدة</span>
                     </div>
-                    <div className="bg-gradient-to-br from-[#1C1430] to-[#120B20] p-4 rounded-xl border border-violet-500/10 shadow-inner">
+                    <div className="bg-gradient-to-br from-[#16233A] to-[#0D1626] p-4 rounded-xl border border-violet-500/10 shadow-inner">
                       <span className="text-[10px] text-violet-400 block mb-1">نقاطك الحالية المكتسبة</span>
                       <strong className="text-2xl font-extrabold text-violet-400 font-mono">{pointsInfo.pointsThisMonth}</strong>
                       <span className="text-[9px] text-violet-500 block mt-1">نقطة</span>
@@ -1589,7 +1589,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       {/* EDIT CHAPTER MODAL OVERLAY */}
       {editingChapter && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#14101D] border border-violet-500/20 rounded-3xl p-6 max-w-2xl w-full text-right shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+          <div className="bg-[#0E1626] border border-violet-500/20 rounded-3xl p-6 max-w-2xl w-full text-right shadow-2xl animate-in zoom-in-95 duration-200 my-8">
             <h3 className="font-extrabold text-sm md:text-base text-white border-b border-white/5 pb-3 mb-4 flex items-center gap-2">
               <Edit size={18} className="text-violet-400" />
               <span>تعديل الفصل: {editingChapter.title}</span>
@@ -1603,7 +1603,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   required
                   value={editChapterTitle}
                   onChange={(e) => setEditChapterTitle(e.target.value)}
-                  className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white"
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white"
                 />
               </div>
 
@@ -1669,7 +1669,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   rows={16}
                   value={editChapterContent}
                   onChange={(e) => setEditChapterContent(e.target.value)}
-                  className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-sans min-h-[45vh] resize-y"
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-sans min-h-[45vh] resize-y"
                 />
               </div>
 
@@ -1684,7 +1684,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   onChange={(e) => setEditChapterPublishAt(e.target.value)}
                   min={getMinScheduleDate()}
                   max={getMaxScheduleDate()}
-                  className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-mono"
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-mono"
                 />
                 <span className="text-[9px] text-purple-400">اختر التاريخ والوقت الميلادي الذي ترغب في إعادة جدولة الفصل فيه تلقائياً. اتركه فارغاً للنشر الفوري.</span>
               </div>

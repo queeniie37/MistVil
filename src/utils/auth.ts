@@ -76,11 +76,11 @@ export async function hashPassword(password: string): Promise<string> {
     .join('');
 }
 
-export const OWNER_EMAIL = 'mistvil11@gmail.com';
+export const OWNER_EMAIL = 'mistvil112@gmail.com';
 
 // SHA-256(SALT + owner password). The plaintext no longer ships in the bundle.
 export const OWNER_PASSWORD_HASH =
-  '46cd698e3099f8f02cf9493bc3d16f09ca28787c9668eaa6c287ef2ef3f31323';
+  'd75f70ebfd7b7708df86740e8bde7b30fea5c6b9aab23c3a77b2e370875d28d2';
 
 export async function verifyOwnerLogin(email: string, password: string): Promise<boolean> {
   if (email.toLowerCase() !== OWNER_EMAIL) return false;

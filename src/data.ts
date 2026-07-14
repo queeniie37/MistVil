@@ -75,7 +75,7 @@ export const DEFAULT_USERS: { [key in UserRole]: User } = {
   OWNER: {
     id: 'mistvil-owner',
     username: 'MISTVIL',
-    email: 'mistvil11@gmail.com',
+    email: 'mistvil112@gmail.com',
     role: 'OWNER',
     xp: 15400,
     level: 50,

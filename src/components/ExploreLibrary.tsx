@@ -116,7 +116,7 @@ export default function ExploreLibrary({ novels, bookmarks, onBookmarkToggle, on
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full bg-[#1A1625] border border-white/10 rounded-xl py-2.5 px-3 text-purple-200 text-xs outline-none focus:border-violet-500 cursor-pointer text-right"
+              className="w-full bg-[#131F33] border border-white/10 rounded-xl py-2.5 px-3 text-purple-200 text-xs outline-none focus:border-violet-500 cursor-pointer text-right"
             >
               <option value="popular">🔥 الأكثر قراءة وشعبية</option>
               <option value="newest">📅 الأحدث إضافة للموقع</option>

@@ -242,7 +242,7 @@ export default function PrivacyPolicy({ currentUser, onNavigate }: PrivacyPolicy
             rows={18}
             value={editVal}
             onChange={(e) => setEditVal(e.target.value)}
-            className="bg-[#1A1625] border border-white/10 focus:border-violet-500 outline-none rounded-xl p-4 text-white text-xs font-sans leading-relaxed min-h-[50vh] resize-y"
+            className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl p-4 text-white text-xs font-sans leading-relaxed min-h-[50vh] resize-y"
             placeholder="اكتب سياسة الخصوصية هنا..."
           />
 

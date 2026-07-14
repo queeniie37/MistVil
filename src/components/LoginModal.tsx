@@ -43,7 +43,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       // The owner account can never be (re)registered; the owner signs in
       // through the login form only. Otherwise anyone knowing the owner's
       // email could register it and gain full admin control.
-      if (email.toLowerCase() === 'mistvil11@gmail.com') {
+      if (email.toLowerCase() === 'mistvil112@gmail.com') {
         setError('هذا البريد الإلكتروني محجوز لمالك المنصة. يرجى استخدام نموذج تسجيل الدخول بدلاً من إنشاء حساب.');
         return;
       }
@@ -83,9 +83,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       // password no longer exists anywhere in the shipped bundle.
       if (await verifyOwnerLogin(email, password)) {
         const customOwner = MistVilDatabase.get<any>('custom_user_OWNER', null);
-        const ownerUser = customOwner && customOwner.email?.toLowerCase() === 'mistvil11@gmail.com' ? customOwner : {
+        const ownerUser = customOwner && customOwner.email?.toLowerCase() === 'mistvil112@gmail.com' ? customOwner : {
           ...DEFAULT_USERS.OWNER,
-          email: 'mistvil11@gmail.com'
+          email: 'mistvil112@gmail.com'
         };
         MistVilDatabase.set('current_user_data', ownerUser);
         MistVilDatabase.set('current_role', 'OWNER' as UserRole);
@@ -143,7 +143,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
         {/* Title */}
         <div className="text-center mb-6">
-          <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(139,92,246,0.5)] mx-auto mb-3 block" referrerPolicy="no-referrer" />
+          <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(56,189,248,0.5)] mx-auto mb-3 block" referrerPolicy="no-referrer" />
           <h3 className="font-extrabold text-2xl text-white bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent">
             {isRegister ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
           </h3>

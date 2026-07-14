@@ -150,7 +150,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
     <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Header Panel */}
-      <div className="p-6 bg-[#1A1625] rounded-3xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-6 bg-[#131F33] rounded-3xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <Megaphone size={24} className="text-fuchsia-400 animate-pulse shrink-0" />
@@ -196,7 +196,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
           
           {/* Owner New Ad Creation Form */}
           {currentUser.role === 'OWNER' && showAddForm && (
-            <div className="p-6 bg-[#1A1625] border border-violet-500/15 rounded-3xl animate-in slide-in-from-top-4 duration-300">
+            <div className="p-6 bg-[#131F33] border border-violet-500/15 rounded-3xl animate-in slide-in-from-top-4 duration-300">
               <div className="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
                 <h3 className="font-extrabold text-sm text-white flex items-center gap-1.5">
                   <Sparkles size={14} className="text-fuchsia-400" />
@@ -221,7 +221,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="مثال: تم فتح باب الانضمام لفرق الترجمة الفخمة..."
-                    className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white transition-all text-right"
+                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white transition-all text-right"
                   />
                 </div>
 
@@ -237,8 +237,8 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                       isDragging 
                         ? 'border-violet-500 bg-violet-500/10' 
                         : image 
-                          ? 'border-green-500/40 bg-[#14101D]' 
-                          : 'border-white/15 hover:border-violet-500/30 bg-[#14101D]'
+                          ? 'border-green-500/40 bg-[#0E1626]' 
+                          : 'border-white/15 hover:border-violet-500/30 bg-[#0E1626]'
                     }`}
                   >
                     <input 
@@ -256,7 +256,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                   </div>
 
                   {image && (
-                    <div className="mt-3 p-3 bg-[#14101D] rounded-xl border border-white/5 flex items-center gap-4 justify-between">
+                    <div className="mt-3 p-3 bg-[#0E1626] rounded-xl border border-white/5 flex items-center gap-4 justify-between">
                       <div className="flex items-center gap-3">
                         <img src={image} alt="Ad Cover" className="w-16 h-12 rounded object-cover border border-white/10 shadow-md" referrerPolicy="no-referrer" />
                         <span className="text-[10px] text-green-400 font-bold">تم إرفاق الصورة بنجاح وتجهيزها!</span>
@@ -283,12 +283,12 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="اكتب تفاصيل الإعلان وشروطه وروابط التواصل إن وُجدت بوضوح تام..."
-                    className="bg-[#14101D] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
                   />
                 </div>
 
                 {/* Toggle show in ticker */}
-                <div className="flex items-center gap-2 bg-[#14101D] p-3.5 rounded-xl border border-white/5">
+                <div className="flex items-center gap-2 bg-[#0E1626] p-3.5 rounded-xl border border-white/5">
                   <input 
                     type="checkbox" 
                     id="showInTicker"
@@ -329,7 +329,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 <div 
                   key={ad.id}
                   onClick={() => setSelectedAd(ad)}
-                  className={`p-5 bg-[#1A1625] border rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right transition-all cursor-pointer group hover:-translate-y-0.5 ${selectedAd?.id === ad.id ? 'border-violet-500/50 bg-violet-950/5' : 'border-white/5 hover:border-violet-500/15'}`}
+                  className={`p-5 bg-[#131F33] border rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right transition-all cursor-pointer group hover:-translate-y-0.5 ${selectedAd?.id === ad.id ? 'border-violet-500/50 bg-violet-950/5' : 'border-white/5 hover:border-violet-500/15'}`}
                 >
                   <img src={ad.image} alt={ad.title} className="w-24 h-24 rounded-xl object-cover border border-white/10 shrink-0 shadow-md" referrerPolicy="no-referrer" />
                   
@@ -371,7 +371,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 </div>
               ))
             ) : (
-              <div className="p-12 text-center bg-[#1A1625] border border-dashed border-white/5 rounded-3xl text-purple-400">
+              <div className="p-12 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-purple-400">
                 <Megaphone size={32} className="mx-auto mb-3 text-purple-500/40" />
                 <p className="text-sm font-semibold">لا توجد إعلانات نشطة في المنصة حالياً.</p>
               </div>
@@ -383,7 +383,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
         {/* LEFT COLUMN: Selected Advertisement Detail View */}
         <div className="lg:col-span-1">
           {selectedAd ? (
-            <div className="p-6 bg-[#1A1625] border border-fuchsia-500/10 rounded-3xl sticky top-24 animate-in fade-in slide-in-from-bottom-4 duration-300 text-right">
+            <div className="p-6 bg-[#131F33] border border-fuchsia-500/10 rounded-3xl sticky top-24 animate-in fade-in slide-in-from-bottom-4 duration-300 text-right">
               <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 mb-5 shadow-lg">
                 <img src={selectedAd.image} alt={selectedAd.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-[9px] text-purple-200 flex items-center gap-1">
@@ -425,7 +425,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
               </div>
             </div>
           ) : (
-            <div className="p-8 bg-[#1A1625]/40 border border-white/5 border-dashed rounded-3xl text-center text-purple-400 sticky top-24">
+            <div className="p-8 bg-[#131F33]/40 border border-white/5 border-dashed rounded-3xl text-center text-purple-400 sticky top-24">
               <Megaphone size={28} className="mx-auto mb-3 text-purple-500/30" />
               <h3 className="text-xs font-bold text-white mb-1">تصفح تفاصيل الإعلانات</h3>
               <p className="text-[10px] text-purple-400 leading-relaxed">اختر أي إعلان من القائمة الجانبية أو من شريط الإعلانات العلوي لعرض التفاصيل الكاملة وروابط المراسلة المباشرة.</p>
