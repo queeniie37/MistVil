@@ -69,8 +69,8 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   const [fontBold, setFontBold] = useState<boolean>(() => 
     MistVilDatabase.get<boolean>('reader_font_bold', false)
   );
-  const [textAlign, setTextAlign] = useState<'right' | 'center' | 'left' | 'justify'>(() => 
-    MistVilDatabase.get<'right' | 'center' | 'left' | 'justify'>('reader_text_align', 'right')
+  const [textAlign, setTextAlign] = useState<'right' | 'center' | 'left' | 'justify'>(() =>
+    MistVilDatabase.get<'right' | 'center' | 'left' | 'justify'>('reader_text_align', 'left')
   );
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
@@ -83,7 +83,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   const [replyTexts, setReplyTexts] = useState<{ [commentId: string]: string }>({});
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [reportingComment, setReportingComment] = useState<Comment | null>(null);
-  const [reportReason, setReportReason] = useState('محتوى مسيء / غير لائق');
+  const [reportReason, setReportReason] = useState('Offensive / inappropriate content');
   const [reportDetails, setReportDetails] = useState('');
   const [isSpoilerComment, setIsSpoilerComment] = useState(false);
   const [revealedSpoilers, setRevealedSpoilers] = useState<string[]>([]);
@@ -292,7 +292,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
     const preventAction = (e: Event) => {
       e.preventDefault();
-      alert('محتوى الفصول محمي بموجب حقوق النشر لمنصة MistVil ©');
+      alert('Chapter content is protected under MistVil copyright ©');
     };
 
     const blockCopy = (e: ClipboardEvent) => preventAction(e);
@@ -304,7 +304,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       // Block Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (View Source)
       if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C')) {
         e.preventDefault();
-        alert('محتوى الفصول محمي ضد السرقة والنسخ والتحميل بموجب حقوق النشر لمنصة MistVil ©');
+        alert('Chapter content is protected against theft, copying, and downloading under MistVil copyright ©');
       }
     };
 
@@ -327,7 +327,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentUser.role === 'GUEST') {
-      alert('يجب تسجيل الدخول أولاً لتتمكن من كتابة التعليقات. 🌫️');
+      alert('You must sign in first to write comments. 🌫️');
       window.dispatchEvent(new Event('open-login-modal'));
       return;
     }
@@ -396,7 +396,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       authorName: currentUser.username,
       authorAvatar: currentUser.avatar,
-      authorRole: currentUser.role === 'OWNER' ? 'المالك 👑' : currentUser.role === 'TRANSLATOR' ? 'مترجم ✍️' : 'عضو قارئ 👤',
+      authorRole: currentUser.role === 'OWNER' ? 'Owner 👑' : currentUser.role === 'TRANSLATOR' ? 'Translator ✍️' : 'Member 👤',
       content: replyText,
       createdAt: new Date().toISOString()
     };
@@ -421,7 +421,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   // Report offensive comment handler
   const handleReportComment = (comment: Comment) => {
     setReportingComment(comment);
-    setReportReason('محتوى مسيء / غير لائق');
+    setReportReason('Offensive / inappropriate content');
     setReportDetails('');
   };
 
@@ -434,8 +434,8 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       targetId: reportingComment.id,
       targetName: `${reportingComment.authorName}: ${reportingComment.content}`,
       reason: reportReason,
-      details: `رواية: ${novel.titleAr} • الفصل ${chapter.number}${reportDetails ? ` - التفاصيل: ${reportDetails}` : ''}`,
-      reportedBy: currentUser.role === 'GUEST' ? 'زائر' : currentUser.username,
+      details: `Novel: ${novel.titleEn || novel.titleAr} • Chapter ${chapter.number}${reportDetails ? ` - Details: ${reportDetails}` : ''}`,
+      reportedBy: currentUser.role === 'GUEST' ? 'Guest' : currentUser.username,
       status: 'PENDING',
       createdAt: new Date().toISOString()
     };
@@ -453,16 +453,16 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     const newOwnerNotifs = ownerIds.map(oId => ({
       id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       userId: oId,
-      title: '🚨 بلاغ جديد عن تعليق مسيء!',
-      message: `قام ${newReport.reportedBy} بالإبلاغ عن تعليق مسيء في ${newReport.details}. محتوى التعليق: "${reportingComment.content}"`,
+      title: '🚨 New report about an offensive comment!',
+      message: `${newReport.reportedBy} reported an offensive comment in ${newReport.details}. Comment content: "${reportingComment.content}"`,
       type: 'SYSTEM',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     }));
 
     MistVilDatabase.set('notifications', [...allNotifs, ...newOwnerNotifs]);
 
-    alert('تم إرسال البلاغ لمالك المنصة بنجاح وسيتم اتخاذ الإجراء المناسب فوراً.');
+    alert('Your report was sent to the platform owner successfully; appropriate action will be taken shortly.');
     setReportingComment(null);
     setReportDetails('');
   };
@@ -470,11 +470,11 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   // Delete comment handler for Owner
   const handleDeleteComment = (commentId: string) => {
     if (currentUser.role !== 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
-      alert('عذراً، هذه الصلاحية مخصصة لمالك الموقع فقط!');
+      alert('Sorry, this permission is reserved for the site owner only!');
       return;
     }
 
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا التعليق نهائياً؟')) {
+    if (!confirm('Are you sure you want to permanently delete this comment?')) {
       return;
     }
 
@@ -484,19 +484,19 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     MistVilDatabase.deleteComment(commentId);
     const remaining = MistVilDatabase.get<Comment[]>('comments', []);
     setComments(remaining.filter(c => c.refId === chapter.id));
-    alert('تم حذف التعليق بنجاح.');
+    alert('Comment deleted successfully.');
   };
 
   if (!novel || !chapter) {
     return (
       <div className="w-full text-center py-20 text-purple-400">
-        <p className="text-sm font-semibold">جاري تحميل قارئ الفصول والترجمة الفاخرة...</p>
+        <p className="text-sm font-semibold">Loading the chapter reader...</p>
       </div>
     );
   }
 
   return (
-    <div className={`w-full min-h-screen text-right transition-colors duration-300 pb-16 ${getThemeClasses()}`}>
+    <div className={`w-full min-h-screen text-left transition-colors duration-300 pb-16 ${getThemeClasses()}`}>
       
       {/* 3px Reading Progress bar fixed on top of the screen */}
       <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-white/5">
@@ -514,12 +514,12 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             isLightTheme ? 'text-neutral-600 hover:text-black' : 'text-purple-300 hover:text-white'
           }`}
         >
-          <span>← عودة للرواية</span>
+          <span>← Back to novel</span>
         </button>
 
         <div className="text-center min-w-0">
           <h4 className={`font-extrabold text-xs truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-950' : 'text-white'}`}>{novel.titleAr}</h4>
-          <span className={`text-[10px] mt-0.5 block font-bold truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-500' : 'text-purple-400'}`}>الفصل {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim()}</span>
+          <span className={`text-[10px] mt-0.5 block font-bold truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-500' : 'text-purple-400'}`}>Chapter {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim()}</span>
         </div>
 
         {/* Customizer triggers */}
@@ -531,7 +531,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                 ? 'bg-black/5 hover:bg-black/10 text-neutral-700 border-black/10 hover:text-black' 
                 : 'bg-white/5 hover:bg-white/10 text-purple-200 hover:text-white border-white/5'
             }`}
-            title="تخصيص الخط والسمات"
+            title="Customize font & theme"
           >
             <Settings size={14} />
           </button>
@@ -540,7 +540,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
       {/* Settings Menu Drawer */}
       {showSettings && (
-        <div className="fixed top-18 left-3 sm:left-6 z-50 w-full max-w-[340px] sm:max-w-[360px] bg-[#101A2C] border border-white/10 p-5 rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.85)] animate-in fade-in slide-in-from-top-4 text-right">
+        <div className="fixed top-18 left-3 sm:left-6 z-50 w-full max-w-[340px] sm:max-w-[360px] bg-[#101A2C] border border-white/10 p-5 rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.85)] animate-in fade-in slide-in-from-top-4 text-left">
           
           {/* Header */}
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/5 select-none">
@@ -550,20 +550,20 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             >
               <X size={16} />
             </button>
-            <h4 className="font-extrabold text-sm text-white">إعدادات القارئ</h4>
+            <h4 className="font-extrabold text-sm text-white">Reader Settings</h4>
           </div>
 
           {/* Themes switcher horizontal list */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-1.5 justify-between">
               {[
-                { id: 'normal', name: 'عادي', btnBg: 'bg-[#17253D]', btnText: 'text-[#D8E6F5]', btnBorder: 'border-violet-500/35' },
-                { id: 'black', name: 'أسود', btnBg: 'bg-black', btnText: 'text-white', btnBorder: 'border-white/20' },
-                { id: 'sepia', name: 'بني', btnBg: 'bg-[#F4ECD8]', btnText: 'text-[#5B4636]', btnBorder: 'border-[#5B4636]/20' },
-                { id: 'blue', name: 'أزرق', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' },
-                { id: 'green', name: 'أخضر', btnBg: 'bg-[#DCFCE7]', btnText: 'text-[#15803D]', btnBorder: 'border-[#15803D]/20' },
-                { id: 'pink', name: 'زهري', btnBg: 'bg-[#FCE7F3]', btnText: 'text-[#BE185D]', btnBorder: 'border-[#BE185D]/20' },
-                { id: 'purple', name: 'أرجواني', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' }
+                { id: 'normal', name: 'Normal', btnBg: 'bg-[#17253D]', btnText: 'text-[#D8E6F5]', btnBorder: 'border-violet-500/35' },
+                { id: 'black', name: 'Black', btnBg: 'bg-black', btnText: 'text-white', btnBorder: 'border-white/20' },
+                { id: 'sepia', name: 'Sepia', btnBg: 'bg-[#F4ECD8]', btnText: 'text-[#5B4636]', btnBorder: 'border-[#5B4636]/20' },
+                { id: 'blue', name: 'Blue', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' },
+                { id: 'green', name: 'Green', btnBg: 'bg-[#DCFCE7]', btnText: 'text-[#15803D]', btnBorder: 'border-[#15803D]/20' },
+                { id: 'pink', name: 'Pink', btnBg: 'bg-[#FCE7F3]', btnText: 'text-[#BE185D]', btnBorder: 'border-[#BE185D]/20' },
+                { id: 'purple', name: 'Purple', btnBg: 'bg-[#E0F2FE]', btnText: 'text-[#0369A1]', btnBorder: 'border-[#0369A1]/20' }
               ].map((theme) => {
                 const isActive = themeMode === theme.id;
                 return (
@@ -587,18 +587,18 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             
             {/* Font Family */}
             <fieldset className="border border-white/10 rounded-xl px-3 py-1 bg-white/5 relative">
-              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">نوع الخط</legend>
+              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">Font</legend>
               <div className="relative flex items-center justify-between w-full">
                 <select
                   value={fontFamily}
                   onChange={(e) => updateFontFamily(e.target.value as any)}
-                  className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
+                  className="w-full bg-transparent text-xs text-white text-left outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value="cairo" className="bg-[#101A2C] text-white">خط كايرو</option>
-                  <option value="naskh" className="bg-[#101A2C] text-white">خط النسخ الفاخر</option>
-                  <option value="tajawal" className="bg-[#101A2C] text-white">خط تجوال</option>
-                  <option value="amiri" className="bg-[#101A2C] text-white">الخط الأميري</option>
-                  <option value="plex" className="bg-[#101A2C] text-white">خط آي بي إم</option>
+                  <option value="cairo" className="bg-[#101A2C] text-white">Cairo</option>
+                  <option value="naskh" className="bg-[#101A2C] text-white">Naskh</option>
+                  <option value="tajawal" className="bg-[#101A2C] text-white">Tajawal</option>
+                  <option value="amiri" className="bg-[#101A2C] text-white">Amiri</option>
+                  <option value="plex" className="bg-[#101A2C] text-white">IBM Plex</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -606,12 +606,12 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
             {/* Font Size */}
             <fieldset className="border border-white/10 rounded-xl px-3 py-1 bg-white/5 relative">
-              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">حجم الخط</legend>
+              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">Font size</legend>
               <div className="relative flex items-center justify-between w-full">
                 <select
                   value={fontSize}
                   onChange={(e) => updateFontSize(parseInt(e.target.value))}
-                  className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
+                  className="w-full bg-transparent text-xs text-white text-left outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
                   <option value={16} className="bg-[#101A2C] text-white">90%</option>
                   <option value={18} className="bg-[#101A2C] text-white">100%</option>
@@ -630,12 +630,12 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
             {/* Line Height */}
             <fieldset className="border border-white/10 rounded-xl px-3 py-1 bg-white/5 relative">
-              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">ارتفاع الخط</legend>
+              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">Line height</legend>
               <div className="relative flex items-center justify-between w-full">
                 <select
                   value={lineHeight}
                   onChange={(e) => updateLineHeight(parseFloat(e.target.value))}
-                  className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
+                  className="w-full bg-transparent text-xs text-white text-left outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
                   <option value={1.4} className="bg-[#101A2C] text-white">140%</option>
                   <option value={1.5} className="bg-[#101A2C] text-white">150%</option>
@@ -650,16 +650,16 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
             {/* Font Contrast / Opacity */}
             <fieldset className="border border-white/10 rounded-xl px-3 py-1 bg-white/5 relative">
-              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">درجة لون الخط</legend>
+              <legend className="text-[10px] text-purple-300 font-bold px-1.5 select-none">Text contrast</legend>
               <div className="relative flex items-center justify-between w-full">
                 <select
                   value={fontContrast}
                   onChange={(e) => updateFontContrast(e.target.value as any)}
-                  className="w-full bg-transparent text-xs text-white text-right outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
+                  className="w-full bg-transparent text-xs text-white text-left outline-none cursor-pointer pl-6 pr-1 py-0.5 appearance-none relative z-10 font-bold"
                 >
-                  <option value="high" className="bg-[#101A2C] text-white">مرتفعة</option>
-                  <option value="medium" className="bg-[#101A2C] text-white">متوسطة</option>
-                  <option value="low" className="bg-[#101A2C] text-white">منخفضة</option>
+                  <option value="high" className="bg-[#101A2C] text-white">High</option>
+                  <option value="medium" className="bg-[#101A2C] text-white">Medium</option>
+                  <option value="low" className="bg-[#101A2C] text-white">Low</option>
                 </select>
                 <ChevronDown size={14} className="text-purple-400 absolute left-0 pointer-events-none" />
               </div>
@@ -678,7 +678,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                   ? 'bg-violet-600 border-violet-500 text-white shadow-md' 
                   : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
               }`}
-              title="عريض"
+              title="Bold"
             >
               <span>B</span>
             </button>
@@ -700,7 +700,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                         ? 'bg-white/15 text-white border border-white/10' 
                         : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
                     }`}
-                    title={align.id === 'right' ? 'محاذاة لليمين' : align.id === 'center' ? 'توسيط' : 'محاذاة لليسار'}
+                    title={align.id === 'right' ? 'Align right' : align.id === 'center' ? 'Center' : 'Align left'}
                   >
                     {align.icon}
                   </button>
@@ -716,7 +716,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       {/* Print-only copyright notice replaces the protected content for non-owners */}
       {currentUser.role !== 'OWNER' && (
         <div className="print-only-notice hidden">
-          محتوى هذا فصل محمي بموجب حقوق النشر والترجمة لمنصة MistVil © ولا يسمح بطباعته أو حفظه.
+          This chapter is protected under MistVil translation and copyright © and may not be printed or saved.
         </div>
       )}
 
@@ -743,9 +743,9 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       >
         <div className={`mb-8 text-center ${currentUser.role !== 'OWNER' ? 'select-none' : ''}`}>
           <h2 className="text-xl md:text-3xl font-extrabold tracking-tight border-b border-white/5 pb-4">
-            الفصل {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim() || 'فصل مترجم'}
+            Chapter {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim() || 'Translated chapter'}
           </h2>
-          <span className="text-xs text-purple-400 mt-2 block">حقوق الترجمة والنشر محفوظة لمنصة MistVil وللمترجم: {novel.translatorName}</span>
+          <span className="text-xs text-purple-400 mt-2 block">Translation and publishing rights reserved for MistVil and the translator: {novel.translatorName}</span>
         </div>
 
         {/* Text paragraph splitter */}
@@ -763,7 +763,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
         {(chapter as any).images && (chapter as any).images.length > 0 && (
           <div className={`mt-12 mb-8 ${currentUser.role !== 'OWNER' ? 'select-none' : ''}`}>
             <h4 className="text-center text-xs text-purple-400 font-bold mb-4 flex items-center justify-center gap-1.5 border-t border-b border-white/5 py-3">
-              🖼️ رسومات وتوضيحات الفصل المرفقة
+              🖼️ Attached chapter illustrations
             </h4>
             <div className="flex flex-col gap-6 items-center">
               {(chapter as any).images.map((imgUrl: string, index: number) => (
@@ -776,7 +776,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                     onContextMenu={(e) => e.preventDefault()}
                   />
                   <span className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-[8px] text-white px-2 py-0.5 rounded font-mono select-none">
-                    صورة {index + 1}
+                    Image {index + 1}
                   </span>
                 </div>
               ))}
@@ -792,14 +792,14 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             className="px-3 sm:px-5 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-purple-300 hover:text-white flex items-center gap-1 cursor-pointer transition-all border border-white/5 hover:border-white/10"
           >
             <ChevronRight size={14} className="text-purple-400" />
-            <span>الفصل السابق</span>
+            <span>Previous chapter</span>
           </button>
 
           <button
             onClick={onBack}
             className="px-3 sm:px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-purple-300 cursor-pointer"
           >
-            فهرس الفصول
+            Chapter index
           </button>
 
           <button
@@ -807,15 +807,15 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             disabled={!hasNextChapter}
             className="px-3 sm:px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 disabled:from-[#131F33] disabled:to-[#131F33] disabled:border-white/5 disabled:text-purple-300/30 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-violet-500/10"
           >
-            <span>الفصل التالي</span>
+            <span>Next chapter</span>
             <ChevronLeft size={14} className="text-white" />
           </button>
         </div>
 
         {/* Comments section below chapter navigation */}
-        <div className="mt-16 border-t border-white/5 pt-12 text-right">
+        <div className="mt-16 border-t border-white/5 pt-12 text-left">
           <h3 className={`text-lg font-extrabold mb-6 flex items-center justify-between gap-2 border-b border-white/5 pb-3 transition-colors duration-300 ${isLightTheme ? 'text-neutral-900 border-black/10' : 'text-white'}`}>
-            <span>التعليقات والمناقشات حول الفصل ({comments.length})</span>
+            <span>Comments & discussion on this chapter ({comments.length})</span>
             <MessageSquare size={18} className="text-violet-400" />
           </h3>
 
@@ -824,24 +824,24 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
             <div className="flex gap-3">
               <input
                 type="text"
-                placeholder={currentUser.role === 'GUEST' ? 'سجل الدخول لكتابة تعليق حول الفصل... 🌫️' : 'اكتب تعليقك هنا حول أحداث الفصل...'}
+                placeholder={currentUser.role === 'GUEST' ? 'Sign in to comment on this chapter... 🌫️' : 'Write your comment about this chapter here...'}
                 readOnly={currentUser.role === 'GUEST'}
                 onClick={() => {
                   if (currentUser.role === 'GUEST') window.dispatchEvent(new Event('open-login-modal'));
                 }}
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className={`flex-1 min-w-0 outline-none rounded-2xl px-4 py-3 text-xs text-right transition-all ${getInputClasses()}`}
+                className={`flex-1 min-w-0 outline-none rounded-2xl px-4 py-3 text-xs text-left transition-all ${getInputClasses()}`}
               />
               <button
                 type="submit"
                 className="px-4 sm:px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white rounded-2xl text-xs font-bold shadow-lg transition-all cursor-pointer shrink-0"
               >
-                إرسال
+                Send
               </button>
             </div>
             {currentUser.role !== 'GUEST' && (
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   type="button"
                   onClick={() => setIsSpoilerComment(!isSpoilerComment)}
@@ -851,7 +851,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                       : 'bg-white/5 text-purple-300 border-white/5 hover:bg-white/10'
                   }`}
                 >
-                  <span>🔥 يحتوي على حرق للأحداث</span>
+                  <span>🔥 Contains spoilers</span>
                 </button>
               </div>
             )}
@@ -861,7 +861,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
           <div className="flex flex-col gap-4">
             {comments.length > 0 ? (
               comments.map((comment) => (
-                <div key={comment.id} className={`p-4 rounded-2xl text-right flex flex-col gap-3 transition-colors duration-300 ${getCardClasses()}`}>
+                <div key={comment.id} className={`p-4 rounded-2xl text-left flex flex-col gap-3 transition-colors duration-300 ${getCardClasses()}`}>
                   
                   {/* Comment Header */}
                   <div className="flex items-center justify-between">
@@ -871,11 +871,11 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                         <div className="flex items-center gap-2">
                           <span className={`font-bold text-xs transition-colors duration-300 ${isLightTheme ? 'text-neutral-900' : 'text-white'}`}>{comment.authorName}</span>
                           <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-bold">
-                            {comment.authorRole === 'OWNER' ? 'المالك 👑' : comment.authorRole === 'TRANSLATOR' ? 'مترجم ✍️' : 'عضو قارئ 👤'}
+                            {comment.authorRole === 'OWNER' ? 'Owner 👑' : comment.authorRole === 'TRANSLATOR' ? 'Translator ✍️' : 'Member 👤'}
                           </span>
                           {isUserTranslatorOfTheMonth(comment.authorName) && (
                             <span className="text-[8.5px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 font-bold flex items-center gap-0.5">
-                              🏆 مترجم الشهر
+                              🏆 Translator of the Month
                             </span>
                           )}
                         </div>
@@ -892,10 +892,10 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                         className="p-3.5 bg-red-950/35 hover:bg-red-950/50 border border-red-500/30 hover:border-red-500/50 rounded-xl cursor-pointer flex items-center justify-between transition-all duration-300 group select-none"
                       >
                         <span className="text-xs font-bold text-red-400 flex items-center gap-2">
-                          🚨 يوجد حرق! (اضغط لقراءة التعليق على مسؤوليتك)
+                          🚨 Spoiler! (click to read at your own risk)
                         </span>
                         <span className="text-[10px] bg-red-500/20 text-red-300 hover:bg-red-500/30 px-3 py-1.5 rounded-lg font-extrabold transition-colors">
-                          إظهار 👁️
+                          Show 👁️
                         </span>
                       </div>
                     </div>
@@ -903,7 +903,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                     <div className="pr-11">
                       {comment.isSpoiler && (
                         <span className="text-[10px] text-red-400 font-extrabold bg-red-500/10 px-2 py-0.5 rounded-lg inline-flex items-center gap-1 mb-2 select-none">
-                          🔥 تعليق حرق (تم كشفه):
+                          🔥 Spoiler comment (revealed):
                         </span>
                       )}
                       <p className={`text-xs leading-relaxed transition-colors duration-300 ${isLightTheme ? 'text-neutral-800' : 'text-purple-200'} ${comment.isSpoiler ? 'border-r-2 border-red-500/40 pr-3 font-sans' : ''}`}>
@@ -918,7 +918,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                       onClick={() => handleLikeComment(comment.id)}
                       className={`flex items-center gap-1 hover:text-rose-400 transition-colors cursor-pointer ${comment.likedBy.includes(currentUser.id) ? 'text-rose-400 font-bold' : ''}`}
                     >
-                      <span>إعجاب ({comment.likes})</span>
+                      <span>Like ({comment.likes})</span>
                     </button>
                     <button
                       onClick={() => {
@@ -930,24 +930,24 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                       }}
                       className={`transition-colors cursor-pointer ${isLightTheme ? 'hover:text-neutral-900' : 'hover:text-white'}`}
                     >
-                      <span>رد</span>
+                      <span>Reply</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleReportComment(comment)}
                       className="hover:text-red-400 transition-colors cursor-pointer flex items-center gap-0.5 text-purple-400/80"
-                      title="الإبلاغ عن تعليق مسيء"
+                      title="Report an offensive comment"
                     >
-                      <span>🚩 إبلاغ</span>
+                      <span>🚩 Report</span>
                     </button>
                     {(currentUser.role === 'OWNER' || currentUser.email?.toLowerCase() === 'mistvil112@gmail.com') && (
                       <button
                         type="button"
                         onClick={() => handleDeleteComment(comment.id)}
                         className="hover:text-red-500 transition-colors cursor-pointer flex items-center gap-0.5 text-red-400"
-                        title="حذف التعليق"
+                        title="Delete comment"
                       >
-                        <span>🗑️ حذف التعليق</span>
+                        <span>🗑️ Delete comment</span>
                       </button>
                     )}
                   </div>
@@ -973,7 +973,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                     <div className="mr-11 mt-2 flex gap-2">
                       <input 
                         type="text" 
-                        placeholder="اكتب ردك اللطيف..."
+                        placeholder="Write your kind reply..."
                         value={replyTexts[comment.id] || ''}
                         onChange={(e) => setReplyTexts({ ...replyTexts, [comment.id]: e.target.value })}
                         className={`flex-1 outline-none rounded-xl px-3 py-2 text-xs transition-all ${getInputClasses()}`}
@@ -982,7 +982,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                         onClick={() => handleAddReply(comment.id)}
                         className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-bold"
                       >
-                        رد
+                        Reply
                       </button>
                     </div>
                   )}
@@ -991,7 +991,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
               ))
             ) : (
               <div className={`p-8 text-center rounded-2xl transition-colors duration-300 ${getCardClasses()} ${isLightTheme ? 'text-neutral-500' : 'text-purple-400'}`}>
-                <p className="text-xs">لا توجد تعليقات على هذا الفصل بعد. شارك رأيك حول الترجمة والأحداث الملحمية!</p>
+                <p className="text-xs">No comments on this chapter yet. Share your thoughts on the translation and the epic events!</p>
               </div>
             )}
           </div>
@@ -1000,31 +1000,31 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
       {reportingComment && (
         <div className="fixed inset-0 z-[300] bg-black/85 backdrop-blur-md flex justify-center items-center p-4">
-          <div className="w-full max-w-md bg-[#101A2C] border border-white/10 rounded-3xl p-6 text-right shadow-2xl">
-            <h3 className="text-base font-bold text-white mb-2">🚨 الإبلاغ عن تعليق مسيء</h3>
+          <div className="w-full max-w-md bg-[#101A2C] border border-white/10 rounded-3xl p-6 text-left shadow-2xl">
+            <h3 className="text-base font-bold text-white mb-2">🚨 Report an offensive comment</h3>
             <p className="text-xs text-purple-300 mb-4">
-              أنت بصدد الإبلاغ عن تعليق بواسطة <span className="text-violet-400 font-bold">{reportingComment.authorName}</span>:
+              You are about to report a comment by <span className="text-violet-400 font-bold">{reportingComment.authorName}</span>:
             </p>
             
             <div className="p-3 bg-white/5 rounded-xl border border-white/5 text-xs text-purple-200 mb-4 max-h-24 overflow-y-auto italic">
               "{reportingComment.content}"
             </div>
 
-            <label className="block text-xs font-bold text-purple-300 mb-1.5">سبب الإبلاغ:</label>
+            <label className="block text-xs font-bold text-purple-300 mb-1.5">Reason for report:</label>
             <select
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               className="w-full bg-[#17253C] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white mb-4 outline-none focus:border-violet-500"
             >
-              <option value="محتوى مسيء / غير لائق">محتوى مسيء / غير لائق / شتائم</option>
-              <option value="حرق للأحداث دون تحذير">حرق للأحداث دون تحذير</option>
-              <option value="سرقة مجهود / سبام">سرقة مجهود / سبام / إعلانات</option>
-              <option value="أخرى">أخرى (يرجى توضيحها أدناه)</option>
+              <option value="Offensive / inappropriate content">Offensive / inappropriate content / insults</option>
+              <option value="Unmarked spoilers">Unmarked spoilers</option>
+              <option value="Plagiarism / spam">Plagiarism / spam / ads</option>
+              <option value="Other">Other (please explain below)</option>
             </select>
 
-            <label className="block text-xs font-bold text-purple-300 mb-1.5">تفاصيل إضافية (اختياري):</label>
+            <label className="block text-xs font-bold text-purple-300 mb-1.5">Additional details (optional):</label>
             <textarea
-              placeholder="اكتب أي ملاحظات إضافية تساعد المالك في مراجعة البلاغ..."
+              placeholder="Add any notes that help the owner review the report..."
               value={reportDetails}
               onChange={(e) => setReportDetails(e.target.value)}
               className="w-full h-20 bg-[#17253C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white mb-5 outline-none focus:border-violet-500 resize-none"
@@ -1036,14 +1036,14 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                 onClick={submitReport}
                 className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-violet-600 hover:from-red-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all"
               >
-                إرسال البلاغ
+                Submit report
               </button>
               <button
                 type="button"
                 onClick={() => setReportingComment(null)}
                 className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-purple-300 hover:text-white border border-white/10 rounded-xl text-xs cursor-pointer transition-all"
               >
-                إلغاء
+                Cancel
               </button>
             </div>
           </div>

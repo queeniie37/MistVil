@@ -27,12 +27,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setSuccess('');
 
     if (!email || !password || (isRegister && !username)) {
-      setError('يرجى ملء جميع الحقول المطلوبة.');
+      setError('Please fill in all required fields.');
       return;
     }
 
     if (isRegister && !acceptPolicy) {
-      setError('يجب الموافقة على سياسة وقوانين المنصة للمتابعة والتسجيل.');
+      setError('You must accept the platform’s policy and rules to continue and register.');
       return;
     }
 
@@ -44,13 +44,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       // through the login form only. Otherwise anyone knowing the owner's
       // email could register it and gain full admin control.
       if (email.toLowerCase() === 'mistvil112@gmail.com') {
-        setError('هذا البريد الإلكتروني محجوز لمالك المنصة. يرجى استخدام نموذج تسجيل الدخول بدلاً من إنشاء حساب.');
+        setError('This email is reserved for the platform owner. Please use the sign-in form instead of registering.');
         return;
       }
 
       const emailExists = usersDb.some(u => u.email.toLowerCase() === email.toLowerCase());
       if (emailExists) {
-        setError('البريد الإلكتروني مسجل بالفعل.');
+        setError('This email is already registered.');
         return;
       }
 
@@ -62,7 +62,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         xp: 0,
         level: 1,
         avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}`,
-        bio: 'قارئ شغوف وعضو جديد في عائلة ميست فيل الفاخرة.',
+        bio: 'A passionate reader and new member of the MistVil family.',
         // Store only a salted hash — never the plaintext password
         passwordHash: await hashPassword(password)
       };
@@ -71,7 +71,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       MistVilDatabase.set('current_user_data', newUser);
       MistVilDatabase.set('current_role', 'MEMBER');
 
-      setSuccess('تم إنشاء الحساب بنجاح كقارئ! 👤');
+      setSuccess('Account created successfully as a reader! 👤');
       setTimeout(() => {
         onLoginSuccess(newUser);
         onClose();
@@ -89,7 +89,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         };
         MistVilDatabase.set('current_user_data', ownerUser);
         MistVilDatabase.set('current_role', 'OWNER' as UserRole);
-        setSuccess('تم تسجيل دخول المالك بنجاح! 👑');
+        setSuccess('Owner signed in successfully! 👑');
         setTimeout(() => {
           onLoginSuccess(ownerUser);
           onClose();
@@ -106,7 +106,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         (u.passwordHash === inputHash || (u.password && u.password === password))
       );
       if (userIndex === -1) {
-        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+        setError('Incorrect email or password.');
         return;
       }
       let user = usersDb[userIndex];
@@ -119,7 +119,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
       MistVilDatabase.set('current_user_data', user);
       MistVilDatabase.set('current_role', user.role);
-      setSuccess(`أهلاً بك مجدداً، ${user.username}! ✨`);
+      setSuccess(`Welcome back, ${user.username}! ✨`);
       setTimeout(() => {
         onLoginSuccess(user);
         onClose();
@@ -136,7 +136,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         {/* Close Button */}
         <button 
           onClick={onClose} 
-          className="absolute top-4 left-4 p-2 rounded-full bg-white/5 border border-white/5 text-purple-200 hover:text-white transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 border border-white/5 text-purple-200 hover:text-white transition-colors cursor-pointer"
         >
           <X size={18} />
         </button>
@@ -145,15 +145,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         <div className="text-center mb-6">
           <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(56,189,248,0.5)] mx-auto mb-3 block" referrerPolicy="no-referrer" />
           <h3 className="font-extrabold text-2xl text-white bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent">
-            {isRegister ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+            {isRegister ? 'Create a New Account' : 'Sign In'}
           </h3>
           <p className="text-xs text-purple-300 mt-1">
-            {isRegister ? 'انضم إلى مجتمع ميست فيل الفاخر للروايات' : 'سجل دخولك لمتابعة قراءاتك وطلباتك'}
+            {isRegister ? 'Join the MistVil community for novels' : 'Sign in to track your reading and requests'}
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-right">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-left">
           {error && (
             <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 font-semibold text-center animate-shake">
               ⚠️ {error}
@@ -168,55 +168,55 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
           {isRegister && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-purple-200">اسم المستخدم</label>
+              <label className="text-xs font-bold text-purple-200">Username</label>
               <div className="relative">
                 <input 
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="مثال: قارئ_الضباب"
-                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-right"
+                  placeholder="e.g. mist_reader"
+                  className="w-full pr-3 pl-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-left"
                   required
                 />
-                <UserIcon size={14} className="absolute top-3.5 right-3.5 text-purple-400" />
+                <UserIcon size={14} className="absolute top-3.5 left-3.5 text-purple-400" />
               </div>
             </div>
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">البريد الإلكتروني</label>
+            <label className="text-xs font-bold text-purple-200">Email</label>
             <div className="relative">
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@domain.com"
-                className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-right"
+                className="w-full pr-3 pl-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-left"
                 dir="ltr"
                 required
               />
-              <Mail size={14} className="absolute top-3.5 right-3.5 text-purple-400" />
+              <Mail size={14} className="absolute top-3.5 left-3.5 text-purple-400" />
             </div>
             {/* Owner credentials display hidden for privacy and security */}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">كلمة المرور</label>
+            <label className="text-xs font-bold text-purple-200">Password</label>
             <div className="relative">
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-right"
+                className="w-full pr-3 pl-10 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-left"
                 required
               />
-              <Lock size={14} className="absolute top-3.5 right-3.5 text-purple-400" />
+              <Lock size={14} className="absolute top-3.5 left-3.5 text-purple-400" />
             </div>
           </div>
 
           {isRegister && (
-            <label className="flex items-start gap-2.5 cursor-pointer mt-1 select-none text-right">
+            <label className="flex items-start gap-2.5 cursor-pointer mt-1 select-none text-left">
               <input 
                 type="checkbox"
                 checked={acceptPolicy}
@@ -225,7 +225,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 required
               />
               <span className="text-[10px] text-purple-300 leading-relaxed">
-                أوافق على <span className="font-bold text-white text-[11px]">سياسة المنصة الفاخرة</span>: عدم التلفظ بعبارات مخلة، احترام القراء الآخرين، عدم سرقة جهود المترجمين، وحفظ كافة الحقوق.
+                I agree to the <span className="font-bold text-white text-[11px]">platform policy</span>: no offensive language, respect for other readers, no stealing translators’ work, and all rights reserved.
               </span>
             </label>
           )}
@@ -235,7 +235,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             className="w-full py-3 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 mt-2 shadow-lg shadow-violet-500/20"
           >
             {isRegister ? <UserPlus size={16} /> : <LogIn size={16} />}
-            <span>{isRegister ? 'إنشاء حساب جديد وعضوية قارئ' : 'دخول للمنصة'}</span>
+            <span>{isRegister ? 'Create account & reader membership' : 'Sign in'}</span>
           </button>
         </form>
 
@@ -243,16 +243,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         <div className="mt-6 pt-4 border-t border-white/5 text-center text-xs text-purple-300">
           {isRegister ? (
             <span>
-              لديك حساب بالفعل؟{' '}
+              Already have an account?{' '}
               <button onClick={() => setIsRegister(false)} className="text-violet-400 hover:text-violet-300 font-bold underline cursor-pointer">
-                تسجيل الدخول هنا
+                Sign in here
               </button>
             </span>
           ) : (
             <span>
-              ليس لديك حساب بعد؟{' '}
+              Don’t have an account yet?{' '}
               <button onClick={() => setIsRegister(true)} className="text-violet-400 hover:text-violet-300 font-bold underline cursor-pointer">
-                أنشئ حساب قارئ الآن
+                Create a reader account now
               </button>
             </span>
           )}

@@ -58,10 +58,10 @@ const defaults: any = {
   site_name: "MistVil",
   site_logo: "🌫️",
   site_banner: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200",
-  footer_description: "منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.",
+  footer_description: "A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.",
   footer_email: "support@mistvil.com",
-  footer_support_text: "عبر تذكرة الديسكورد الرسمية بالأسفل",
-  footer_community_text: "انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!",
+  footer_support_text: "Via the official Discord ticket below",
+  footer_community_text: "Join our great novel family to get chapter notifications the moment they drop, live before everyone else!",
   footer_socials: [
     { id: "discord", name: "Discord", icon: "👾", url: "https://discord.gg/mistvil", active: true },
     { id: "telegram", name: "Telegram", icon: "📢", url: "https://t.me/mistvil", active: true },

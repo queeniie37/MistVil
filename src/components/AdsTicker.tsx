@@ -32,11 +32,11 @@ export default function AdsTicker({ onAdClick, refreshTrigger }: AdsTickerProps)
               className="flex items-center gap-3 shrink-0 text-xs font-semibold text-fuchsia-200 hover:text-white transition-colors"
             >
               <span className="p-1 bg-fuchsia-500/20 rounded-lg text-fuchsia-300 font-bold border border-fuchsia-500/20 text-[10px]">
-                إعلان مميز 🔥
+                Featured Ad 🔥
               </span>
               <img src={ad.image} alt="" className="w-6 h-6 rounded object-cover border border-white/10" referrerPolicy="no-referrer" />
               <span className="truncate max-w-[280px] font-bold text-white">{ad.title}</span>
-              <span className="text-[10px] text-fuchsia-400 font-extrabold hover:underline">انقر للتفاصيل ⚡</span>
+              <span className="text-[10px] text-fuchsia-400 font-extrabold hover:underline">Click for details ⚡</span>
             </div>
           ))}
         </div>
@@ -45,7 +45,7 @@ export default function AdsTicker({ onAdClick, refreshTrigger }: AdsTickerProps)
       {/* Static Header Label on the Right */}
       <div className="absolute right-0 top-0 bottom-0 z-10 w-36 bg-[#142136] border-l border-violet-500/10 flex items-center justify-center gap-2 px-3 shadow-[10px_0_20px_rgba(10,17,32,0.9)]">
         <Volume2 size={13} className="text-fuchsia-400 animate-bounce" />
-        <span className="font-extrabold text-[11px] text-fuchsia-200 tracking-wider">شريط الإعلانات</span>
+        <span className="font-extrabold text-[11px] text-fuchsia-200 tracking-wider">Ads Bar</span>
         <Sparkles size={11} className="text-yellow-400 animate-pulse" />
       </div>
     </div>

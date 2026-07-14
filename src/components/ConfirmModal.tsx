@@ -16,8 +16,8 @@ export default function ConfirmModal({
   isOpen,
   title,
   message,
-  confirmText = 'تأكيد الحذف',
-  cancelText = 'إلغاء',
+  confirmText = 'Confirm Delete',
+  cancelText = 'Cancel',
   onConfirm,
   onCancel,
   danger = true,
@@ -26,10 +26,10 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-md bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200 p-6 flex flex-col gap-5">
+      <div className="relative w-full max-w-md bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-left shadow-2xl animate-in zoom-in-95 duration-200 p-6 flex flex-col gap-5">
         
         {/* Icon & Title */}
-        <div className="flex items-start gap-4 flex-row-reverse">
+        <div className="flex items-start gap-4">
           <div className={`p-3 rounded-2xl shrink-0 ${danger ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-violet-500/10 text-violet-400 border border-violet-500/20'}`}>
             <AlertTriangle size={24} />
           </div>
@@ -40,7 +40,7 @@ export default function ConfirmModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-2.5 justify-end mt-2">
+        <div className="flex gap-2.5 justify-start mt-2">
           <button
             type="button"
             onClick={onCancel}

@@ -753,7 +753,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
   };
 
   return (
-    <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+    <div dir="rtl" className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Header banner */}
       <div className="p-6 bg-[#131F33] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">

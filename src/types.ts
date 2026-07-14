@@ -40,7 +40,7 @@ export interface Novel {
   rating: number;
   ratingCount: number;
   status: NovelStatus;
-  language: string; // الكورية، الصينية، اليابانية، إلخ
+  language: string; // Korean, Chinese, Japanese, etc.
   genres: string[];
   description: string;
   updatesLink?: string;

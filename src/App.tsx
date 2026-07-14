@@ -35,13 +35,13 @@ import TranslatorRequestForm from './components/TranslatorRequestForm';
 // never themselves fail to load.
 // Social platforms the OWNER can attach to their profile with the +/× manager
 const SOCIAL_PLATFORMS = [
-  { id: 'discord', name: 'ديسكورد', icon: '👾', placeholder: 'https://discord.gg/...' },
-  { id: 'telegram', name: 'تيليجرام', icon: '📢', placeholder: 'https://t.me/...' },
-  { id: 'instagram', name: 'انستغرام', icon: '📸', placeholder: 'https://instagram.com/...' },
-  { id: 'tiktok', name: 'تيك توك', icon: '🎵', placeholder: 'https://tiktok.com/@...' },
-  { id: 'youtube', name: 'يوتيوب', icon: '📺', placeholder: 'https://youtube.com/@...' },
-  { id: 'x', name: 'X (تويتر)', icon: '🐦', placeholder: 'https://x.com/...' },
-  { id: 'snapchat', name: 'سناب شات', icon: '👻', placeholder: 'https://snapchat.com/add/...' }
+  { id: 'discord', name: 'Discord', icon: '👾', placeholder: 'https://discord.gg/...' },
+  { id: 'telegram', name: 'Telegram', icon: '📢', placeholder: 'https://t.me/...' },
+  { id: 'instagram', name: 'Instagram', icon: '📸', placeholder: 'https://instagram.com/...' },
+  { id: 'tiktok', name: 'TikTok', icon: '🎵', placeholder: 'https://tiktok.com/@...' },
+  { id: 'youtube', name: 'YouTube', icon: '📺', placeholder: 'https://youtube.com/@...' },
+  { id: 'x', name: 'X (Twitter)', icon: '🐦', placeholder: 'https://x.com/...' },
+  { id: 'snapchat', name: 'Snapchat', icon: '👻', placeholder: 'https://snapchat.com/add/...' }
 ];
 
 const FALLBACK_COVER =
@@ -61,7 +61,7 @@ function AccessDeniedPanel({ message, isGuest, onNavigateHome }: { message: stri
     <div className="w-full text-center mt-12 pb-12 animate-in fade-in duration-300">
       <div className="max-w-md mx-auto p-8 bg-[#131F33] border border-white/5 rounded-3xl flex flex-col items-center gap-4">
         <Shield size={40} className="text-rose-400" />
-        <h2 className="text-lg font-extrabold text-white">هذه الصفحة محمية 🔒</h2>
+        <h2 className="text-lg font-extrabold text-white">This page is protected 🔒</h2>
         <p className="text-xs text-purple-300 leading-relaxed">{message}</p>
         <div className="flex gap-3 mt-2">
           {isGuest && (
@@ -69,14 +69,14 @@ function AccessDeniedPanel({ message, isGuest, onNavigateHome }: { message: stri
               onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
               className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold shadow-lg cursor-pointer"
             >
-              تسجيل الدخول 🌫️
+              Sign in 🌫️
             </button>
           )}
           <button
             onClick={onNavigateHome}
             className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-purple-300 rounded-xl text-xs font-bold cursor-pointer"
           >
-            العودة للرئيسية
+            Back to home
           </button>
         </div>
       </div>
@@ -200,10 +200,10 @@ export default function App() {
   const safeSiteName = (typeof siteName === 'string' && siteName.trim()) ? siteName.trim() : 'MistVil';
 
   // Footer dynamic values
-  const [footerDesc, setFooterDesc] = useState(() => MistVilDatabase.get<string>('footer_description', 'منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.'));
+  const [footerDesc, setFooterDesc] = useState(() => MistVilDatabase.get<string>('footer_description', 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.'));
   const [footerEmail, setFooterEmail] = useState(() => MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
-  const [footerSupport, setFooterSupport] = useState(() => MistVilDatabase.get<string>('footer_support_text', 'عبر تذكرة الديسكورد الرسمية بالأسفل'));
-  const [footerCommunityText, setFooterCommunityText] = useState(() => MistVilDatabase.get<string>('footer_community_text', 'انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!'));
+  const [footerSupport, setFooterSupport] = useState(() => MistVilDatabase.get<string>('footer_support_text', 'Via the official Discord ticket below'));
+  const [footerCommunityText, setFooterCommunityText] = useState(() => MistVilDatabase.get<string>('footer_community_text', 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!'));
   
   const defaultSocialLinks = [
     { id: "discord", name: "Discord", icon: "👾", url: "https://discord.gg/mistvil", active: true },
@@ -260,10 +260,10 @@ export default function App() {
     window.addEventListener('site-settings-updated', handleSiteUpdate);
 
     const handleFooterUpdate = () => {
-      setFooterDesc(MistVilDatabase.get<string>('footer_description', 'منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.'));
+      setFooterDesc(MistVilDatabase.get<string>('footer_description', 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.'));
       setFooterEmail(MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
-      setFooterSupport(MistVilDatabase.get<string>('footer_support_text', 'عبر تذكرة الديسكورد الرسمية بالأسفل'));
-      setFooterCommunityText(MistVilDatabase.get<string>('footer_community_text', 'انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!'));
+      setFooterSupport(MistVilDatabase.get<string>('footer_support_text', 'Via the official Discord ticket below'));
+      setFooterCommunityText(MistVilDatabase.get<string>('footer_community_text', 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!'));
       setFooterSocials(MistVilDatabase.get<any[]>('footer_socials', defaultSocialLinks));
     };
     window.addEventListener('footer-settings-updated', handleFooterUpdate);
@@ -390,20 +390,20 @@ export default function App() {
 
   // SEO & Document Title Dynamic Synchronizer
   useEffect(() => {
-    let title = `${siteName} | المنصة العربية الفاخرة للروايات المترجمة والمؤلفة`;
+    let title = `${siteName} | Premium Platform for Translated & Original Novels`;
     
     switch (currentPage) {
       case 'home':
-        title = `${siteName} | الرئيسية - المنصة العربية الفاخرة للروايات`;
+        title = `${siteName} | Home - Premium Novel Platform`;
         break;
       case 'explore':
-        title = `المكتبة والاستكشاف | تصفح الروايات - ${siteName}`;
+        title = `Library & Explore | Browse Novels - ${siteName}`;
         break;
       case 'novel':
         if (currentParams && currentParams.id) {
           const novel = novels.find(n => n.id === currentParams.id);
           if (novel) {
-            title = `رواية ${novel.titleAr} (${novel.titleEn}) | ${siteName}`;
+            title = `${novel.titleEn || novel.titleAr} (${novel.titleAr}) | ${siteName}`;
           }
         }
         break;
@@ -411,30 +411,30 @@ export default function App() {
         if (currentParams && currentParams.novelId) {
           const novel = novels.find(n => n.id === currentParams.novelId);
           if (novel) {
-            title = `الفصل ${currentParams.chapterNumber} من رواية ${novel.titleAr} | ${siteName}`;
+            title = `Chapter ${currentParams.chapterNumber} of ${novel.titleEn || novel.titleAr} | ${siteName}`;
           }
         }
         break;
       case 'suggestions':
-        title = `اقتراح رواية جديدة | شاركنا باقتراحاتك - ${siteName}`;
+        title = `Suggest a New Novel | Share Your Ideas - ${siteName}`;
         break;
       case 'teams':
-        title = `فريق المترجمين والمؤلفين | ${siteName}`;
+        title = `Translators & Authors Team | ${siteName}`;
         break;
       case 'notifications':
-        title = `مركز الإشعارات الشامل | ${siteName}`;
+        title = `Notifications Center | ${siteName}`;
         break;
       case 'profile':
-        title = `الملف الشخصي الفاخر | ${siteName}`;
+        title = `My Profile | ${siteName}`;
         break;
       case 'translator-panel':
-        title = `لوحة عمل المترجم والكاتب | ${siteName}`;
+        title = `Translator & Writer Work Panel | ${siteName}`;
         break;
       case 'admin':
-        title = `لوحة الإدارة والتحكم الملكية | ${siteName}`;
+        title = `Admin & Control Panel | ${siteName}`;
         break;
       case 'ads':
-        title = `مركز الإعلانات والترويج العام | ${siteName}`;
+        title = `Ads & Promotions Center | ${siteName}`;
         break;
       default:
         break;
@@ -470,17 +470,17 @@ export default function App() {
           dbChanged = true;
 
           const correspondingNovel = allNovels.find(n => n.id === chap.novelId);
-          const novelTitle = correspondingNovel ? correspondingNovel.titleAr : 'الرواية المترجمة';
+          const novelTitle = correspondingNovel ? (correspondingNovel.titleEn || correspondingNovel.titleAr) : 'the translated novel';
 
           // Private confirmation for the chapter's translator
           allNotifs.unshift({
             id: `notif-scheduled-publish-${Date.now()}-${chap.id}`,
             userId: correspondingNovel?.translatorId || 'system',
-            title: '🎉 نشر تلقائي لفصل مجدول!',
-            message: `لقد حان وقت النشر الميلادي المحدد للفصل "${chap.title}" من رواية "${novelTitle}" وتم نشره تلقائياً للقراء الآن!`,
+            title: '🎉 Scheduled chapter auto-published!',
+            message: `The scheduled publish time for chapter "${chap.title}" of "${novelTitle}" has arrived, and it has been auto-published to readers now!`,
             type: 'CHAPTER',
             isRead: false,
-            createdAt: 'الآن',
+            createdAt: 'now',
             novelId: chap.novelId,
             chapterId: chap.id
           });
@@ -490,11 +490,11 @@ export default function App() {
           // visible to everyone).
           allNotifs.unshift({
             id: `notif-chapter-live-${Date.now()}-${chap.id}`,
-            title: 'فصل جديد صدر!',
-            message: `تم نشر "${chap.title}" من رواية "${novelTitle}" وهو متاح الآن للقراءة!`,
+            title: 'New chapter released!',
+            message: `"${chap.title}" of "${novelTitle}" has been published and is now available to read!`,
             type: 'CHAPTER',
             isRead: false,
-            createdAt: 'الآن',
+            createdAt: 'now',
             novelId: chap.novelId,
             chapterId: chap.id
           });
@@ -549,11 +549,11 @@ export default function App() {
             allNotifs.push({
               id: `notif-expire-${Date.now()}-${res.id}`,
               userId: res.translatorId,
-              title: '⚠️ انتهاء صلاحية حجز الرواية (30 يوماً)',
-              message: `لقد تم إلغاء حجزك لرواية "${res.novelTitle}" تلقائياً بسبب عدم نشر أي فصول خلال مهلة الـ 30 يوماً، وقد عادت الرواية لقائمة الاقتراحات العامة لتصويت الأعضاء وحجز المترجمين الآخرين.`,
+              title: '⚠️ Novel reservation expired (30 days)',
+              message: `Your reservation for "${res.novelTitle}" was cancelled automatically because no chapters were published within the 30-day window, and the novel returned to the public suggestions list for member voting and other translators to reserve.`,
               type: 'RESERVATION',
               isRead: false,
-              createdAt: 'الآن'
+              createdAt: 'now'
             });
           }
         }
@@ -578,7 +578,7 @@ export default function App() {
     setJoinError('');
 
     if (!joinName.trim() || !joinLanguages.trim() || !joinContact.trim() || !joinExperience.trim() || !joinReason.trim()) {
-      setJoinError('يرجى ملء جميع الحقول المطلوبة بالكامل.');
+      setJoinError('Please fill in all required fields.');
       return;
     }
 
@@ -589,7 +589,7 @@ export default function App() {
       discord: joinContact,
       telegram: joinContact,
       experience: joinExperience,
-      languages: joinLanguages.split('،').map(l => l.trim()).filter(Boolean),
+      languages: joinLanguages.split(/[,،]/).map(l => l.trim()).filter(Boolean),
       reason: joinReason,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
@@ -605,15 +605,15 @@ export default function App() {
     const newNotif = {
       id: `notif-req-${Date.now()}`,
       userId: 'mistvil-owner',
-      title: '📥 طلب انضمام كمترجم/فريق جديد',
-      message: `العضو "${currentUser.username}" أرسل طلب انضمام كـ ${joinType === 'INDIVIDUAL' ? 'مترجم فرد' : 'فريق ترجمة كامل'} (${joinName}) لمراجعته وقبوله.`,
+      title: '📥 New translator/team application',
+      message: `Member "${currentUser.username}" submitted an application as ${joinType === 'INDIVIDUAL' ? 'an individual translator' : 'a full translation team'} (${joinName}) for review and approval.`,
       type: 'ROLE' as any,
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
 
-    setJoinSuccess(`تم تقديم طلب انضمامك كـ ${joinType === 'INDIVIDUAL' ? 'مترجم فرد' : 'فريق كامل'} بنجاح! جاري مراجعته حالياً من قبل مالك المنصة. 🌫️`);
+    setJoinSuccess(`Your application as ${joinType === 'INDIVIDUAL' ? 'an individual translator' : 'a full team'} was submitted successfully! It's now under review by the platform owner. 🌫️`);
     setJoinName('');
     setJoinLanguages('');
     setJoinContact('');
@@ -624,7 +624,7 @@ export default function App() {
   // Handle suggestion claim directly
   const handleClaimSuggestion = (sug: Suggestion) => {
     if (currentUser.role !== 'TRANSLATOR' && currentUser.role !== 'OWNER') {
-      alert('عذراً، يجب أن تكون مترجماً أو مالكاً لحجز الروايات المقترحة.');
+      alert('Sorry, you must be a translator or the owner to reserve suggested novels.');
       return;
     }
 
@@ -637,7 +637,7 @@ export default function App() {
       id: `novel-claimed-${Date.now()}`,
       titleAr: sug.titleAr,
       titleEn: sug.titleEn,
-      author: 'الكاتب الأصلي',
+      author: 'Original author',
       translatorId: currentUser.id,
       translatorName: currentUser.username,
       cover: sug.cover,
@@ -648,7 +648,7 @@ export default function App() {
       rating: 5.0,
       ratingCount: 1,
       status: 'RESERVED',
-      language: 'الكورية',
+      language: 'Korean',
       genres: sug.genres,
       description: sug.description,
       createdAt: new Date().toISOString(),
@@ -687,20 +687,20 @@ export default function App() {
     const newNotif = {
       id: `notif-claimed-${Date.now()}`,
       userId: currentUser.id,
-      title: 'تم استلام الاقتراح بنجاح!',
-      message: `لقد قمت بحجز الرواية المقترحة "${sug.titleAr}" بنجاح. تظهر الآن في لوحة المترجم وحسابك وجاري بدء عداد الحجز 30 يوماً.`,
+      title: 'Suggestion accepted successfully!',
+      message: `You reserved the suggested novel "${sug.titleEn || sug.titleAr}" successfully. It now appears in the translator panel and your account, and the 30-day reservation countdown is starting.`,
       type: 'RESERVATION',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
-    alert(`تهانينا! لقد قمت باستلام وحجز الرواية المقترحة "${sug.titleAr}" للترجمة بنجاح وجاري بدء عداد الحجز 30 يوماً.`);
+    alert(`Congratulations! You accepted and reserved the suggested novel "${sug.titleEn || sug.titleAr}" for translation successfully, and the 30-day reservation countdown is starting.`);
   };
 
   // Update dynamic simulated user role
   const handleRoleChange = (newRole: UserRole) => {
     if (newRole === 'OWNER' && currentUser.email?.toLowerCase() !== 'mistvil112@gmail.com') {
-      alert('خطأ أمني: رتبة المالك مخصصة حصرياً لمالك الموقع! يرجى تسجيل الدخول بحساب المالك (mistvil112@gmail.com) أولاً للوصول إلى لوحة الإدارة.');
+      alert('Security error: the owner role is reserved exclusively for the site owner! Please sign in with the owner account (mistvil112@gmail.com) first to access the admin panel.');
       return;
     }
     MistVilDatabase.set('current_role', newRole);
@@ -792,7 +792,7 @@ export default function App() {
     }
     
     window.dispatchEvent(new Event('user-updated'));
-    alert('تم حفظ وتحديث بيانات ملفك الشخصي بنجاح ونشرها حياً في الموقع! 🎉');
+    alert('Your profile was saved and updated successfully and published live on the site! 🎉');
     // Editing happens on its own dedicated page — return to the profile
     handleNavigate('profile');
   };
@@ -804,7 +804,7 @@ export default function App() {
 
     if (page === 'admin') {
       if (!isOwner) {
-        alert('عذراً، لوحة المالك والإدارة مخصصة حصرياً للمالك!');
+        alert('Sorry, the owner & admin panel is reserved exclusively for the owner!');
         setCurrentPage('home');
         return;
       }
@@ -812,7 +812,7 @@ export default function App() {
 
     if (page === 'translator-panel') {
       if (!isOwner && !isTranslatorOrWriter) {
-        alert('عذراً، لوحة العمل مخصصة للمترجمين، الكتاب، أو المالك فقط!');
+        alert('Sorry, the work panel is for translators, writers, or the owner only!');
         setCurrentPage('home');
         return;
       }
@@ -862,7 +862,7 @@ export default function App() {
   // Toggle Novel Bookmarks (Mofaddala)
   const handleBookmarkToggle = (novelId: string) => {
     if (currentUser.role === 'GUEST') {
-      alert('يجب تسجيل الدخول أولاً لتتمكن من إضافة الروايات إلى مفضلتك. 🌫️');
+      alert('You must sign in first to add novels to your bookmarks. 🌫️');
       window.dispatchEvent(new Event('open-login-modal'));
       return;
     }
@@ -911,13 +911,13 @@ export default function App() {
     setSuggestions(updated);
     MistVilDatabase.set('suggestions', updated);
     setShowSuggestDialog(false);
-    alert('شكرًا لك! تم تسجيل اقتراحك بنجاح وهو متاح للتصويت الآن من قبل جميع الأعضاء.');
+    alert('Thank you! Your suggestion was recorded successfully and is now open for voting by all members.');
   };
 
   // Vote on specific suggestion
   const handleVoteSuggestion = (sugId: string) => {
     if (currentUser.role === 'GUEST') {
-      alert('يجب تسجيل الدخول أولاً لتتمكن من التصويت على الاقتراحات. 🌫️');
+      alert('You must sign in first to vote on suggestions. 🌫️');
       window.dispatchEvent(new Event('open-login-modal'));
       return;
     }
@@ -1014,7 +1014,7 @@ export default function App() {
           if (item.novelId) {
             handleNavigate('novel', { id: item.novelId });
           } else {
-            alert(`إعلان المنصة: ${item.title}`);
+            alert(`Platform announcement: ${item.title}`);
           }
         }}
       />
@@ -1034,7 +1034,7 @@ export default function App() {
         {currentPage === 'home' && (
           <div className="flex flex-col gap-10">
             {/* dynamic custom hero welcome banner requested by user */}
-            <div className="relative w-full h-[160px] md:h-[240px] rounded-3xl overflow-hidden border border-white/5 shadow-xl flex items-center justify-between p-6 md:p-10 text-right animate-in fade-in duration-300">
+            <div className="relative w-full h-[160px] md:h-[240px] rounded-3xl overflow-hidden border border-white/5 shadow-xl flex items-center justify-between p-6 md:p-10 text-left animate-in fade-in duration-300">
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-all duration-500 hover:scale-[1.01]"
                 style={{ backgroundImage: `url(${safeSiteBanner})`, filter: 'brightness(0.35)' }}
@@ -1050,23 +1050,23 @@ export default function App() {
                   <span>{safeSiteName}</span>
                 </h1>
                 <p className="text-xs md:text-sm text-purple-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-semibold">
-                  المنصة العربية الفاخرة لترجمة وتأليف الروايات والقصص الخيالية ✨
+                  The premium platform for translating and writing fantasy novels and stories ✨
                 </p>
                 <p className="text-[10px] text-purple-300/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] hidden sm:block leading-relaxed">
-                  استكشف فصولاً حصرية، وتابع مترجميك المفضلين، وشارك آرائك في بيئة قراءة مصممة خصيصاً للشغوفين بالخيال والأكشن!
+                  Explore exclusive chapters, follow your favorite translators, and share your thoughts in a reading environment built for fantasy and action fans!
                 </p>
               </div>
             </div>
 
             {activeNovels.length === 0 ? (
-              <div className="w-full text-right p-8 md:p-12 rounded-3xl bg-white/5 border border-white/5 relative overflow-hidden">
+              <div className="w-full text-left p-8 md:p-12 rounded-3xl bg-white/5 border border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[80px]" />
                 <div className="absolute bottom-0 right-0 w-64 h-64 bg-rose-600/10 rounded-full blur-[80px]" />
                 
                 <img src="/site_logo_v2.png" alt="Logo" className="w-12 h-12 rounded-full object-cover filter drop-shadow-[0_0_15px_rgba(56,189,248,0.5)] mb-4 block" referrerPolicy="no-referrer" />
-                <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">أهلاً بك في منصة {safeSiteName} الفاخرة!</h2>
+                <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">Welcome to {safeSiteName}!</h2>
                 <p className="text-purple-300 text-sm md:text-base leading-relaxed max-w-3xl">
-                  لا توجد روايات منشورة بالمنصة حتى الآن. ترقبوا قريباً أولى الروايات والفصول المترجمة الحصرية! ✨
+                  There are no published novels yet. Stay tuned for the first exclusive translated novels and chapters! ✨
                 </p>
               </div>
             ) : (
@@ -1085,14 +1085,14 @@ export default function App() {
                   onChapterClick={handleReadChapter}
                 />
 
-                {/* Trending Section (الروايات الرائجة اليوم) */}
-                <div className="w-full text-right mt-4">
+                {/* Trending Section */}
+                <div className="w-full text-left mt-4">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
                       <Flame size={20} className="text-rose-400 animate-pulse" />
-                      <span>الروايات الرائجة والترند اليوم</span>
+                      <span>Trending novels today</span>
                     </h2>
-                    <span className="text-xs text-purple-400">تحديث فوري</span>
+                    <span className="text-xs text-purple-400">Live updates</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                     {trendingNovels.map((novel, idx) => (
@@ -1108,18 +1108,18 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Latest added chapters section (آخر الفصول المضافة) */}
-                <div className="w-full text-right my-4">
+                {/* Latest added chapters section */}
+                <div className="w-full text-left my-4">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
                       <Layers size={20} className="text-violet-400" />
-                      <span>آخر الفصول المضافة بالمنصة</span>
+                      <span>Latest added chapters</span>
                     </h2>
                     <button 
                       onClick={() => handleNavigate('explore')}
                       className="text-xs text-violet-400 hover:text-white"
                     >
-                      عرض فلاتر المكتبة ←
+                      Show library filters →
                     </button>
                   </div>
 
@@ -1130,14 +1130,14 @@ export default function App() {
                           onClick={() => handleReadChapter(novel.id, novel.chaptersCount)}
                           className="p-4 bg-[#0E1626] hover:bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 cursor-pointer transition-all hover:-translate-y-0.5 group relative"
                         >
-                          {/* Purple "جديد" (New) ribbon badge as requested in specs */}
+                          {/* Purple "New" ribbon badge as requested in specs */}
                           <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-[9px] font-bold bg-violet-600 text-white shadow-md animate-pulse">
-                            جديد
+                            New
                           </span>
 
                           <img src={novel.cover} alt={novel.titleAr} className="w-12 h-18 rounded-xl object-cover shrink-0" loading="lazy" referrerPolicy="no-referrer" />
                           
-                          <div className="flex-1 flex flex-col justify-between min-w-0 text-right">
+                          <div className="flex-1 flex flex-col justify-between min-w-0 text-left">
                             <div>
                               <h4 className="font-extrabold text-xs text-white group-hover:text-violet-400 transition-colors truncate">
                                 {novel.titleAr}
@@ -1146,8 +1146,8 @@ export default function App() {
                             </div>
                             
                             <div className="flex justify-between items-center mt-2 text-[10px] text-purple-300 border-t border-white/5 pt-2">
-                              <span className="font-bold text-violet-300">قراءة الفصل {novel.chaptersCount} ←</span>
-                              <span className="text-purple-400">منذ دقائق</span>
+                              <span className="font-bold text-violet-300">Read chapter {novel.chaptersCount} →</span>
+                              <span className="text-purple-400">minutes ago</span>
                             </div>
                           </div>
                         </div>
@@ -1155,13 +1155,13 @@ export default function App() {
                     </div>
                 </div>
                 {/* All Published Novels / Latest Added Section */}
-                <div className="w-full text-right mt-10">
+                <div className="w-full text-left mt-10">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
                       <span className="text-violet-400">✨</span>
-                      <span>جميع الروايات المنشورة بالمنصة (أحدث الإضافات)</span>
+                      <span>All published novels (newest first)</span>
                     </h2>
-                    <span className="text-xs text-purple-400">تحديث تلقائي فوري</span>
+                    <span className="text-xs text-purple-400">Live auto-updates</span>
                   </div>
                   
                   {activeNovels.length > 0 ? (
@@ -1181,7 +1181,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="p-8 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
-                      <p className="text-xs">لا توجد روايات منشورة حالياً.</p>
+                      <p className="text-xs">There are no published novels right now.</p>
                     </div>
                   )}
                 </div>
@@ -1227,19 +1227,19 @@ export default function App() {
 
         {/* ==================== SCREEN 5: TRANSLATORS CLAIMS / SUGGESTIONS LIST ==================== */}
         {currentPage === 'suggestions' && (
-          <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+          <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
             <div className="p-6 bg-[#131F33] rounded-3xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                   <Compass size={24} className="text-rose-400 animate-pulse" />
-                  <span>اقتراح ورش روائية جديدة للتصويت</span>
+                  <span>Suggest new novels for voting</span>
                 </h1>
-                <p className="text-xs text-purple-300 mt-1">صوت للروايات التي تتمنى رؤيتها مترجمة حياً بالمنصة أو قدم اقتراحاً جديداً!</p>
+                <p className="text-xs text-purple-300 mt-1">Vote for novels you want to see translated live on the platform, or submit a new suggestion!</p>
               </div>
               <button 
                 onClick={() => {
                   if (currentUser.role === 'GUEST') {
-                    alert('يجب تسجيل الدخول أولاً لتتمكن من تقديم اقتراحات الروايات. 🌫️');
+                    alert('You must sign in first to submit novel suggestions. 🌫️');
                     window.dispatchEvent(new Event('open-login-modal'));
                     return;
                   }
@@ -1247,7 +1247,7 @@ export default function App() {
                 }}
                 className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold shadow-lg self-start sm:self-auto shrink-0 cursor-pointer"
               >
-                تقديم اقتراح جديد +
+                Submit a new suggestion +
               </button>
             </div>
 
@@ -1255,7 +1255,7 @@ export default function App() {
             <div className="flex flex-col gap-4">
               {suggestions.filter(s => s.status === 'PENDING').length > 0 ? (
                 suggestions.filter(s => s.status === 'PENDING').map((sug) => (
-                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right">
+                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-left">
                     <img src={sug.cover} alt={sug.titleAr} className="w-24 h-36 rounded-xl object-cover border border-white/5 shrink-0 shadow-lg" />
                     
                     <div className="flex-1 w-full flex flex-col justify-between">
@@ -1266,7 +1266,7 @@ export default function App() {
                             onClick={() => handleVoteSuggestion(sug.id)}
                             className={`px-4 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${sug.votedUsers.includes(currentUser.id) ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-extrabold' : 'bg-white/5 border-white/10 text-purple-300 hover:bg-white/10'}`}
                           >
-                            <span>👍 صوت للترجمة ({sug.votes})</span>
+                            <span>👍 Vote to translate ({sug.votes})</span>
                           </button>
                         </div>
                         <p className="text-[10px] text-purple-400 mt-0.5">{sug.titleEn}</p>
@@ -1274,16 +1274,16 @@ export default function App() {
                       </div>
 
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-6 pt-3 border-t border-white/5 text-[10px] text-purple-400 gap-3 w-full">
-                        <span>اقترح بواسطة: <span className="font-bold text-white">{sug.suggestedBy}</span></span>
+                        <span>Suggested by: <span className="font-bold text-white">{sug.suggestedBy}</span></span>
                         
                         <div className="flex items-center gap-2">
-                          <span className="text-purple-400">مفتوح للتصويت العام</span>
+                          <span className="text-purple-400">Open for public voting</span>
                           {(currentUser.role === 'TRANSLATOR' || currentUser.role === 'OWNER') && (
                             <button
                               onClick={() => handleClaimSuggestion(sug)}
                               className="px-4 py-1.5 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-md shadow-violet-500/10 flex items-center gap-1"
                             >
-                              <span>حجز واستلام للترجمة 📝</span>
+                              <span>Reserve & pick up to translate 📝</span>
                             </button>
                           )}
                         </div>
@@ -1293,7 +1293,7 @@ export default function App() {
                 ))
               ) : (
                 <div className="p-12 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
-                  <p className="text-sm font-semibold">لا توجد اقتراحات روائية مفتوحة للتصويت حالياً.</p>
+                  <p className="text-sm font-semibold">There are no novel suggestions open for voting right now.</p>
                 </div>
               )}
             </div>
@@ -1302,26 +1302,26 @@ export default function App() {
 
         {/* ==================== SCREEN 6: TEAMS DIRECTORY ==================== */}
         {currentPage === 'teams' && (
-          <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+          <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
             <h2 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <Users size={20} className="text-violet-400 animate-pulse" />
-              <span>دليل المترجمين وفرق العمل المعتمدة ✍️</span>
+              <span>Directory of approved translators & teams ✍️</span>
             </h2>
 
             {/* Request to Join Box */}
-            <div className="mb-8 p-6 bg-gradient-to-r from-violet-950/30 to-purple-950/30 border border-violet-500/20 rounded-3xl relative overflow-hidden text-right shadow-xl">
+            <div className="mb-8 p-6 bg-gradient-to-r from-violet-950/30 to-purple-950/30 border border-violet-500/20 rounded-3xl relative overflow-hidden text-left shadow-xl">
               <div className="absolute top-0 left-0 w-32 h-32 bg-violet-600/5 rounded-full blur-[40px] pointer-events-none" />
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 border-b border-white/5 pb-4 mb-6">
                 <div>
                   <h3 className="text-sm md:text-base font-extrabold text-white flex items-center gap-2">
                     <Award size={18} className="text-violet-400" />
-                    <span>طلب الانضمام كـ (فرد مستقل) أو (فريق عمل متكامل)</span>
+                    <span>Apply as an (independent individual) or a (full team)</span>
                   </h3>
-                  <p className="text-[10px] text-purple-300 mt-1">هل أنت مترجم مستقل ترغب بنشر فصولك؟ أم لديك فريق ترجمة كامل ترغب بتسجيله بالمنصة؟ قدّم طلبك الآن!</p>
+                  <p className="text-[10px] text-purple-300 mt-1">Are you an independent translator who wants to publish chapters? Or do you have a full translation team to register on the platform? Apply now!</p>
                 </div>
                 {currentUser.role === 'GUEST' ? (
                   <span className="text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl font-bold">
-                    ⚠️ يرجى تسجيل الدخول أولاً لتقديم طلب الانضمام
+                    ⚠️ Please sign in first to submit an application
                   </span>
                 ) : (
                   <button 
@@ -1332,7 +1332,7 @@ export default function App() {
                     }}
                     className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 self-start cursor-pointer hover:shadow-violet-500/10"
                   >
-                    {showJoinForm ? 'إغلاق نموذج الطلب ▲' : 'فتح نموذج تقديم طلب الانضمام ▼'}
+                    {showJoinForm ? 'Close application form ▲' : 'Open the application form ▼'}
                   </button>
                 )}
               </div>
@@ -1353,35 +1353,35 @@ export default function App() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Join Type Selector */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">طبيعة الانضمام المطلوب *</label>
+                      <label className="text-purple-200 font-bold">Type of application *</label>
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={() => setJoinType('INDIVIDUAL')}
                           className={`py-2 px-3 rounded-xl border font-bold transition-all text-center flex justify-center items-center gap-1.5 ${joinType === 'INDIVIDUAL' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-white/5 border-white/5 text-purple-300 hover:bg-white/10'}`}
                         >
-                          <span>مترجم فرد مستقل ✍️</span>
+                          <span>Independent individual translator ✍️</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setJoinType('TEAM')}
                           className={`py-2 px-3 rounded-xl border font-bold transition-all text-center flex justify-center items-center gap-1.5 ${joinType === 'TEAM' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-white/5 border-white/5 text-purple-300 hover:bg-white/10'}`}
                         >
-                          <span>فريق ترجمة كامل 👥</span>
+                          <span>Full translation team 👥</span>
                         </button>
                       </div>
                     </div>
 
                     {/* Team/Individual Name */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">الاسم (الاسم الشخصي أو اسم الفريق) *</label>
+                      <label className="text-purple-200 font-bold">Name (your name or team name) *</label>
                       <input
                         type="text"
                         required
                         value={joinName}
                         onChange={(e) => setJoinName(e.target.value)}
-                        placeholder={joinType === 'INDIVIDUAL' ? 'أدخل اسمك الفني كمترجم...' : 'أدخل اسم الفريق المُراد تسجيله...'}
-                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        placeholder={joinType === 'INDIVIDUAL' ? 'Enter your translator name...' : 'Enter the team name to register...'}
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-left"
                       />
                     </div>
                   </div>
@@ -1389,27 +1389,27 @@ export default function App() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Languages */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">اللغات التي تترجم منها *</label>
+                      <label className="text-purple-200 font-bold">Languages you translate from *</label>
                       <input
                         type="text"
                         required
                         value={joinLanguages}
                         onChange={(e) => setJoinLanguages(e.target.value)}
-                        placeholder="مثال: الكورية، الإنجليزية، اليابانية..."
-                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        placeholder="e.g. Korean, English, Japanese..."
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-left"
                       />
                     </div>
 
                     {/* Discord/Telegram */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">رابط أو معرف للتواصل (ديسكورد / تليجرام) *</label>
+                      <label className="text-purple-200 font-bold">Contact link or handle (Discord / Telegram) *</label>
                       <input
                         type="text"
                         required
                         value={joinContact}
                         onChange={(e) => setJoinContact(e.target.value)}
-                        placeholder="مثال: dsc.gg/yourteam أو معرف تليجرام..."
-                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right"
+                        placeholder="e.g. dsc.gg/yourteam or a Telegram handle..."
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-left"
                       />
                     </div>
                   </div>
@@ -1417,27 +1417,27 @@ export default function App() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Experience */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">الخبرة السابقة ومشاريعكم السابقة بالتفصيل *</label>
+                      <label className="text-purple-200 font-bold">Previous experience and past projects in detail *</label>
                       <textarea
                         required
                         rows={3}
                         value={joinExperience}
                         onChange={(e) => setJoinExperience(e.target.value)}
-                        placeholder="أدخل أسماء الروايات أو الفصول التي قمت بترجمتها سابقاً..."
-                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
+                        placeholder="Enter the novels or chapters you have translated before..."
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-left resize-none"
                       />
                     </div>
 
                     {/* Reason / Bio */}
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-purple-200 font-bold">نبذة أو سبب رغبتك بالانضمام لمنصتنا *</label>
+                      <label className="text-purple-200 font-bold">A short note or your reason for joining us *</label>
                       <textarea
                         required
                         rows={3}
                         value={joinReason}
                         onChange={(e) => setJoinReason(e.target.value)}
-                        placeholder="لماذا تود نشر ترجماتك أو نقل فريقك الفاخر للعمل على منصة ميست فيل؟..."
-                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-right resize-none"
+                        placeholder="Why do you want to publish your translations or move your team to MistVil?..."
+                        className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white text-xs transition-all text-left resize-none"
                       />
                     </div>
                   </div>
@@ -1447,7 +1447,7 @@ export default function App() {
                     className="w-full md:w-fit px-8 py-3 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold transition-all shadow-md self-end flex items-center gap-1.5 cursor-pointer"
                   >
                     <Send size={14} />
-                    <span>تقديم طلب الانضمام للإدارة 🚀</span>
+                    <span>Submit application to admin 🚀</span>
                   </button>
                 </form>
               )}
@@ -1455,7 +1455,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {teams.map((team) => (
-                <div key={team.id} className="p-6 bg-[#131F33] border border-white/5 rounded-3xl flex flex-col justify-between text-right shadow-md">
+                <div key={team.id} className="p-6 bg-[#131F33] border border-white/5 rounded-3xl flex flex-col justify-between text-left shadow-md">
                   <div>
                     <div 
                       onClick={() => setSelectedTeam(team)}
@@ -1464,13 +1464,13 @@ export default function App() {
                       <span className="text-3xl p-2 bg-white/5 rounded-2xl border border-white/5">{team.logo}</span>
                       <div>
                         <h3 className="font-extrabold text-sm text-white hover:text-violet-300 transition-colors">{team.name}</h3>
-                        <span className="text-[10px] text-purple-400">تاريخ التأسيس: {new Date(team.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                        <span className="text-[10px] text-purple-400">Founded: {new Date(team.createdAt).toLocaleDateString('en-US')}</span>
                       </div>
                     </div>
 
                     <p className="text-xs text-purple-300 leading-relaxed mb-4">{team.bio}</p>
 
-                    <h4 className="font-bold text-[10px] text-violet-400 uppercase tracking-wider mb-2">أعضاء الفريق النشطين:</h4>
+                    <h4 className="font-bold text-[10px] text-violet-400 uppercase tracking-wider mb-2">Active team members:</h4>
                     <div className="flex gap-2 flex-wrap mb-4">
                       {team.members.map((member, idx) => (
                         <div key={idx} className="flex items-center gap-1 bg-white/5 border border-white/5 px-2.5 py-1 rounded-xl text-[10px] text-purple-200">
@@ -1482,20 +1482,20 @@ export default function App() {
                   </div>
 
                   <div className="flex justify-between items-center text-[10px] pt-3 border-t border-white/5">
-                    <span className="text-purple-400">يشرف على {team.novelsCount} روايات نشطة</span>
+                    <span className="text-purple-400">Manages {team.novelsCount} active novels</span>
                     <div className="flex gap-2">
                       <button 
                         onClick={() => setSelectedTeam(team)}
                         className="text-violet-400 hover:text-white font-extrabold cursor-pointer transition-colors"
                       >
-                        عرض التفاصيل والأعمال 📂
+                        View details & works 📂
                       </button>
                       <span className="text-white/10">|</span>
                       <button 
-                        onClick={() => alert(`شكراً لاهتمامك بالانضمام إلى "${team.name}"! يرجى التواصل مع مسؤول الفريق المكتوب في تفاصيل الفريق لطلب الانضمام.`)}
+                        onClick={() => alert(`Thanks for your interest in joining "${team.name}"! Please contact the team lead listed in the team details to request to join.`)}
                         className="text-purple-300 hover:text-white font-bold cursor-pointer transition-colors"
                       >
-                        انضم للفريق
+                        Join the team
                       </button>
                     </div>
                   </div>
@@ -1507,21 +1507,21 @@ export default function App() {
 
         {/* ==================== SCREEN: FULL NOTIFICATIONS PAGE ==================== */}
         {currentPage === 'notifications' && (
-          <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+          <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
             <div className="p-6 bg-[#131F33] border border-white/5 rounded-3xl mb-8 flex items-center justify-between">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2 font-sans">
                   <Bell className="text-rose-400" size={24} />
-                  <span>مركز الإشعارات الشامل 🔔</span>
+                  <span>Notifications Center 🔔</span>
                 </h1>
-                <p className="text-xs text-purple-300 mt-1">تابع آخر المستجدات والتنبيهات، وقرارات الإدارة بخصوص حسابك والترقيات.</p>
+                <p className="text-xs text-purple-300 mt-1">Keep up with the latest updates and alerts, and admin decisions about your account and promotions.</p>
               </div>
               <span className="text-3xl">📣</span>
             </div>
 
             <div className="p-6 bg-[#0E1626] border border-white/5 rounded-3xl">
               <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6 flex-wrap gap-3">
-                <h3 className="font-extrabold text-sm text-white">قائمة الإشعارات الواردة</h3>
+                <h3 className="font-extrabold text-sm text-white">Incoming notifications</h3>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => {
@@ -1538,7 +1538,7 @@ export default function App() {
                     }}
                     className="px-4 py-2 bg-violet-600/10 hover:bg-violet-600/20 text-violet-400 border border-violet-500/10 rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
-                    تعليم الكل كمقروء ✓
+                    Mark all as read ✓
                   </button>
                   <button 
                     onClick={() => {
@@ -1552,15 +1552,15 @@ export default function App() {
                     }}
                     className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 border border-red-500/10 rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
-                    مسح كافة الإشعارات 🗑️
+                    Clear all notifications 🗑️
                   </button>
                 </div>
               </div>
 
               {(() => {
                 const rawNotifs = MistVilDatabase.get<any[]>('notifications', [
-                  { id: '1', title: 'فصل جديد متاح!', message: 'الفصل 165 من "بداية بعد النهاية" متوفر الآن للقراءة.', isRead: false, createdAt: 'منذ ١٠ دقائق' },
-                  { id: '2', title: 'موافقة على روايتك', message: 'تمت الموافقة على رواية "عودة ملك الظلال" ونشرها بنجاح.', isRead: true, createdAt: 'منذ ساعة' }
+                  { id: '1', title: 'New chapter available!', message: 'Chapter 165 of "The Beginning After the End" is now available to read.', isRead: false, createdAt: '10 minutes ago' },
+                  { id: '2', title: 'Your novel was approved', message: 'The novel "Return of the Shadow King" was approved and published successfully.', isRead: true, createdAt: '1 hour ago' }
                 ]);
                 const userNotifications = rawNotifs.filter(n => {
                   if (currentUser.role === 'GUEST') {
@@ -1595,12 +1595,12 @@ export default function App() {
                             </div>
                             <span className="text-[10px] text-purple-400 font-mono">{notif.createdAt}</span>
                           </div>
-                          <p className="text-xs text-purple-200/90 leading-relaxed mt-1 whitespace-pre-line text-right">{notif.message}</p>
+                          <p className="text-xs text-purple-200/90 leading-relaxed mt-1 whitespace-pre-line text-left">{notif.message}</p>
                         </div>
                       ))
                     ) : (
                       <div className="p-12 text-center text-purple-400">
-                        <p className="text-sm">لا توجد لديك إشعارات حالياً.</p>
+                        <p className="text-sm">You have no notifications right now.</p>
                       </div>
                     )}
                   </div>
@@ -1612,7 +1612,7 @@ export default function App() {
 
         {/* ==================== SCREEN 7: MEMBER PROFILE PAGE ==================== */}
         {currentPage === 'profile' && (
-          <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+          <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
             <div className="relative rounded-3xl overflow-hidden border border-white/5 shadow-xl select-none mb-6">
               {/* Cover banner image */}
               <div 
@@ -1626,7 +1626,7 @@ export default function App() {
 
               {/* Inner card profile info overlapping the banner */}
               <div className="px-6 pb-6 relative z-10 -mt-10 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-5">
-                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-right">
+                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
                   <img 
                     src={currentUser.avatar} 
                     alt={currentUser.username} 
@@ -1641,18 +1641,18 @@ export default function App() {
                           .filter(n => n.translatorId === currentUser.id && n.status !== 'PENDING').length;
                         
                         let rankLabel = currentUser.role;
-                        if (currentUser.role === 'OWNER') rankLabel = 'المالك 👑';
-                        else if (currentUser.role === 'SUPERVISOR') rankLabel = 'مشرف 🛡️';
-                        else if (currentUser.role === 'MEMBER') rankLabel = 'قارئ 👤';
+                        if (currentUser.role === 'OWNER') rankLabel = 'Owner 👑';
+                        else if (currentUser.role === 'SUPERVISOR') rankLabel = 'Supervisor 🛡️';
+                        else if (currentUser.role === 'MEMBER') rankLabel = 'Reader 👤';
                         else if (currentUser.role === 'TRANSLATOR' || currentUser.role === 'WRITER') {
-                          if (userNovelsCount > 10) rankLabel = 'مترجم وكاتب محترف 🏆';
-                          else if (userNovelsCount > 6) rankLabel = 'مترجم وكاتب خبير 🎖️';
-                          else rankLabel = 'مترجم وكاتب ✍️';
+                          if (userNovelsCount > 10) rankLabel = 'Pro Translator & Writer 🏆';
+                          else if (userNovelsCount > 6) rankLabel = 'Expert Translator & Writer 🎖️';
+                          else rankLabel = 'Translator & Writer ✍️';
                         }
 
                         return (
                           <span className="text-[10px] bg-gradient-to-r from-rose-600 to-violet-600 text-white border border-violet-500/30 px-3 py-0.5 rounded-full font-bold shadow-md shadow-violet-500/10">
-                            الرتبة: {rankLabel}
+                            Rank: {rankLabel}
                           </span>
                         );
                       })()}
@@ -1667,7 +1667,7 @@ export default function App() {
                   className="px-4 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer hover:shadow-violet-500/20 mb-2 self-center sm:self-end"
                 >
                   <Edit size={14} />
-                  <span>تعديل الملف الشخصي ⚙️</span>
+                  <span>Edit profile ⚙️</span>
                 </button>
               </div>
 
@@ -1675,11 +1675,11 @@ export default function App() {
               <div className="p-6 pt-0 border-t border-white/5 bg-[#0E1626]/90">
                 <div className={`grid grid-cols-1 ${['OWNER', 'TRANSLATOR', 'WRITER'].includes(currentUser.role) ? 'md:grid-cols-2' : ''} gap-6 mt-6`}>
                   {/* Bio & Details */}
-                  <div className="text-right flex flex-col gap-3">
+                  <div className="text-left flex flex-col gap-3">
                     <div>
-                      <span className="text-[10px] text-purple-400 font-bold block mb-1">النبذة الشخصية:</span>
+                      <span className="text-[10px] text-purple-400 font-bold block mb-1">Bio:</span>
                       <p className="text-xs text-purple-200 leading-relaxed bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-                        {currentUser.bio || 'لم تقم بكتابة نبذة شخصية حتى الآن. انقر على زر التعديل لإضافة نبذتك الشخصية! ✨'}
+                        {currentUser.bio || 'You haven\'t written a bio yet. Click the edit button to add your bio! ✨'}
                       </p>
                     </div>
                   </div>
@@ -1687,22 +1687,22 @@ export default function App() {
                   {/* Support & contact methods: shown ONLY for the owner and
                       owner-approved creative roles — never for regular readers */}
                   {['OWNER', 'TRANSLATOR', 'WRITER'].includes(currentUser.role) && (
-                  <div className="text-right flex flex-col gap-3">
-                    <span className="text-[10px] text-purple-400 font-bold block mb-1">طرق الدعم والتواصل المعتمدة:</span>
+                  <div className="text-left flex flex-col gap-3">
+                    <span className="text-[10px] text-purple-400 font-bold block mb-1">Approved support & contact methods:</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-1">
-                        <span className="text-[9px] text-purple-400 font-bold">📧 حساب الدعم PayPal:</span>
-                        <span className="text-white font-mono break-all">{currentUser.paypalEmail || 'لم يتم الربط حالياً'}</span>
+                        <span className="text-[9px] text-purple-400 font-bold">📧 PayPal support account:</span>
+                        <span className="text-white font-mono break-all">{currentUser.paypalEmail || 'Not linked yet'}</span>
                       </div>
                       <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-1">
-                        <span className="text-[9px] text-purple-400 font-bold">🔗 رابط الدعم المالي المباشر:</span>
+                        <span className="text-[9px] text-purple-400 font-bold">🔗 Direct financial support link:</span>
                         {currentUser.supportLink ? (
                           <a href={currentUser.supportLink} target="_blank" rel="noreferrer" className="text-violet-400 hover:text-white hover:underline truncate font-bold flex items-center gap-1">
                             <Link size={12} />
-                            <span>صفحة الدعم الخاصة بي</span>
+                            <span>My support page</span>
                           </a>
                         ) : (
-                          <span className="text-purple-500/70 italic">لا يوجد رابط دعم حالياً</span>
+                          <span className="text-purple-500/70 italic">No support link yet</span>
                         )}
                       </div>
                       {/* Social media accounts: owner-managed list only */}
@@ -1722,23 +1722,23 @@ export default function App() {
                 {/* Stats Section */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/5 text-center">
                   <div className="p-3 bg-white/5 rounded-xl border border-white/5">
-                    <span className="text-[10px] text-purple-400 block mb-1">المستوى</span>
+                    <span className="text-[10px] text-purple-400 block mb-1">Level</span>
                     <span className="font-extrabold text-white text-base">Lvl {currentUser.level}</span>
                   </div>
                   <div className="p-3 bg-white/5 rounded-xl border border-white/5">
-                    <span className="text-[10px] text-purple-400 block mb-1">XP الإجمالي</span>
+                    <span className="text-[10px] text-purple-400 block mb-1">Total XP</span>
                     <span className="font-extrabold text-white text-base">{currentUser.xp} XP</span>
                   </div>
                   <button 
                     onClick={() => setShowProfileFavorites(!showProfileFavorites)}
                     className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center ${showProfileFavorites ? 'border-violet-500/50 bg-violet-500/10 shadow-[0_0_15px_rgba(56,189,248,0.15)] scale-102' : 'bg-white/5 border-white/5 hover:border-violet-500/20'}`}
                   >
-                    <span className="text-[10px] text-purple-400 block mb-1">الروايات المفضلة</span>
+                    <span className="text-[10px] text-purple-400 block mb-1">Bookmarked novels</span>
                     <span className="font-extrabold text-white text-base flex items-center gap-1">
                       {bookmarks.length} <Heart size={14} className="text-rose-400 fill-rose-400 animate-pulse" />
                     </span>
                     <span className="text-[9px] text-violet-400 mt-0.5 font-bold">
-                      {showProfileFavorites ? 'انقر لإخفائها ▲' : 'انقر لتصفحها ▼'}
+                      {showProfileFavorites ? 'Click to hide ▲' : 'Click to browse ▼'}
                     </span>
                   </button>
                 </div>
@@ -1751,9 +1751,9 @@ export default function App() {
                 <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-3">
                   <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                     <Heart size={16} className="text-rose-400 fill-rose-400 animate-pulse" />
-                    <span>قائمة الروايات المفضلة الخاصة بك ({bookmarks.length})</span>
+                    <span>Your bookmarked novels ({bookmarks.length})</span>
                   </h3>
-                  <span className="text-[10px] text-purple-400 font-bold">انقر على الرواية للذهاب لصفحة فصولها حياً</span>
+                  <span className="text-[10px] text-purple-400 font-bold">Click a novel to go to its live chapters page</span>
                 </div>
 
                 {bookmarks.length > 0 ? (
@@ -1783,12 +1783,12 @@ export default function App() {
                                 handleBookmarkToggle(novel.id);
                               }}
                               className="absolute top-2 left-2 p-1.5 bg-black/60 hover:bg-black/80 text-rose-400 hover:text-white rounded-full transition-all cursor-pointer z-10"
-                              title="إزالة من المفضلة"
+                              title="Remove from bookmarks"
                             >
                               <Heart size={12} className="fill-current" />
                             </button>
                           </div>
-                          <div className="p-2.5 text-right flex-1 flex flex-col justify-between">
+                          <div className="p-2.5 text-left flex-1 flex flex-col justify-between">
                             <div>
                               <h4 className="font-extrabold text-[11px] text-white group-hover:text-violet-400 transition-colors truncate">
                                 {novel.titleAr}
@@ -1796,7 +1796,7 @@ export default function App() {
                               <span className="text-[9px] text-purple-400 truncate block mt-0.5">{novel.titleEn}</span>
                             </div>
                             <div className="mt-2 pt-2 border-t border-white/5 text-[9px] text-purple-300 font-bold text-left">
-                              تصفح الرواية ←
+                              Browse novel →
                             </div>
                           </div>
                         </div>
@@ -1805,13 +1805,13 @@ export default function App() {
                 ) : (
                   <div className="py-12 px-4 text-center bg-[#0E1626]/50 rounded-2xl border border-dashed border-white/5 text-purple-400 animate-in fade-in duration-300">
                     <Heart size={32} className="mx-auto mb-3 text-purple-500/50" />
-                    <p className="text-xs font-semibold">مفضلتك فارغة تماماً حالياً!</p>
-                    <p className="text-[10px] text-purple-400 mt-1">ابدأ بإضافة رواياتك الفخمة المفضلة من المكتبة لتظهر هنا.</p>
+                    <p className="text-xs font-semibold">Your bookmarks are completely empty right now!</p>
+                    <p className="text-[10px] text-purple-400 mt-1">Start bookmarking your favorite novels from the library and they'll show up here.</p>
                     <button
                       onClick={() => handleNavigate('explore')}
                       className="px-5 py-2 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold mt-4 transition-transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-md shadow-violet-500/10"
                     >
-                      تصفح واستكشف المكتبة الآن 🧭
+                      Browse & explore the library now 🧭
                     </button>
                   </div>
                 )}
@@ -1823,7 +1823,7 @@ export default function App() {
               <div className="glass-panel p-6 rounded-3xl border border-white/5 mb-6 animate-in fade-in duration-300">
                 <h3 className="font-extrabold text-sm text-white mb-6 flex items-center gap-2 border-b border-white/5 pb-3">
                   <FileText size={16} className="text-violet-400" />
-                  <span>💼 لوحة الأعمال والحجوزات الشخصية</span>
+                  <span>💼 Personal works & reservations board</span>
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1831,7 +1831,7 @@ export default function App() {
                   <div>
                     <h4 className="font-bold text-xs text-purple-300 mb-3 flex items-center gap-1.5">
                       <BookOpen size={14} className="text-violet-400" />
-                      <span>الأعمال الحالية ({novels.filter(n => n.translatorId === currentUser.id).length})</span>
+                      <span>Current works ({novels.filter(n => n.translatorId === currentUser.id).length})</span>
                     </h4>
 
                     {novels.filter(n => n.translatorId === currentUser.id).length > 0 ? (
@@ -1842,14 +1842,14 @@ export default function App() {
                             <div 
                               key={novel.id}
                               onClick={() => handleNavigate('novel', { id: novel.id })}
-                              className="p-3 bg-[#0E1626] hover:bg-[#16243B] border border-white/5 hover:border-violet-500/20 rounded-xl flex items-center gap-3 cursor-pointer transition-all text-right"
+                              className="p-3 bg-[#0E1626] hover:bg-[#16243B] border border-white/5 hover:border-violet-500/20 rounded-xl flex items-center gap-3 cursor-pointer transition-all text-left"
                             >
                               <img src={novel.cover} alt={novel.titleAr} className="w-10 h-14 rounded-lg object-cover border border-white/5" />
-                              <div className="flex-1 text-right">
+                              <div className="flex-1 text-left">
                                 <h5 className="font-extrabold text-[11px] text-white truncate">{novel.titleAr}</h5>
                                 <span className="text-[9px] text-purple-400 block truncate">{novel.titleEn}</span>
                                 <span className="text-[8px] mt-1 inline-block bg-violet-600/20 text-violet-300 px-1.5 py-0.5 rounded font-bold">
-                                  {novel.chaptersCount} فصلاً • {novel.status}
+                                  {novel.chaptersCount} chapters • {novel.status}
                                 </span>
                               </div>
                             </div>
@@ -1857,7 +1857,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="p-6 text-center bg-[#0E1626]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
-                        {currentUser.role === 'WRITER' ? 'لم تقم بتأليف أي رواية حتى الآن.' : 'لم تقم بترجمة أي رواية مسجلة باسمك بعد.'}
+                        {currentUser.role === 'WRITER' ? 'You haven\'t authored any novels yet.' : 'You haven\'t translated any novels registered under your name yet.'}
                       </div>
                     )}
                   </div>
@@ -1866,7 +1866,7 @@ export default function App() {
                   <div>
                     <h4 className="font-bold text-xs text-purple-300 mb-3 flex items-center gap-1.5">
                       <Clock size={14} className="text-violet-400" />
-                      <span>الحجوزات النشطة على الملف ({MistVilDatabase.get<any[]>('reservations', []).filter(r => r.translatorId === currentUser.id && r.status === 'ACTIVE').length})</span>
+                      <span>Active reservations ({MistVilDatabase.get<any[]>('reservations', []).filter(r => r.translatorId === currentUser.id && r.status === 'ACTIVE').length})</span>
                     </h4>
 
                     {MistVilDatabase.get<any[]>('reservations', []).filter(r => r.translatorId === currentUser.id && r.status === 'ACTIVE').length > 0 ? (
@@ -1881,14 +1881,14 @@ export default function App() {
                                 className="p-3 bg-[#0E1626] border border-white/5 rounded-xl flex flex-col justify-between"
                               >
                                 <div className="flex justify-between items-start gap-2">
-                                  <h5 className="font-bold text-[11px] text-white truncate text-right">{res.novelTitle}</h5>
+                                  <h5 className="font-bold text-[11px] text-white truncate text-left">{res.novelTitle}</h5>
                                   <span className="text-[8px] bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded font-extrabold shrink-0">
-                                    {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'منتهي'}
+                                    {daysLeft > 0 ? `${daysLeft} days left` : 'Expired'}
                                   </span>
                                 </div>
                                 <div className="text-[8px] text-purple-400 mt-2 flex justify-between items-center font-mono">
-                                  <span>تاريخ الحجز: {new Date(res.startAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
-                                  <span>الانتهاء: {new Date(res.endAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                                  <span>Reserved: {new Date(res.startAt).toLocaleDateString('en-US')}</span>
+                                  <span>Ends: {new Date(res.endAt).toLocaleDateString('en-US')}</span>
                                 </div>
                               </div>
                             );
@@ -1896,7 +1896,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="p-6 text-center bg-[#0E1626]/50 border border-dashed border-white/5 rounded-2xl text-[10px] text-purple-400">
-                        لا توجد أي روايات محجوزة باسمك في الوقت الحالي.
+                        You have no novels reserved under your name right now.
                       </div>
                     )}
                   </div>
@@ -1914,7 +1914,7 @@ export default function App() {
                 <div className="glass-panel p-6 rounded-3xl border border-white/5">
                   <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-2">
                     <Award size={16} className="text-yellow-400" />
-                    <span>الأوسمة والإنجازات الشخصية الممنوحة من إدارة المنصة 🎖️</span>
+                    <span>Badges & achievements granted by platform admin 🎖️</span>
                   </h3>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
@@ -1924,7 +1924,7 @@ export default function App() {
                         <span className="font-bold text-xs text-white">{badge.name}</span>
                         <span className="text-[10px] text-purple-400 mt-1">{badge.desc}</span>
                         <span className="text-[8px] text-purple-500 mt-1.5 font-mono">
-                          مُنح: {new Date(badge.grantedAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}
+                          Granted: {new Date(badge.grantedAt).toLocaleDateString('en-US')}
                         </span>
                       </div>
                     ))}
@@ -1948,31 +1948,31 @@ export default function App() {
 
         {/* ==================== SCREEN 7.5: PROFILE EDIT PAGE (standalone) ==================== */}
         {currentPage === 'profile-edit' && currentUser.role !== 'GUEST' && (
-          <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+          <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => handleNavigate('profile')}
                 className="px-4 py-2 bg-white/5 hover:bg-white/10 text-purple-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
               >
-                ← عودة للملف الشخصي
+                ← Back to profile
               </button>
-              <h2 className="text-lg md:text-xl font-extrabold text-white">تعديل الملف الشخصي ⚙️</h2>
+              <h2 className="text-lg md:text-xl font-extrabold text-white">Edit profile ⚙️</h2>
             </div>
               <div className="p-6 bg-[#131F33] rounded-3xl border border-violet-500/20 shadow-2xl relative overflow-hidden mb-6 animate-in slide-in-from-top-4 duration-300">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-violet-600/5 rounded-full blur-[60px]" />
                 <div className="flex items-center gap-3 border-b border-white/5 pb-4 mb-6">
                   <Settings className="text-[#FF2255]" size={20} />
                   <div>
-                    <h3 className="font-extrabold text-sm text-white">تعديل بيانات ملفك الشخصي وطرق دعمك</h3>
-                    <p className="text-[10px] text-purple-400 mt-0.5 font-semibold">خصص مظهر حسابك الشخصي وقنوات التواصل والدعم الخاصة بك حياً.</p>
+                    <h3 className="font-extrabold text-sm text-white">Edit your profile details and support methods</h3>
+                    <p className="text-[10px] text-purple-400 mt-0.5 font-semibold">Customize your account's look and your contact and support channels live.</p>
                   </div>
                 </div>
 
-                <form onSubmit={handleSaveProfile} className="flex flex-col gap-5 text-right">
+                <form onSubmit={handleSaveProfile} className="flex flex-col gap-5 text-left">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Icon File Upload */}
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-purple-200">تحميل صورة الأيقونة الشخصية (PNG, JPG, JPEG, WEBP) *</label>
+                      <label className="text-xs font-bold text-purple-200">Upload profile avatar image (PNG, JPG, JPEG, WEBP) *</label>
                       <div className="relative border border-dashed border-white/10 hover:border-violet-500/40 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px]">
                         <input 
                           type="file" 
@@ -1983,33 +1983,33 @@ export default function App() {
                             const allowed = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
                             const extension = file.name.split('.').pop()?.toLowerCase() || '';
                             if (!allowed.includes(extension)) {
-                              alert('خطأ: يجب اختيار صورة بصيغة مدعومة (PNG, JPG, JPEG, WEBP, SVG)!');
+                              alert('Error: you must choose a supported image format (PNG, JPG, JPEG, WEBP, SVG)!');
                               return;
                             }
                             compressImageFile(file, 256)
                               .then((dataUrl) => setEditAvatar(dataUrl))
-                              .catch(() => alert('تعذر معالجة الأيقونة الشخصية. جرب صورة أصغر حجماً.'));
+                              .catch(() => alert('Could not process the avatar. Try a smaller image.'));
                           }}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
                         {editAvatar ? (
                           <div className="flex items-center gap-3">
                             <img src={editAvatar} alt="Avatar Preview" className="w-10 h-10 rounded-full border border-violet-500 object-cover" referrerPolicy="no-referrer" />
-                            <span className="text-[10px] text-green-400 font-bold">تم تحميل الأيقونة بنجاح ✓</span>
+                            <span className="text-[10px] text-green-400 font-bold">Avatar uploaded successfully ✓</span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-1">
                             <Camera size={16} className="text-purple-400" />
-                            <span className="text-[10px] text-purple-300 font-bold">انقر لاختيار ملف لصورتك الشخصية</span>
+                            <span className="text-[10px] text-purple-300 font-bold">Click to choose your avatar file</span>
                           </div>
                         )}
                       </div>
-                      <p className="text-[9px] text-purple-400 font-semibold">تأكد من إرفاق صورة حقيقية مفرغة أو مربعة لضمان أفضل مظهر.</p>
+                      <p className="text-[9px] text-purple-400 font-semibold">Attach a real square or cutout image for the best look.</p>
                     </div>
 
                     {/* Banner File Upload */}
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-purple-200">تحميل غلاف الملف الشخصي (PNG, JPG, JPEG, WEBP) *</label>
+                      <label className="text-xs font-bold text-purple-200">Upload profile cover (PNG, JPG, JPEG, WEBP) *</label>
                       <div className="relative border border-dashed border-white/10 hover:border-violet-500/40 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px]">
                         <input 
                           type="file" 
@@ -2020,12 +2020,12 @@ export default function App() {
                             const allowed = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
                             const extension = file.name.split('.').pop()?.toLowerCase() || '';
                             if (!allowed.includes(extension)) {
-                              alert('خطأ: يجب اختيار صورة بصيغة مدعومة (PNG, JPG, JPEG, WEBP, SVG)!');
+                              alert('Error: you must choose a supported image format (PNG, JPG, JPEG, WEBP, SVG)!');
                               return;
                             }
                             compressImageFile(file, 1600)
                               .then((dataUrl) => setEditBanner(dataUrl))
-                              .catch(() => alert('تعذر معالجة غلاف الحساب. جرب صورة أصغر حجماً.'));
+                              .catch(() => alert('Could not process the profile cover. Try a smaller image.'));
                           }}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
@@ -2034,27 +2034,27 @@ export default function App() {
                             <div className="w-16 h-8 rounded border border-violet-500 overflow-hidden">
                               <img src={editBanner} alt="Banner Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </div>
-                            <span className="text-[10px] text-green-400 font-bold">تم تحميل الغلاف بنجاح ✓</span>
+                            <span className="text-[10px] text-green-400 font-bold">Cover uploaded successfully ✓</span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-1">
                             <Image size={16} className="text-purple-400" />
-                            <span className="text-[10px] text-purple-300 font-bold">انقر لاختيار ملف PNG لغلاف الحساب</span>
+                            <span className="text-[10px] text-purple-300 font-bold">Click to choose a PNG file for the profile cover</span>
                           </div>
                         )}
                       </div>
-                      <p className="text-[9px] text-purple-400 font-semibold">صورة غلاف فخمة بصيغة PNG ليتم عرضها كخلفية لملفك الشخصي.</p>
+                      <p className="text-[9px] text-purple-400 font-semibold">A premium PNG cover image to display as your profile background.</p>
                     </div>
                   </div>
 
                   {/* Biography (textarea) */}
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-purple-200">النبذة التعريفية عنك (Bio)</label>
+                    <label className="text-xs font-bold text-purple-200">Your bio</label>
                     <textarea 
                       rows={3}
                       value={editBio}
                       onChange={(e) => setEditBio(e.target.value)}
-                      placeholder="اكتب شيئاً فخماً عن نفسك، اهتماماتك الروائية أو تخصصك في الترجمة..."
+                      placeholder="Write something great about yourself, your novel interests, or your translation specialty..."
                       className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors resize-none"
                     />
                   </div>
@@ -2066,14 +2066,14 @@ export default function App() {
                   <div className="border-t border-white/5 pt-5 mt-2">
                     <h4 className="text-xs font-bold text-violet-300 mb-3 flex items-center gap-1.5">
                       <DollarSign size={14} className="text-rose-400" />
-                      <span>قنوات التواصل وطرق الدعم والتمويل الخاصة بك:</span>
+                      <span>Your contact channels and support/funding methods:</span>
                     </h4>
-                    <p className="text-[9px] text-purple-400 mb-4 font-semibold">أدخل بياناتك ليتمكن القراء ومحبو أعمالك من تقديم الدعم المالي والتواصل المباشر معك بسهولة تامة.</p>
+                    <p className="text-[9px] text-purple-400 mb-4 font-semibold">Enter your details so readers and fans of your work can support you financially and reach you directly with ease.</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* PayPal Email */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-purple-200">بريد باي بال للدعم (PayPal Email)</label>
+                        <label className="text-[10px] font-bold text-purple-200">PayPal email for support</label>
                         <input 
                           type="email"
                           value={editPaypalEmail}
@@ -2086,7 +2086,7 @@ export default function App() {
 
                       {/* Support Link */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-purple-200">رابط صفحة الدعم المالي المباشر (Patreon, Ko-fi, etc.)</label>
+                        <label className="text-[10px] font-bold text-purple-200">Direct support page link (Patreon, Ko-fi, etc.)</label>
                         <input 
                           type="url"
                           value={editSupportLink}
@@ -2104,7 +2104,7 @@ export default function App() {
                         add social media links. */}
                     {currentUser.role === 'OWNER' && (
                       <div className="mt-5 pt-4 border-t border-white/5">
-                        <h4 className="text-xs font-bold text-violet-300 mb-3">مواقع التواصل الاجتماعي الخاصة بك (صلاحية المالك):</h4>
+                        <h4 className="text-xs font-bold text-violet-300 mb-3">Your social media links (owner permission):</h4>
                         <div className="flex flex-col gap-2.5">
                           {editSocialLinks.map((link, idx) => {
                             const platform = SOCIAL_PLATFORMS.find(pf => pf.id === link.id);
@@ -2114,7 +2114,7 @@ export default function App() {
                                   type="button"
                                   onClick={() => setEditSocialLinks(prev => prev.filter((_, i) => i !== idx))}
                                   className="p-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition-all cursor-pointer shrink-0"
-                                  title={`حذف ${platform?.name || link.id}`}
+                                  title={`Remove ${platform?.name || link.id}`}
                                 >
                                   <X size={12} />
                                 </button>
@@ -2129,7 +2129,7 @@ export default function App() {
                                   className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/5 text-[10px] text-white focus:outline-none focus:border-violet-500 transition-colors font-mono"
                                   dir="ltr"
                                 />
-                                <span className="w-28 shrink-0 text-[11px] font-bold text-purple-200 text-right">
+                                <span className="w-28 shrink-0 text-[11px] font-bold text-purple-200 text-left">
                                   {platform?.icon} {platform?.name || link.id}
                                 </span>
                               </div>
@@ -2140,20 +2140,20 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => {
-                                if (!newSocialPlatform) { alert('اختر موقع التواصل من القائمة أولاً.'); return; }
+                                if (!newSocialPlatform) { alert('Choose a social platform from the list first.'); return; }
                                 setEditSocialLinks(prev => [...prev, { id: newSocialPlatform, url: '' }]);
                                 setNewSocialPlatform('');
                               }}
                               className="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white rounded-xl text-xs font-extrabold cursor-pointer shadow-md shadow-violet-500/10 shrink-0"
                             >
-                              + إضافة
+                              + Add
                             </button>
                             <select
                               value={newSocialPlatform}
                               onChange={(e) => setNewSocialPlatform(e.target.value)}
-                              className="flex-1 bg-[#0B1322] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white outline-none focus:border-violet-500/50 text-right"
+                              className="flex-1 bg-[#0B1322] border border-white/10 rounded-xl px-3 py-2.5 text-[11px] text-white outline-none focus:border-violet-500/50 text-left"
                             >
-                              <option value="">— اختر موقعاً لإضافته —</option>
+                              <option value="">— Choose a platform to add —</option>
                               {SOCIAL_PLATFORMS.filter(pf => !editSocialLinks.some(l => l.id === pf.id)).map(pf => (
                                 <option key={pf.id} value={pf.id}>{pf.icon} {pf.name}</option>
                               ))}
@@ -2171,7 +2171,7 @@ export default function App() {
                       className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-lg shadow-violet-500/20 flex items-center justify-center gap-2"
                     >
                       <Check size={16} />
-                      <span>حفظ ونشر التعديلات حياً 🌫️</span>
+                      <span>Save & publish changes live 🌫️</span>
                     </button>
                     
                     <button 
@@ -2179,7 +2179,7 @@ export default function App() {
                       onClick={() => handleNavigate('profile')}
                       className="px-6 py-3 bg-white/5 hover:bg-white/10 text-purple-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                     >
-                      إلغاء
+                      Cancel
                     </button>
                   </div>
                 </form>
@@ -2193,7 +2193,7 @@ export default function App() {
             <TranslatorPanel currentUser={currentUser} onNavigate={handleNavigate} />
           ) : (
             <AccessDeniedPanel
-              message="لوحة عمل المترجمين والكتّاب متاحة فقط للأعضاء الحاصلين على رتبة مترجم أو كاتب معتمد."
+              message="The translator & writer work panel is only available to members with an approved translator or writer role."
               isGuest={currentUser.role === 'GUEST'}
               onNavigateHome={() => handleNavigate('home')}
             />
@@ -2206,7 +2206,7 @@ export default function App() {
             <AdminPanel currentUser={currentUser} onNavigate={handleNavigate} />
           ) : (
             <AccessDeniedPanel
-              message="لوحة الإدارة والتحكم مخصصة حصرياً لمالك المنصة."
+              message="The admin & control panel is reserved exclusively for the platform owner."
               isGuest={currentUser.role === 'GUEST'}
               onNavigateHome={() => handleNavigate('home')}
             />
@@ -2260,7 +2260,7 @@ export default function App() {
       {/* ==================== TEAM DETAILS MODAL ==================== */}
       {selectedTeam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="relative w-full max-w-2xl bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-right shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-2xl bg-[#0E1626] border border-white/10 rounded-3xl overflow-hidden text-left shadow-2xl animate-in zoom-in-95 duration-200">
             
             {/* Cover Banner */}
             <div className="relative h-40 w-full overflow-hidden bg-gradient-to-r from-violet-950 to-purple-950">
@@ -2284,7 +2284,7 @@ export default function App() {
                   <h3 className="text-lg md:text-xl font-extrabold text-white">
                     <span>{selectedTeam.name}</span>
                   </h3>
-                  <p className="text-xs text-purple-300 mt-1">تاريخ التأسيس: {new Date(selectedTeam.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</p>
+                  <p className="text-xs text-purple-300 mt-1">Founded: {new Date(selectedTeam.createdAt).toLocaleDateString('en-US')}</p>
                 </div>
               </div>
             </div>
@@ -2294,7 +2294,7 @@ export default function App() {
               
               {/* Bio / Description */}
               <div className="flex flex-col gap-2">
-                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">🌫️ نبذة عن المترجم / الفريق:</h4>
+                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">🌫️ About the translator / team:</h4>
                 <p className="text-sm text-purple-200 leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">
                   {selectedTeam.bio}
                 </p>
@@ -2302,12 +2302,12 @@ export default function App() {
 
               {/* Team Members List */}
               <div className="flex flex-col gap-3">
-                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">👥 أعضاء الفريق المعتمدين ({selectedTeam.members.length}):</h4>
+                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">👥 Approved team members ({selectedTeam.members.length}):</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {selectedTeam.members.map((member, idx) => (
                     <div key={idx} className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-2xl transition-all hover:bg-white/5">
                       <img src={member.avatar} alt={member.username} className="w-10 h-10 rounded-full border-2 border-violet-500/20 bg-black" />
-                      <div className="text-right">
+                      <div className="text-left">
                         <p className="text-xs font-extrabold text-white">{member.username}</p>
                         <span className="text-[10px] text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded-lg border border-purple-500/10 mt-1 inline-block">{member.role}</span>
                       </div>
@@ -2319,9 +2319,9 @@ export default function App() {
               {/* Support / Donation info */}
               {selectedTeam.supportUrl && (
                 <div className="flex flex-col gap-2">
-                  <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">💖 دعم الفريق وتطوير أعماله:</h4>
+                  <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">💖 Support the team and its work:</h4>
                   <div className="p-4 bg-gradient-to-r from-violet-950/20 to-pink-950/20 border border-violet-500/10 rounded-2xl flex items-center justify-between flex-wrap gap-4">
-                    <p className="text-xs text-purple-300 max-w-sm">هل تحب أعمال هذا المترجم وترغب في دعمه للاستمرار والسرعة في النشر؟</p>
+                    <p className="text-xs text-purple-300 max-w-sm">Love this translator's work and want to support them to keep going and publish faster?</p>
                     <a 
                       href={selectedTeam.supportUrl} 
                       target="_blank" 
@@ -2329,7 +2329,7 @@ export default function App() {
                       className="px-4 py-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-violet-500/15 flex items-center gap-1.5 transition-all"
                     >
                       <Heart size={14} className="fill-current text-white animate-pulse" />
-                      <span>تقديم دعم للمترجم / الفريق</span>
+                      <span>Support the translator / team</span>
                     </a>
                   </div>
                 </div>
@@ -2337,13 +2337,13 @@ export default function App() {
 
               {/* Associated Works / Novels */}
               <div className="flex flex-col gap-3">
-                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">📚 أعمال ومشاريع المترجم المعتمدة:</h4>
+                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider">📚 The translator's approved works & projects:</h4>
                 {(() => {
                   const teamNovels = novels.filter(n => n.teamId === selectedTeam.id || selectedTeam.works?.includes(n.id));
                   if (teamNovels.length === 0) {
                     return (
                       <div className="p-4 bg-white/[0.01] rounded-2xl border border-dashed border-white/5 text-center text-xs text-purple-400">
-                        لا توجد أعمال معلنة لهذا المترجم حالياً.
+                        This translator has no announced works right now.
                       </div>
                     );
                   }
@@ -2359,14 +2359,14 @@ export default function App() {
                           className="flex gap-3 bg-white/[0.02] hover:bg-violet-600/10 border border-white/5 hover:border-violet-500/20 p-3 rounded-2xl transition-all cursor-pointer group"
                         >
                           <img src={novel.cover} alt={novel.titleAr} className="w-12 h-16 object-cover rounded-xl border border-white/10" />
-                          <div className="text-right flex-1 flex flex-col justify-between">
+                          <div className="text-left flex-1 flex flex-col justify-between">
                             <div>
                               <h5 className="text-xs font-extrabold text-white group-hover:text-violet-300 transition-colors line-clamp-1">{novel.titleAr}</h5>
                               <p className="text-[10px] text-purple-400 mt-0.5 font-mono line-clamp-1">{novel.titleEn}</p>
                             </div>
                             <div className="flex items-center justify-between text-[9px] text-purple-300">
-                              <span>{novel.chaptersCount} فصلاً</span>
-                              <span className="bg-white/5 px-2 py-0.5 rounded-lg border border-white/5 text-violet-300">{novel.status === 'TRANSLATING' ? 'قيد الترجمة' : 'مستمر'}</span>
+                              <span>{novel.chaptersCount} chapters</span>
+                              <span className="bg-white/5 px-2 py-0.5 rounded-lg border border-white/5 text-violet-300">{novel.status === 'TRANSLATING' ? 'Translating' : 'Ongoing'}</span>
                             </div>
                           </div>
                         </div>
@@ -2379,12 +2379,12 @@ export default function App() {
             </div>
             
             {/* Modal Footer */}
-            <div className="p-4 bg-[#131F33] border-t border-white/5 flex justify-end">
+            <div className="p-4 bg-[#131F33] border-t border-white/5 flex justify-start">
               <button 
                 onClick={() => setSelectedTeam(null)}
                 className="px-5 py-2 bg-white/5 hover:bg-white/10 text-purple-200 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
               >
-                إغلاق النافذة
+                Close window
               </button>
             </div>
 
@@ -2393,7 +2393,7 @@ export default function App() {
       )}
 
       {/* Shared Full-Featured Footer */}
-      <footer className="w-full bg-[#0E1626] border-t border-white/5 py-12 px-6 lg:px-12 text-right relative overflow-hidden select-none">
+      <footer className="w-full bg-[#0E1626] border-t border-white/5 py-12 px-6 lg:px-12 text-left relative overflow-hidden select-none">
         
         {/* Main Footer columns */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
@@ -2417,29 +2417,29 @@ export default function App() {
 
           {/* Col 2: Shortcuts */}
           <div>
-            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-r-2 border-violet-500 pr-2">أقسام سريعة</h4>
+            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-l-2 border-violet-500 pl-2">Quick links</h4>
             <div className="flex flex-col gap-2.5 text-xs text-purple-300">
-              <button onClick={() => handleNavigate('home')} className="hover:text-white transition-colors text-right cursor-pointer">الرئيسية</button>
-              <button onClick={() => handleNavigate('explore')} className="hover:text-white transition-colors text-right cursor-pointer">المكتبة والاستكشاف</button>
-              <button onClick={() => handleNavigate('suggestions')} className="hover:text-white transition-colors text-right cursor-pointer">اقتراحات الأعضاء</button>
-              <button onClick={() => handleNavigate('teams')} className="hover:text-white transition-colors text-right cursor-pointer">المترجمين والفرق</button>
+              <button onClick={() => handleNavigate('home')} className="hover:text-white transition-colors text-left cursor-pointer">Home</button>
+              <button onClick={() => handleNavigate('explore')} className="hover:text-white transition-colors text-left cursor-pointer">Library & Explore</button>
+              <button onClick={() => handleNavigate('suggestions')} className="hover:text-white transition-colors text-left cursor-pointer">Member suggestions</button>
+              <button onClick={() => handleNavigate('teams')} className="hover:text-white transition-colors text-left cursor-pointer">Translators & teams</button>
             </div>
           </div>
 
           {/* Col 3: Support & Contact */}
           <div>
-            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-r-2 border-rose-500 pr-2">تواصل معنا والدعم</h4>
+            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-l-2 border-rose-500 pl-2">Contact & support</h4>
             <div className="flex flex-col gap-2.5 text-xs text-purple-300">
-              <span className="text-purple-400">البريد المعتمد:</span>
+              <span className="text-purple-400">Official email:</span>
               <span className="text-white font-mono">{footerEmail}</span>
-              <span className="text-purple-400 mt-1">تواصل الدعم السريع:</span>
+              <span className="text-purple-400 mt-1">Quick support contact:</span>
               <span className="text-white">{footerSupport}</span>
             </div>
           </div>
 
           {/* Col 4: Community Links */}
           <div>
-            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-r-2 border-violet-500 pr-2">انضم لمجتمعنا الاجتماعي</h4>
+            <h4 className="font-extrabold text-xs text-white uppercase tracking-wider mb-4 border-l-2 border-violet-500 pl-2">Join our community</h4>
             <p className="text-xs text-purple-300 mb-3 max-w-xs">{footerCommunityText}</p>
             <div className="flex gap-2 flex-wrap justify-start select-none">
               {footerSocials.filter(s => s.active && s.url).map((social) => (
@@ -2455,7 +2455,7 @@ export default function App() {
                 </a>
               ))}
               {footerSocials.filter(s => s.active && s.url).length === 0 && (
-                <span className="text-[10px] text-purple-400 font-semibold italic">لم يتم ربط أي شبكات تواصل اجتماعي نشطة حالياً</span>
+                <span className="text-[10px] text-purple-400 font-semibold italic">No active social networks linked yet</span>
               )}
             </div>
           </div>
@@ -2464,25 +2464,25 @@ export default function App() {
 
         {/* Sub-footer Copyright */}
         <div className="max-w-7xl mx-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-[11px] text-purple-400 gap-4">
-          <span className="text-center sm:text-right">حقوق النشر والترجمة محفوظة بالكامل © 2026 لمنصة {safeSiteName} وللمترجمين المعتمدين.</span>
+          <span className="text-center sm:text-left">Copyright and translation rights fully reserved © 2026 for {safeSiteName} and its approved translators.</span>
           <div className="flex flex-wrap justify-center gap-4">
             <span 
               onClick={() => handleNavigate('terms-of-service')}
               className="hover:text-white cursor-pointer transition-colors"
             >
-              شروط الخدمة والاستخدام
+              Terms of Service
             </span>
             <span 
               onClick={() => handleNavigate('privacy-policy')}
               className="hover:text-white cursor-pointer transition-colors"
             >
-              سياسة الخصوصية وحماية البيانات
+              Privacy Policy
             </span>
             <span 
               onClick={() => handleNavigate('contact-us')}
               className="hover:text-white cursor-pointer transition-colors"
             >
-              اتصل بنا
+              Contact Us
             </span>
           </div>
         </div>

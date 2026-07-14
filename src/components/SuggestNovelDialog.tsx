@@ -9,7 +9,7 @@ interface SuggestNovelDialogProps {
   onAddSuggestion: (suggestion: Partial<Suggestion>) => void;
 }
 
-const KNOWN_GENRES = ['أكشن', 'فانتزيا', 'مغامرات', 'إثارة', 'نظام', 'إسيكاي', 'موريم', 'دراما', 'غموض', 'رومانسية', 'كوميديا', 'تراجع', 'موسيقى'];
+const KNOWN_GENRES = ['Action', 'Fantasy', 'Adventure', 'Thriller', 'System', 'Isekai', 'Murim', 'Drama', 'Mystery', 'Romance', 'Comedy', 'Regression', 'Music'];
 
 export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggestion }: SuggestNovelDialogProps) {
   const [titleAr, setTitleAr] = useState('');
@@ -30,7 +30,7 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
     const extension = file.name.split('.').pop()?.toLowerCase();
     const allowed = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
     if (!extension || !allowed.includes(extension)) {
-      setError('خطأ: نقبل فقط ملفات الصور بصيغة (PNG, JPG, JPEG, WEBP, SVG, GIF) طبقاً لإجراءات الأمان والجمالية للمنصة.');
+      setError('Error: only image files (PNG, JPG, JPEG, WEBP, SVG, GIF) are accepted, per the platform’s security and aesthetic rules.');
       return;
     }
 
@@ -52,7 +52,7 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
         }, 100);
       })
       .catch(() => {
-        setError('حدث خطأ أثناء قراءة أو ضغط ملف الصورة. يرجى المحاولة مرة أخرى بصورة أصغر.');
+        setError('Something went wrong while reading or compressing the image. Please try again with a smaller image.');
         setUploadProgress(null);
       });
   };
@@ -66,12 +66,12 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentUser.role === 'GUEST') {
-      setError('عذراً، يجب تسجيل الدخول أو اختيار رتبة "عضو" على الأقل لتتمكن من تقديم اقتراحات جديدة.');
+      setError('Sorry, you must sign in (at least a "Member" role) to submit new suggestions.');
       return;
     }
 
     if (!titleAr || !titleEn || !description) {
-      setError('يرجى ملء الحقول الإلزامية لتأكيد الاقتراح.');
+      setError('Please fill in the required fields to submit your suggestion.');
       return;
     }
 
@@ -90,13 +90,13 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
 
   return (
     <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl glass-panel rounded-3xl p-6 border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh] text-right">
+      <div className="w-full max-w-2xl glass-panel rounded-3xl p-6 border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh] text-left">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-6">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Plus size={20} className="text-violet-400" />
-            <span>اقتراح رواية جديدة للترجمة</span>
+            <span>Suggest a New Novel to Translate</span>
           </h2>
           <button onClick={onClose} className="p-1 hover:bg-white/5 rounded-full text-purple-400 hover:text-white transition-all">
             <X size={18} />
@@ -115,32 +115,32 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
           {/* Row 1: Titles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-purple-200">الاسم العربي للرواية *</label>
+              <label className="text-xs font-bold text-purple-200">Arabic title *</label>
               <input 
                 type="text" 
                 required
                 value={titleAr}
                 onChange={(e) => setTitleAr(e.target.value)}
-                placeholder="مثال: سيد الخداع الإلهي"
-                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-right"
+                placeholder="e.g. Lord of Divine Deception (Arabic)"
+                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-purple-200">الاسم الإنجليزي للرواية *</label>
+              <label className="text-xs font-bold text-purple-200">English title *</label>
               <input 
                 type="text" 
                 required
                 value={titleEn}
                 onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="مثال: Lord of Divine Deception"
-                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-right"
+                placeholder="e.g. Lord of Divine Deception"
+                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left"
               />
             </div>
           </div>
 
           {/* Row 2: Link */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">رابط الرواية على NovelUpdates (اختياري)</label>
+            <label className="text-xs font-bold text-purple-200">NovelUpdates link (optional)</label>
             <input 
               type="url" 
               value={novelUpdatesLink}
@@ -153,7 +153,7 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
 
           {/* Row 3: Drag & Drop Simulated Cover Upload */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">غلاف الرواية المقترحة (رفع مباشر للغلاف فقط) *</label>
+            <label className="text-xs font-bold text-purple-200">Suggested novel cover (direct upload only) *</label>
             <div className="border-2 border-dashed border-white/10 hover:border-violet-500/40 rounded-2xl p-6 flex flex-col items-center justify-center bg-white/5 hover:bg-white/10 transition-all relative">
               <input 
                 type="file" 
@@ -164,12 +164,12 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
               {uploadProgress === null ? (
                 <>
                   <Upload size={24} className="text-purple-400 mb-2" />
-                  <p className="text-xs font-bold text-purple-200">اسحب صورة الغلاف إلى هنا أو تصفح ملفاتك</p>
-                  <p className="text-[10px] text-purple-400 mt-1">نقبل صور PNG, JPG, JPEG, WEBP ونقوم بقصها آلياً بنسبة 2:3</p>
+                  <p className="text-xs font-bold text-purple-200">Drag a cover image here or browse your files</p>
+                  <p className="text-[10px] text-purple-400 mt-1">PNG, JPG, JPEG, WEBP accepted — auto-cropped to a 2:3 ratio</p>
                 </>
               ) : uploadProgress < 100 ? (
                 <div className="w-full max-w-xs text-center flex flex-col items-center">
-                  <span className="text-xs font-bold text-violet-400 mb-2">جاري الرفع والمعالجة: {uploadProgress}%</span>
+                  <span className="text-xs font-bold text-violet-400 mb-2">Uploading & processing: {uploadProgress}%</span>
                   <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full bg-violet-500 rounded-full transition-all" style={{ width: `${uploadProgress}%` }} />
                   </div>
@@ -177,7 +177,7 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
               ) : (
                 <div className="flex items-center gap-2 text-green-400">
                   <Check size={18} />
-                  <span className="text-xs font-bold">تم رفع الغلاف بنجاح ومعالجة الأبعاد تلقائياً!</span>
+                  <span className="text-xs font-bold">Cover uploaded and dimensions processed automatically!</span>
                 </div>
               )}
             </div>
@@ -185,7 +185,7 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
 
           {/* Row 4: Genres */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">التصنيفات والأنواع (اختر ما ينطبق)</label>
+            <label className="text-xs font-bold text-purple-200">Genres & tags (select all that apply)</label>
             <div className="flex flex-wrap gap-2 mt-1">
               {KNOWN_GENRES.map((genre) => {
                 const isSelected = selectedGenres.includes(genre);
@@ -205,43 +205,43 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
 
           {/* Row 5: Description */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">نبذة وقصة الرواية *</label>
+            <label className="text-xs font-bold text-purple-200">Synopsis & story *</label>
             <textarea 
               required
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="اكتب ملخصاً وجيزاً لقصة الرواية لتشجيع الأعضاء والمترجمين..."
-              className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-right resize-none"
+              placeholder="Write a short synopsis to entice members and translators..."
+              className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left resize-none"
             />
           </div>
 
           {/* Row 6: Why suggest */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-purple-200">لماذا تقترح ترجمة هذه الرواية؟</label>
+            <label className="text-xs font-bold text-purple-200">Why suggest translating this novel?</label>
             <textarea 
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="مثال: الرواية حققت شعبية جبارة في كوريا وتستحق ترجمة فخمة حصرية لمجتمعنا..."
-              className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-right resize-none"
+              placeholder="e.g. This novel is hugely popular in Korea and deserves an exclusive premium translation for our community..."
+              className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left resize-none"
             />
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-white/5">
+          <div className="flex gap-3 justify-start mt-4 pt-4 border-t border-white/5">
             <button 
               type="button" 
               onClick={onClose}
               className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-purple-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
             >
-              إلغاء
+              Cancel
             </button>
             <button 
               type="submit" 
               className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-violet-500/15 transition-all cursor-pointer"
             >
-              تقديم الاقتراح ونشره للتصويت
+              Submit suggestion for voting
             </button>
           </div>
 
