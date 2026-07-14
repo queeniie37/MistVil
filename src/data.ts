@@ -29,48 +29,48 @@ export const generateChapters = (novelId: string, count: number): Chapter[] => {
 export const DEFAULT_USERS: { [key in UserRole]: User } = {
   GUEST: {
     id: 'guest-user',
-    username: 'زائر_الضباب',
+    username: 'MistGuest',
     email: 'guest@mistvil.com',
     role: 'GUEST',
     xp: 0,
     level: 1,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=guest',
-    bio: 'زائر غير مسجل يستمتع بقراءة الروايات والاطلاع على الفصول المجانية.'
+    bio: 'An unregistered visitor enjoying free novels and chapters.'
   },
   MEMBER: {
     id: 'member-1',
-    username: 'عضو_الضباب',
+    username: 'MistMember',
     email: 'member@mistvil.com',
     role: 'MEMBER',
     xp: 250,
     level: 3,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=member1',
-    bio: 'قارئ شغوف للروايات الكورية والصينية، أهوى التفاعل وكتابة المراجعات العميقة.',
+    bio: 'A passionate reader of Korean and Chinese novels who loves engaging and writing in-depth reviews.',
     discord: 'member_discord#1234',
     telegram: '@member_tele'
   },
   TRANSLATOR: {
     id: 'translator-1',
-    username: 'مترجم_الظلال',
+    username: 'ShadowTranslator',
     email: 'translator@mistvil.com',
     role: 'TRANSLATOR',
     xp: 2450,
     level: 12,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=translator1',
-    bio: 'مترجم روايات فانتازيا وأكشن بخبرة تزيد عن 3 سنوات. شعاري: الدقة والسرعة في النشر.',
+    bio: 'A fantasy and action novel translator with 3+ years of experience. My motto: accuracy and fast releases.',
     discord: 'shadow_trans#9999',
     telegram: '@shadow_trans',
     paypalEmail: 'shadow_donate@paypal.com'
   },
   SUPERVISOR: {
     id: 'supervisor-1',
-    username: 'مشرف_بالموقع',
+    username: 'SiteSupervisor',
     email: 'supervisor@mistvil.com',
     role: 'SUPERVISOR',
     xp: 5600,
     level: 25,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=super',
-    bio: 'مشرف على تدقيق الروايات وتسهيل عمل المترجمين ومراجعة البلاغات للحفاظ على فخامة البيئة.'
+    bio: 'Oversees proofreading novels, supporting translators, and reviewing reports to keep the environment premium.'
   },
   OWNER: {
     id: 'mistvil-owner',
@@ -80,19 +80,19 @@ export const DEFAULT_USERS: { [key in UserRole]: User } = {
     xp: 15400,
     level: 50,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=mistvilowner',
-    bio: 'مؤسس وصاحب منصة MistVil الفاخرة لروايات الخيال والأكشن المترجمة.',
+    bio: 'Founder and owner of MistVil, the premium platform for translated fantasy and action novels.',
     discord: 'mistvil_owner#0001',
     telegram: '@mistvil_admin'
   },
   WRITER: {
     id: 'writer-1',
-    username: 'كاتب_الأساطير',
+    username: 'LegendWriter',
     email: 'writer@mistvil.com',
     role: 'WRITER',
     xp: 1200,
     level: 8,
     avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=writer1',
-    bio: 'كاتب ومؤلف قصص خيالية وفانتازيا عربية أصلية بمستويات شيقة ومثيرة.',
+    bio: 'A writer and author of original fantasy stories with thrilling, gripping arcs.',
     discord: 'legend_writer#7777',
     telegram: '@legend_writer'
   }
@@ -286,7 +286,7 @@ export class MistVilDatabase {
             .filter((n: any) => n && typeof n === 'object' && typeof n.id === 'string')
             .map((n: any) => ({
               ...n,
-              titleAr: typeof n.titleAr === 'string' ? n.titleAr : (typeof n.titleEn === 'string' ? n.titleEn : 'بدون عنوان'),
+              titleAr: typeof n.titleAr === 'string' ? n.titleAr : (typeof n.titleEn === 'string' ? n.titleEn : 'Untitled'),
               titleEn: typeof n.titleEn === 'string' ? n.titleEn : '',
               author: typeof n.author === 'string' ? n.author : '',
               translatorId: typeof n.translatorId === 'string' ? n.translatorId : '',

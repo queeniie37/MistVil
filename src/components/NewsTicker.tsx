@@ -50,7 +50,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
           </span>
           <span>{currentItem.title}</span>
           <span className="text-[10px] text-purple-400">({new Date(currentItem.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' })})</span>
-          <span className="text-[11px] text-rose-400 font-bold">← انقر للتفاصيل</span>
+          <span className="text-[11px] text-rose-400 font-bold">Click for details →</span>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
         </span>
         <Megaphone size={14} className="text-rose-400" />
-        <span className="font-extrabold text-xs text-white">آخر الأخبار</span>
+        <span className="font-extrabold text-xs text-white">Latest News</span>
       </div>
     </div>
   );

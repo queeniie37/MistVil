@@ -65,7 +65,7 @@ export default function HeroSlider({ featuredNovels, onStartReading, onViewDetai
       </div>
 
       {/* Main Content Layout */}
-      <div className="absolute inset-0 z-10 flex flex-col md:flex-row items-center justify-between p-5 pb-12 sm:p-6 md:p-12 gap-8 text-right">
+      <div className="absolute inset-0 z-10 flex flex-col md:flex-row items-center justify-between p-5 pb-12 sm:p-6 md:p-12 gap-8 text-left">
         {/* Right side: Novel Art with Glass Framing */}
         <div className="hidden md:block w-[40%] h-full flex justify-center items-center">
           <div className="relative w-64 h-[360px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-500">
@@ -83,25 +83,25 @@ export default function HeroSlider({ featuredNovels, onStartReading, onViewDetai
         {/* Left side: Information (Glassmorphic details card) */}
         <div className="w-full md:w-[55%] flex flex-col justify-center h-full">
           <span className="text-xs bg-violet-500/20 text-violet-300 font-extrabold px-3 py-1.5 rounded-full border border-violet-500/30 w-fit mb-3">
-            ✨ الرواية المميزة للأسبوع
+            ✨ Featured Novel of the Week
           </span>
 
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight line-clamp-2">
-            {currentNovel.titleAr}
+            {currentNovel.titleEn || currentNovel.titleAr}
           </h1>
           <p className="text-xs md:text-sm text-purple-300 font-medium mt-1 select-none">
-            {currentNovel.titleEn} | المؤلف: <span className="text-purple-200">{currentNovel.author}</span>
+            {currentNovel.titleAr} | Author: <span className="text-purple-200">{currentNovel.author}</span>
           </p>
 
           {/* Details Row */}
           <div className="flex flex-wrap gap-4 items-center mt-3 text-purple-200/80 text-xs">
             <div className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
               <Eye size={12} className="text-violet-400" />
-              <span>{currentNovel.views.toLocaleString('ar-EG', { numberingSystem: 'latn' })} قراءة</span>
+              <span>{currentNovel.views.toLocaleString('en-US')} reads</span>
             </div>
             <div className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
               <Layers size={12} className="text-rose-400" />
-              <span>{currentNovel.chaptersCount} فصل</span>
+              <span>{currentNovel.chaptersCount} chapters</span>
             </div>
           </div>
 
@@ -129,13 +129,13 @@ export default function HeroSlider({ featuredNovels, onStartReading, onViewDetai
               className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-violet-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               <Play size={16} className="fill-white" />
-              <span>ابدأ القراءة</span>
+              <span>Start Reading</span>
             </button>
             <button 
               onClick={() => onViewDetails(currentNovel.id)}
               className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-sm font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
-              <span>عرض التفاصيل</span>
+              <span>View Details</span>
             </button>
           </div>
         </div>

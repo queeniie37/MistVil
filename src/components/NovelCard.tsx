@@ -17,19 +17,19 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'AVAILABLE':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-green-500/10 text-green-400 border border-green-500/20">🟢 متاحة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-green-500/10 text-green-400 border border-green-500/20">🟢 Available</span>;
       case 'RESERVED':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">🟡 محجوزة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">🟡 Reserved</span>;
       case 'TRANSLATING':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-500/10 text-violet-400 border border-violet-500/20">🔵 قيد الترجمة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-500/10 text-violet-400 border border-violet-500/20">🔵 Translating</span>;
       case 'HIATUS':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/10 text-purple-400 border border-purple-500/20">🟣 متوقفة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/10 text-purple-400 border border-purple-500/20">🟣 On Hiatus</span>;
       case 'COMPLETED':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20">⚪ مكتملة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20">⚪ Completed</span>;
       case 'PENDING':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">🟠 للمراجعة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">🟠 Under Review</span>;
       case 'ONGOING':
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pink-500/10 text-pink-400 border border-pink-500/20">🔴 مستمرة</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pink-500/10 text-pink-400 border border-pink-500/20">🔴 Ongoing</span>;
       default:
         return null;
     }
@@ -84,13 +84,13 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
       </div>
 
       {/* Info Content Area */}
-      <div className="p-3.5 flex flex-col justify-between flex-1 text-right">
+      <div className="p-3.5 flex flex-col justify-between flex-1 text-left">
         <div>
           <h3 className="font-bold text-xs text-white group-hover:text-violet-400 transition-colors line-clamp-2 h-9">
-            {novel.titleAr}
+            {novel.titleEn || novel.titleAr}
           </h3>
           <span className="text-[10px] text-purple-400 block truncate mt-0.5">
-            {novel.titleEn}
+            {novel.titleAr}
           </span>
         </div>
 
@@ -98,11 +98,11 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
         <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-white/5 text-[10px] text-purple-300">
           <div className="flex items-center gap-1">
             <Layers size={10} className="text-violet-400" />
-            <span>{novel.chaptersCount} فصل</span>
+            <span>{novel.chaptersCount} ch</span>
           </div>
           <div className="flex items-center gap-1">
             <Eye size={10} className="text-rose-400" />
-            <span>{novel.views >= 1000 ? `${(novel.views / 1000).toFixed(1)}k` : novel.views} قراءة</span>
+            <span>{novel.views >= 1000 ? `${(novel.views / 1000).toFixed(1)}k` : novel.views} reads</span>
           </div>
         </div>
       </div>

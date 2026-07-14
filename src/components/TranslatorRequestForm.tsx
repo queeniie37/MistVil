@@ -20,7 +20,7 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
-  const languagesOptions = ['الكورية', 'الصينية', 'اليابانية', 'الإنجليزية', 'أخرى'];
+  const languagesOptions = ['Korean', 'Chinese', 'Japanese', 'English', 'Other'];
 
   const loadRequests = () => {
     const allReqs = MistVilDatabase.get<TranslatorRequest[]>('translator_requests', []);
@@ -45,11 +45,11 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
     setSuccess('');
 
     if (languages.length === 0) {
-      setError('يرجى اختيار لغة ترجمة واحدة على الأقل.');
+      setError('Please select at least one translation language.');
       return;
     }
     if (!experience.trim() || !reason.trim()) {
-      setError('يرجى ملء جميع الحقول الإلزامية.');
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -77,17 +77,17 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
     const newNotif = {
       id: `notif-req-${Date.now()}`,
       userId: 'mistvil-owner',
-      title: '📥 طلب انضمام كمترجم جديد',
-      message: `العضو "${currentUser.username}" أرسل طلب انضمام كـ مترجم لمراجعته وقبوله.`,
+      title: '📥 New translator application',
+      message: `Member "${currentUser.username}" submitted a translator application for review and approval.`,
       type: 'ROLE',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
 
     setTimeout(() => {
       setLoading(false);
-      setSuccess('تم تقديم طلبك بنجاح! جاري مراجعته حالياً من قبل مالك المنصة. 🌫️');
+      setSuccess('Your application was submitted successfully! It’s now under review by the platform owner. 🌫️');
       setExperience('');
       setLanguages([]);
       setReason('');
@@ -101,7 +101,7 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
   const hasPending = myRequests.some(r => r.status === 'PENDING');
 
   return (
-    <div className="w-full text-right mt-6 animate-in fade-in duration-300">
+    <div className="w-full text-left mt-6 animate-in fade-in duration-300">
       <div className="glass-panel p-6 rounded-3xl border border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/5 rounded-full blur-[40px] pointer-events-none" />
 
@@ -110,15 +110,15 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
             <Award size={20} />
           </div>
           <div>
-            <h3 className="font-extrabold text-base text-white">طلب الانضمام كمترجم رسمي ✍️</h3>
-            <p className="text-[10px] text-purple-400 mt-0.5">ترجم رواياتك المفضلة، انشر فصولها حياً، واحصل على دعم ومكافآت مجتمع ميست فيل.</p>
+            <h3 className="font-extrabold text-base text-white">Apply to Become an Official Translator ✍️</h3>
+            <p className="text-[10px] text-purple-400 mt-0.5">Translate your favorite novels, publish chapters live, and earn support and rewards from the MistVil community.</p>
           </div>
         </div>
 
         {/* Existing requests status */}
         {myRequests.length > 0 && (
           <div className="mb-6 flex flex-col gap-3">
-            <span className="text-xs font-bold text-purple-300">حالة طلباتك السابقة:</span>
+            <span className="text-xs font-bold text-purple-300">Your previous applications:</span>
             {myRequests.map((req) => (
               <div 
                 key={req.id} 
@@ -130,15 +130,15 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
                       : 'bg-red-500/5 border-red-500/20 text-red-300'
                 }`}
               >
-                <div className="flex flex-col gap-1 text-right">
-                  <span className="font-bold">طلب انضمام بتاريخ: {new Date(req.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
-                  <span className="text-[10px] text-purple-400">اللغات: {req.languages.join('، ')}</span>
+                <div className="flex flex-col gap-1 text-left">
+                  <span className="font-bold">Application date: {new Date(req.createdAt).toLocaleDateString('en-US')}</span>
+                  <span className="text-[10px] text-purple-400">Languages: {req.languages.join(', ')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold shrink-0">
-                    {req.status === 'PENDING' && '⏳ قيد المراجعة'}
-                    {req.status === 'ACCEPTED' && '✅ تم القبول (مبروك!)'}
-                    {req.status === 'REJECTED' && '❌ تم الرفض'}
+                    {req.status === 'PENDING' && '⏳ Under review'}
+                    {req.status === 'ACCEPTED' && '✅ Accepted (congrats!)'}
+                    {req.status === 'REJECTED' && '❌ Rejected'}
                   </span>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
 
         {hasPending ? (
           <div className="p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-200 text-center font-semibold">
-            لديك طلب معلق قيد المراجعة من الإدارة حالياً. يرجى الانتظار حتى يقوم مالك المنصة بمراجعته وقبوله. 🌫️
+            You have a pending application under review. Please wait for the platform owner to review and approve it. 🌫️
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -167,30 +167,30 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Experience */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-end">
-                  <span>الخبرة السابقة والأعمال (إلزامي)</span>
+                <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-start">
+                  <span>Previous experience & work (required)</span>
                   <Briefcase size={14} className="text-purple-400" />
                 </label>
                 <textarea
                   value={experience}
                   onChange={(e) => setExperience(e.target.value)}
-                  placeholder="مثال: ترجمت أكثر من 50 فصلاً في فرق أخرى، أو هذه أول تجربة لي ولكن لغتي ممتازة..."
-                  className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors h-28 text-right resize-none"
+                  placeholder="e.g. I’ve translated 50+ chapters with other teams, or this is my first time but my language skills are excellent..."
+                  className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors h-28 text-left resize-none"
                   required
                 />
               </div>
 
               {/* Reason */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-end">
-                  <span>لماذا تريد الانضمام إلينا؟ (إلزامي)</span>
+                <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-start">
+                  <span>Why do you want to join us? (required)</span>
                   <MessageSquare size={14} className="text-purple-400" />
                 </label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="حدثنا عن دوافعك ورغبتك في إثراء المحتوى الروائي بالمنصة..."
-                  className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors h-28 text-right resize-none"
+                  placeholder="Tell us about your motivation and desire to enrich the platform’s novel content..."
+                  className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors h-28 text-left resize-none"
                   required
                 />
               </div>
@@ -198,11 +198,11 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
 
             {/* Languages checkbox */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-end">
-                <span>ما هي اللغات التي تترجم منها؟ (اختر واحدة أو أكثر)</span>
+              <label className="text-xs font-bold text-purple-200 flex items-center gap-1.5 justify-start">
+                <span>Which languages do you translate from? (select one or more)</span>
                 <Globe size={14} className="text-purple-400" />
               </label>
-              <div className="flex flex-wrap gap-2 justify-end">
+              <div className="flex flex-wrap gap-2 justify-start">
                 {languagesOptions.map((lang) => (
                   <button
                     key={lang}
@@ -223,25 +223,25 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Discord */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-purple-200">حساب ديسكورد للتواصل (اختياري)</label>
+                <label className="text-xs font-bold text-purple-200">Discord (optional)</label>
                 <input
                   type="text"
                   value={discord}
                   onChange={(e) => setDiscord(e.target.value)}
                   placeholder="username#0000"
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-right"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-left"
                 />
               </div>
 
               {/* Telegram */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-purple-200">حساب تليجرام للتواصل (اختياري)</label>
+                <label className="text-xs font-bold text-purple-200">Telegram (optional)</label>
                 <input
                   type="text"
                   value={telegram}
                   onChange={(e) => setTelegram(e.target.value)}
                   placeholder="@username"
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-right"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors text-left"
                 />
               </div>
             </div>
@@ -249,10 +249,10 @@ export default function TranslatorRequestForm({ currentUser, onRequestSubmitted 
             <button
               type="submit"
               disabled={loading}
-              className="w-full md:w-fit md:px-8 py-3 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 mr-auto shadow-lg shadow-violet-500/10"
+              className="w-full md:w-fit md:px-8 py-3 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 ml-auto shadow-lg shadow-violet-500/10"
             >
               <Send size={14} />
-              <span>{loading ? 'جاري التقديم...' : 'إرسال طلب الانضمام كـ مترجم'}</span>
+              <span>{loading ? 'Submitting...' : 'Submit translator application'}</span>
             </button>
           </form>
         )}

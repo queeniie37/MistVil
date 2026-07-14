@@ -45,7 +45,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
   const [titleAr, setTitleAr] = useState('');
   const [titleEn, setTitleEn] = useState('');
   const [author, setAuthor] = useState('');
-  const [lang, setLang] = useState('الكورية');
+  const [lang, setLang] = useState('Korean');
   const [desc, setDesc] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState('');
@@ -83,7 +83,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  const genresOptions = ['أكشن', 'فانتزيا', 'مغامرات', 'إثارة', 'نظام', 'إسيكاي', 'موريم', 'دراما', 'غموض', 'رومانسية', 'كوميديا', 'تراجع', 'موسيقى'];
+  const genresOptions = ['Action', 'Fantasy', 'Adventure', 'Thriller', 'System', 'Isekai', 'Murim', 'Drama', 'Mystery', 'Romance', 'Comedy', 'Regression', 'Music'];
 
   const loadChaptersAndDeleted = () => {
     // 1. Load active chapters
@@ -102,7 +102,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       const n = allNovels.find(novel => novel.id === c.novelId);
       return {
         ...c,
-        novelTitle: n ? n.titleAr : 'رواية غير معروفة'
+        novelTitle: n ? (n.titleEn || n.titleAr) : 'Unknown novel'
       };
     });
     setChapters(chaptersWithNovelInfo.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
@@ -120,11 +120,11 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
   const canModifyChapter = (chapter: any) => {
     if (currentUser.role === 'OWNER') {
-      return { allowed: true, reason: 'مالك الموقع لديه صلاحية كاملة دائماً', daysLeft: 15 };
+      return { allowed: true, reason: 'The site owner always has full permission', daysLeft: 15 };
     }
     const isScheduled = chapter.publishAt && new Date(chapter.publishAt) > new Date();
     if (isScheduled) {
-      return { allowed: true, reason: 'الفصول المجدولة قابلة للتعديل دائماً', daysLeft: 15 };
+      return { allowed: true, reason: 'Scheduled chapters can always be edited', daysLeft: 15 };
     }
     const createdDate = new Date(chapter.createdAt);
     const now = new Date();
@@ -132,11 +132,11 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
     
     if (diffDays > 15) {
-      return { allowed: false, reason: 'مغلق (مضى أكثر من 15 يوماً على النشر)', daysLeft: 0 };
+      return { allowed: false, reason: 'Locked (more than 15 days since publishing)', daysLeft: 0 };
     }
     
     const daysLeft = Math.max(0, 15 - Math.floor(diffDays));
-    return { allowed: true, reason: `متبقي ${daysLeft} يوم للتعديل/الحذف`, daysLeft };
+    return { allowed: true, reason: `${daysLeft} days left to edit/delete`, daysLeft };
   };
 
   // Edit Request Form States
@@ -169,8 +169,8 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const newNotif = {
       id: `notif-editreq-${Date.now()}`,
       userId: 'mistvil-owner',
-      title: `طلب تعديل فصل جديد من المترجم: ${currentUser.username}`,
-      message: `طلب المترجم "${currentUser.username}" تعديلاً على رواية "${reqNovelName}"، فصل: "${reqChapterName}". التفاصيل: ${reqDetails}`,
+      title: `New chapter edit request from translator: ${currentUser.username}`,
+      message: `Translator "${currentUser.username}" requested an edit on "${reqNovelName}", chapter: "${reqChapterName}". Details: ${reqDetails}`,
       type: 'SYSTEM',
       isRead: false,
       createdAt: new Date().toISOString()
@@ -181,25 +181,25 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     setReqNovelName('');
     setReqChapterName('');
     setReqDetails('');
-    alert('تم إرسال طلب التعديل لمالك الموقع بنجاح! سيتم مراجعته وتعديل الفصل قريباً.');
+    alert('Your edit request was sent to the site owner successfully! It will be reviewed and the chapter updated soon.');
   };
 
   const handleStatusChange = (novelId: string, newStatus: any) => {
     let reason = '';
     const statusNames: Record<string, string> = {
-      ONGOING: 'مستمرة',
-      HIATUS: 'متوقفة مؤقتاً',
-      CANCELLED: 'متوقفة نهائياً',
-      COMPLETED: 'مكتملة'
+      ONGOING: 'Ongoing',
+      HIATUS: 'On hiatus',
+      CANCELLED: 'Dropped',
+      COMPLETED: 'Completed'
     };
 
     if (newStatus === 'HIATUS' || newStatus === 'CANCELLED') {
       const promptMsg = newStatus === 'HIATUS' 
-        ? 'يرجى إدخال سبب التوقف المؤقت (سيصل السبب لمالك الموقع):' 
-        : 'يرجى إدخال سبب التوقف النهائي (سيصل السبب لمالك الموقع):';
+        ? 'Please enter the reason for the hiatus (it will reach the site owner):' 
+        : 'Please enter the reason for dropping it (it will reach the site owner):';
       reason = prompt(promptMsg) || '';
       if (!reason.trim()) {
-        alert('يجب ذكر السبب لتغيير الحالة إلى متوقفة!');
+        alert('You must provide a reason to change the status to stopped!');
         return;
       }
     }
@@ -224,15 +224,15 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const newNotif = {
       id: `notif-status-${Date.now()}`,
       userId: 'mistvil-owner',
-      title: `تغيير حالة رواية: ${updated.find(n => n.id === novelId)?.titleAr || ''}`,
-      message: `قام المترجم "${currentUser.username}" بتغيير حالة رواية "${updated.find(n => n.id === novelId)?.titleAr || ''}" إلى (${statusNames[newStatus]}). ${reason ? `السبب: ${reason}` : ''}`,
+      title: `Novel status change: ${updated.find(n => n.id === novelId)?.titleEn || updated.find(n => n.id === novelId)?.titleAr || ''}`,
+      message: `Translator "${currentUser.username}" changed the status of "${updated.find(n => n.id === novelId)?.titleEn || updated.find(n => n.id === novelId)?.titleAr || ''}" to (${statusNames[newStatus]}). ${reason ? `Reason: ${reason}` : ''}`,
       type: 'SYSTEM',
       isRead: false,
       createdAt: new Date().toISOString()
     };
     MistVilDatabase.set('notifications', [newNotif, ...allNotifs]);
 
-    alert(`تم تغيير حالة الرواية إلى (${statusNames[newStatus]}) بنجاح وتنبيه المالك.`);
+    alert(`Novel status changed to (${statusNames[newStatus]}) successfully and the owner was notified.`);
     window.dispatchEvent(new Event('novels-updated'));
   };
 
@@ -259,7 +259,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
   // Handle deleting a chapter (with confirmation & archives it)
   const handleDeleteChapter = (chapterId: string) => {
     if (currentUser.role !== 'OWNER') {
-      alert('عذراً، المترجمون لا يملكون صلاحية حذف الفصول التي تم نشرها. فقط مالك الموقع يملك هذه الصلاحية.');
+      alert('Sorry, translators cannot delete published chapters. Only the site owner has this permission.');
       return;
     }
 
@@ -270,18 +270,18 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     // Enforce 15-day restriction
     const permission = canModifyChapter(chapterToDelete);
     if (!permission.allowed) {
-      alert(`عذراً، لا يمكنك حذف هذا الفصل! السبب: ${permission.reason}. يرجى التواصل مع الإدارة لأي تعديلات.`);
+      alert(`Sorry, you cannot delete this chapter! Reason: ${permission.reason}. Please contact administration for any edits.`);
       return;
     }
 
     showConfirm(
-      'حذف الفصل ونقله للأرشيف (تأكيد 1/2)',
-      `هل أنت متأكد تماماً من حذف هذا الفصل؟ سيتم نقله إلى أرشيف الفصول المحذوفة ويمكنك استعادته أو حذفه نهائياً من هناك.`,
+      'Delete chapter and move to archive (confirm 1/2)',
+      `Are you absolutely sure you want to delete this chapter? It will be moved to the deleted-chapters archive, where you can restore it or delete it permanently.`,
       () => {
         setTimeout(() => {
           showConfirm(
-            'حذف الفصل ونقله للأرشيف (تأكيد نهائي 2/2) ⚠️',
-            `تنبيه أخير ومؤكد: هل أنت متأكد تماماً وبشكل قاطع من إزالة هذا الفصل ونقله لسلة المحذوفات؟`,
+            'Delete chapter and move to archive (final confirm 2/2) ⚠️',
+            `Final, definitive warning: are you absolutely and definitively sure you want to remove this chapter and move it to the trash?`,
             () => {
               // Remove from active chapters
               const remainingChapters = allChapters.filter(c => c.id !== chapterId);
@@ -298,7 +298,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 deletedAt: new Date().toISOString(),
                 deletedBy: currentUser.username,
                 deletedById: currentUser.id,
-                novelTitle: n ? n.titleAr : 'رواية غير معروفة'
+                novelTitle: n ? (n.titleEn || n.titleAr) : 'Unknown novel'
               };
               MistVilDatabase.set('deleted_chapters', [...allDeleted, deletedEntry]);
 
@@ -319,7 +319,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
               loadChaptersAndDeleted();
               window.dispatchEvent(new Event('novels-updated'));
-              alert('تم حذف الفصل ونقله إلى الأرشيف بنجاح! 🗑️');
+              alert('Chapter deleted and moved to the archive successfully! 🗑️');
             },
             true
           );
@@ -362,26 +362,26 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
     loadChaptersAndDeleted();
     window.dispatchEvent(new Event('novels-updated'));
-    alert('تم استعادة الفصل ونشره مجدداً بنجاح! ↩️');
+    alert('Chapter restored and republished successfully! ↩️');
   };
 
   // Handle permanently deleting a chapter
   const handlePermanentlyDelete = (deletedId: string) => {
     showConfirm(
-      'حذف الفصل نهائياً ⚠️ (تأكيد 1/2)',
-      'تحذير: هل أنت متأكد من حذف هذا الفصل نهائياً؟ هذا الإجراء لا يمكن التراجع عنه وسيمحو الفصل تماماً من قواعد البيانات!',
+      'Permanently delete chapter ⚠️ (confirm 1/2)',
+      'Warning: are you sure you want to permanently delete this chapter? This action cannot be undone and will erase the chapter completely from the database!',
       () => {
         setTimeout(() => {
           showConfirm(
-            'حذف الفصل نهائياً ⚠️ (تأكيد نهائي 2/2)',
-            'تنبيه أخير وقاطع: هل أنت متأكد تماماً من رغبتك في مسح هذا الفصل نهائياً وبشكل دائم ومحوه للأبد؟ لا يمكن استعادة الفصل بعد هذا الإجراء!',
+            'Permanently delete chapter ⚠️ (final confirm 2/2)',
+            'Final, definitive warning: are you absolutely sure you want to erase this chapter permanently and forever? The chapter cannot be restored after this action!',
             () => {
               const allDeleted = MistVilDatabase.get<any[]>('deleted_chapters', []);
               const remainingDeleted = allDeleted.filter(d => d.id !== deletedId);
               MistVilDatabase.set('deleted_chapters', remainingDeleted);
 
               loadChaptersAndDeleted();
-              alert('تم حذف الفصل نهائياً وبشكل دائم. ❌');
+              alert('Chapter permanently and definitively deleted. ❌');
             },
             true
           );
@@ -396,7 +396,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     // Enforce 15-day restriction
     const permission = canModifyChapter(chapter);
     if (!permission.allowed) {
-      alert(`عذراً، لا يمكنك تعديل هذا الفصل! السبب: ${permission.reason}. يرجى التواصل مع الإدارة لأي تعديلات.`);
+      alert(`Sorry, you cannot edit this chapter! Reason: ${permission.reason}. Please contact administration for any edits.`);
       return;
     }
 
@@ -417,7 +417,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       const extension = file.name.split('.').pop()?.toLowerCase();
       const allowed = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
       if (!extension || !allowed.includes(extension)) {
-        alert('يرجى اختيار صور بصيغة (PNG, JPG, JPEG, WEBP) لضمان جمالية وتوافق العرض بالمنصة!');
+        alert('Please choose PNG, JPG, JPEG, or WEBP images for aesthetic and compatible display on the platform!');
         return;
       }
 
@@ -425,7 +425,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
         .then((base64String) => {
           setEditChapterImages(prev => prev ? `${prev}, ${base64String}` : base64String);
         })
-        .catch(() => alert('تعذر معالجة إحدى الصور. جرب صورة أصغر حجماً.'));
+        .catch(() => alert('Could not process one of the images. Try a smaller one.'));
     });
   };
 
@@ -446,13 +446,13 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       const publishDate = new Date(editChapterPublishAt);
       const now = new Date();
       if (publishDate < now) {
-        alert('عذراً، لا يمكنك جدولة الفصل في وقت سابق للوقت الحالي!');
+        alert('Sorry, you cannot schedule a chapter earlier than the current time!');
         return;
       }
       const maxDate = new Date();
       maxDate.setMonth(maxDate.getMonth() + 2); // 2 months from now
       if (publishDate > maxDate) {
-        alert('عذراً، لا يمكنك جدولة الفصل لأكثر من شهرين (60 يوماً) مستقبلاً!');
+        alert('Sorry, you cannot schedule a chapter more than two months (60 days) in the future!');
         return;
       }
     }
@@ -469,7 +469,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       if (c.id === editingChapter.id) {
         return {
           ...c,
-          title: `الفصل ${editingChapter.number}: ${editChapterTitle}`,
+          title: `Chapter ${editingChapter.number}: ${editChapterTitle}`,
           content: normalizeChapterText(editChapterContent),
           isDraft: isScheduled,
           publishAt: editChapterPublishAt || undefined,
@@ -482,14 +482,14 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     MistVilDatabase.set('chapters', updatedChapters);
     setEditingChapter(null);
     loadChaptersAndDeleted();
-    alert('تم تعديل وحفظ بيانات الفصل بنجاح! 💾');
+    alert('Chapter details edited and saved successfully! 💾');
   };
 
   // Request reservation extension
   const handleRequestExtension = (resId: string) => {
-    const reason = prompt('أدخل سبب تمديد مهلة الحجز (مثال: نحتاج وقت لتدقيق الفصول الأولى):');
+    const reason = prompt('Enter the reason for extending the reservation (e.g. we need time to proofread the first chapters):');
     if (!reason || reason.trim() === '') {
-      alert('السبب مطلوب لتقديم طلب التمديد.');
+      alert('A reason is required to submit an extension request.');
       return;
     }
 
@@ -513,14 +513,14 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const newNotif = {
       id: `notif-ext-${Date.now()}`,
       userId: 'mistvil-owner', // Notify Owner
-      title: 'طلب تمديد حجز رواية',
-      message: `قام المترجم "${currentUser.username}" بطلب تمديد حجز رواية للسبب التالي: ${reason}`,
+      title: 'Novel reservation extension request',
+      message: `Translator "${currentUser.username}" requested a reservation extension for the following reason: ${reason}`,
       type: 'RESERVATION',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
-    alert('تم إرسال طلب تمديد مهلة الحجز بنجاح للإدارة العليا للمراجعة.');
+    alert('Your reservation extension request was sent to senior administration for review successfully.');
   };
 
   // Simulate 30 days passing for testing purposes
@@ -545,12 +545,12 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
     MistVilDatabase.set('reservations', updated);
     setReservations(updated.filter(r => r.translatorId === currentUser.id));
-    alert('تمت محاكاة مرور 30 يوماً بنجاح على هذا الحجز! يرجى الانتقال إلى الشاشات الأخرى أو إعادة تحميل الموقع لتفعيل الفحص التلقائي لانتهاء الصلاحية.');
+    alert('Successfully simulated 30 days passing on this reservation! Please switch to other screens or reload the site to trigger the automatic expiry check.');
   };
 
   // Cancel reservation by the translator who booked it
   const handleCancelMyReservation = (resId: string, novelId: string, novelTitle: string) => {
-    if (!confirm(`هل أنت متأكد من رغبتك في إلغاء حجز رواية "${novelTitle}"؟ ستعود الرواية فوراً إلى قائمة الاقتراحات العامة للأعضاء.`)) {
+    if (!confirm(`Are you sure you want to cancel the reservation for "${novelTitle}"? The novel will immediately return to the public suggestions list for members.`)) {
       return;
     }
 
@@ -574,7 +574,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     });
     MistVilDatabase.set('suggestions', updatedSugs);
 
-    alert('تم إلغاء حجز الرواية بنجاح وعودتها للاقتراحات العامة مباشرة مع بقاء أصواتها.');
+    alert('Novel reservation cancelled successfully and it returned to the public suggestions with its votes intact.');
   };
 
   // Handle suggestion claim directly from translator panel
@@ -588,7 +588,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       id: `novel-claimed-${Date.now()}`,
       titleAr: sug.titleAr,
       titleEn: sug.titleEn,
-      author: 'الكاتب الأصلي',
+      author: 'Original author',
       translatorId: currentUser.id,
       translatorName: currentUser.username,
       cover: sug.cover,
@@ -599,7 +599,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       rating: 5.0,
       ratingCount: 1,
       status: 'RESERVED',
-      language: 'الكورية',
+      language: 'Korean',
       genres: sug.genres,
       description: sug.description,
       createdAt: new Date().toISOString(),
@@ -640,21 +640,21 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const newNotif = {
       id: `notif-claimed-${Date.now()}`,
       userId: currentUser.id,
-      title: 'تم استلام الاقتراح بنجاح!',
-      message: `لقد قمت بحجز الرواية المقترحة "${sug.titleAr}" بنجاح. تظهر الآن في لوحة المترجم وحسابك.`,
+      title: 'Suggestion accepted successfully!',
+      message: `You reserved the suggested novel "${sug.titleEn || sug.titleAr}" successfully. It now appears in the translator panel and your account.`,
       type: 'RESERVATION',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
-    alert(`تهانينا! لقد قمت باستلام الرواية المقترحة "${sug.titleAr}" بنجاح وجاري بدء عداد الحجز 30 يوماً.`);
+    alert(`Congratulations! You accepted the suggested novel "${sug.titleEn || sug.titleAr}" successfully and the 30-day reservation countdown is starting.`);
   };
 
   // Submit new novel draft for Admin Review / Publish immediately for Owner
   const handleCreateNovel = (e: React.FormEvent) => {
     e.preventDefault();
     if (!titleAr || !titleEn || !author || !desc) {
-      alert('يرجى ملء الحقول الإلزامية.');
+      alert('Please fill in the required fields.');
       return;
     }
 
@@ -692,7 +692,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
     const savedOk = MistVilDatabase.set('novels', [newNovel, ...allNovels]);
     if (!savedOk) {
-      alert('تعذر حفظ الرواية: مساحة التخزين ممتلئة (غالباً بسبب صور كبيرة). جرب غلافاً أصغر أو احذف بعض المحتوى القديم.');
+      alert('Could not save the novel: storage is full (usually due to large images). Try a smaller cover or delete some old content.');
       return; // Keep the form filled so the user does not lose their work
     }
 
@@ -701,14 +701,14 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     const newNotif = {
       id: `notif-review-${Date.now()}`,
       userId: 'mistvil-owner', // Notify Super Admin
-      title: 'تم نشر رواية جديدة 📣',
-      message: `قام ${currentUser.role === 'WRITER' ? 'الكاتب' : 'المترجم'} "${currentUser.username}" بنشر رواية جديدة "${titleAr}" وهي نشطة الآن بالمنصة.`,
+      title: 'A new novel was published 📣',
+      message: `${currentUser.role === 'WRITER' ? 'Writer' : 'Translator'} "${currentUser.username}" published a new novel "${titleEn || titleAr}" and it is now active on the platform.`,
       type: 'SYSTEM',
       isRead: false,
-      createdAt: 'الآن'
+      createdAt: 'now'
     };
     MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
-    setSuccess('تهانينا! تم إنشاء ونشر روايتك بنجاح وأصبحت نشطة فوراً لجميع الزوار على الصفحة الرئيسية! 🎉');
+    setSuccess('Congratulations! Your novel was created and published successfully and is now instantly live for all visitors on the home page! 🎉');
 
     // Trigger update so App.tsx knows the novels updated!
     window.dispatchEvent(new Event('novels-updated'));
@@ -728,16 +728,16 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
   };
 
   return (
-    <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+    <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Banner */}
       <div className="p-6 bg-gradient-to-r from-violet-900/40 via-purple-900/20 to-[#0E1626] border border-violet-500/15 rounded-3xl mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <FileText className="text-violet-400" size={24} />
-            <span>لوحة تحكم ومطوري الترجمة الفخمة</span>
+            <span>Translation Studio & Control Panel</span>
           </h1>
-          <p className="text-xs text-purple-300 mt-1">أنشئ رواياتك الخاصة، انشر فصولاً، واستلم الاقتراحات من مجتمع القراء.</p>
+          <p className="text-xs text-purple-300 mt-1">Create your own novels, publish chapters, and accept suggestions from the reader community.</p>
         </div>
         <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">✍️</span>
       </div>
@@ -748,7 +748,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
           onClick={() => setActiveTab('novels')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'novels' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span>{currentUser.role === 'WRITER' ? 'رواياتي المؤلفة' : 'رواياتي المترجمة'} ({novels.length})</span>
+          <span>{currentUser.role === 'WRITER' ? 'My authored novels' : 'My translated novels'} ({novels.length})</span>
           {activeTab === 'novels' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
         {currentUser.role !== 'WRITER' && (
@@ -756,7 +756,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             onClick={() => setActiveTab('claims')}
             className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'claims' ? 'text-white' : 'hover:text-white'}`}
           >
-            <span>طلبات استلام الاقتراحات ({suggestions.length})</span>
+            <span>Suggestion pickups ({suggestions.length})</span>
             {activeTab === 'claims' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
           </button>
         )}
@@ -765,7 +765,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             onClick={() => setActiveTab('reservations')}
             className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'reservations' ? 'text-white' : 'hover:text-white'}`}
           >
-            <span>حجوزاتي النشطة ({reservations.filter(r => r.status === 'ACTIVE').length})</span>
+            <span>My active reservations ({reservations.filter(r => r.status === 'ACTIVE').length})</span>
             {activeTab === 'reservations' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
           </button>
         )}
@@ -773,35 +773,35 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
           onClick={() => setActiveTab('add-novel')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'add-novel' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span>{currentUser.role === 'WRITER' ? 'تأليف رواية جديدة +' : 'تسجيل رواية جديدة للترجمة +'}</span>
+          <span>{currentUser.role === 'WRITER' ? 'Author a new novel +' : 'Register a new novel to translate +'}</span>
           {activeTab === 'add-novel' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
         <button 
           onClick={() => setActiveTab('activity')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'activity' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span className="flex items-center gap-1">📋 صفحة الأنشطة والجدولة ({chapters.length})</span>
+          <span className="flex items-center gap-1">📋 Activity & scheduling ({chapters.length})</span>
           {activeTab === 'activity' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
         <button 
           onClick={() => setActiveTab('deleted-chapters')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'deleted-chapters' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span className="flex items-center gap-1">🗑️ الفصول المحذوفة ({deletedChapters.length})</span>
+          <span className="flex items-center gap-1">🗑️ Deleted chapters ({deletedChapters.length})</span>
           {activeTab === 'deleted-chapters' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
         <button 
           onClick={() => setActiveTab('edit-requests')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'edit-requests' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span className="flex items-center gap-1">🛠️ طلب تعديل فصل</span>
+          <span className="flex items-center gap-1">🛠️ Chapter edit request</span>
           {activeTab === 'edit-requests' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
         <button 
           onClick={() => setActiveTab('points')}
           className={`pb-3 px-6 relative transition-colors shrink-0 ${activeTab === 'points' ? 'text-white' : 'hover:text-white'}`}
         >
-          <span className="flex items-center gap-1">🌟 نظام النقاط ({getTranslatorPoints(currentUser.id, currentUser.username).pointsThisMonth} ن)</span>
+          <span className="flex items-center gap-1">🌟 Points system ({getTranslatorPoints(currentUser.id, currentUser.username).pointsThisMonth} pts)</span>
           {activeTab === 'points' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
       </div>
@@ -824,7 +824,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-extrabold text-sm text-white truncate">{novel.titleAr}</h4>
                           <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${novel.status === 'PENDING' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>
-                            {novel.status === 'PENDING' ? 'بانتظار موافقة الإدارة' : 'نشطة بالموقع'}
+                            {novel.status === 'PENDING' ? 'Awaiting admin approval' : 'Active on site'}
                           </span>
                         </div>
                         <p className="text-[10px] text-purple-400 truncate mt-0.5">{novel.titleEn}</p>
@@ -832,44 +832,44 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
                       <div className="flex flex-col gap-2 mt-3 pt-2.5 border-t border-white/5">
                         <div className="flex justify-between items-center text-[10px] text-purple-300">
-                          <span>{novel.chaptersCount} فصل منشور</span>
+                          <span>{novel.chaptersCount} published chapters</span>
                           <div className="flex gap-2.5 items-center">
                             {novel.status !== 'PENDING' && (
                               <button
                                 onClick={() => onNavigate('novel', { id: novel.id, autoOpenAddChapter: true })}
                                 className="px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-500 hover:to-violet-400 text-white rounded-xl text-[9px] font-bold cursor-pointer transition-all flex items-center gap-1"
                               >
-                                <span>إضافة فصل جديد +</span>
+                                <span>Add a new chapter +</span>
                               </button>
                             )}
                             <button 
                               onClick={() => onNavigate('novel', { id: novel.id })}
                               className="text-violet-400 font-extrabold hover:text-violet-300 text-[10px]"
                             >
-                              عرض وتعديل ←
+                              View & edit →
                             </button>
                           </div>
                         </div>
 
                         {novel.status !== 'PENDING' && (
                           <div className="mt-1 flex items-center justify-between gap-2 text-[10px] bg-white/5 p-2 rounded-xl border border-white/5">
-                            <span className="text-purple-300 font-medium">الحالة: <span className="text-violet-300 font-bold">
-                              {novel.status === 'ONGOING' || novel.status === 'TRANSLATING' || novel.status === 'AVAILABLE' ? 'مستمرة' :
-                               novel.status === 'HIATUS' ? 'متوقفة مؤقتاً' :
-                               novel.status === 'CANCELLED' ? 'متوقفة نهائياً' :
-                               novel.status === 'COMPLETED' ? 'مكتملة' : novel.status}
+                            <span className="text-purple-300 font-medium">Status: <span className="text-violet-300 font-bold">
+                              {novel.status === 'ONGOING' || novel.status === 'TRANSLATING' || novel.status === 'AVAILABLE' ? 'Ongoing' :
+                               novel.status === 'HIATUS' ? 'On hiatus' :
+                               novel.status === 'CANCELLED' ? 'Dropped' :
+                               novel.status === 'COMPLETED' ? 'Completed' : novel.status}
                             </span></span>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[9px] text-purple-400">تغيير الحالة:</span>
+                              <span className="text-[9px] text-purple-400">Change status:</span>
                               <select
                                 value={novel.status === 'TRANSLATING' || novel.status === 'AVAILABLE' ? 'ONGOING' : novel.status}
                                 onChange={(e) => handleStatusChange(novel.id, e.target.value as any)}
                                 className="bg-[#0F1828] text-purple-200 border border-white/10 rounded-lg px-2 py-1 cursor-pointer text-[10px] outline-none focus:border-violet-500"
                               >
-                                <option value="ONGOING">مستمرة</option>
-                                <option value="HIATUS">متوقفة مؤقتاً</option>
-                                <option value="CANCELLED">متوقفة نهائياً</option>
-                                <option value="COMPLETED">مكتملة</option>
+                                <option value="ONGOING">Ongoing</option>
+                                <option value="HIATUS">On hiatus</option>
+                                <option value="CANCELLED">Dropped</option>
+                                <option value="COMPLETED">Completed</option>
                               </select>
                             </div>
                           </div>
@@ -882,12 +882,12 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             ) : (
               <div className="p-12 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
                 <AlertCircle size={32} className="mx-auto mb-2 text-violet-400 animate-pulse" />
-                <p className="text-sm">لم تقم بتسجيل أو حجز أي رواية خاصة بك حتى الآن.</p>
+                <p className="text-sm">You haven't registered or reserved any novels yet.</p>
                 <button 
                   onClick={() => setActiveTab('add-novel')}
                   className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-bold mt-4"
                 >
-                  سجل أول رواية لك الآن
+                  Register your first novel now
                 </button>
               </div>
             )}
@@ -896,11 +896,11 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 2: Active Reservations */}
         {activeTab === 'reservations' && (
-          <div className="flex flex-col gap-4 text-right animate-in fade-in duration-300">
+          <div className="flex flex-col gap-4 text-left animate-in fade-in duration-300">
             <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-xs text-purple-300 flex items-start gap-2 leading-relaxed">
               <AlertCircle size={14} className="shrink-0 text-violet-400 mt-0.5" />
               <span>
-                إدارة المهلة الزمنية: لكل حجز رواية مدة صلاحية قدرها **30 يوماً**. إذا انتهت الـ 30 يوماً دون نشر أي فصول للرواية، يتم إلغاء الحجز تلقائياً لتتاح الرواية لمترجمين آخرين ومكافحة الاحتكار. يمكنك طلب تمديد الحجز بمهلة إضافية عند الحاجة.
+                Deadline management: each novel reservation lasts **30 days**. If the 30 days pass without publishing any chapters, the reservation is cancelled automatically so the novel becomes available to other translators and to prevent hoarding. You can request an extension when needed.
               </span>
             </div>
 
@@ -923,34 +923,34 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             isExpired ? 'bg-zinc-500/10 text-zinc-400' :
                             'bg-green-500/10 text-green-400'
                           }`}>
-                            {res.status === 'CANCELLED' ? 'ملغي' :
-                             isExpired ? 'منتهي الصلاحية' :
-                             'نشط ومحمي ⏱️'}
+                            {res.status === 'CANCELLED' ? 'Cancelled' :
+                             isExpired ? 'Expired' :
+                             'Active & protected ⏱️'}
                           </span>
                         </div>
                         
                         <div className="text-[10px] text-purple-400 flex flex-col gap-1 mt-2.5">
-                          <div>تاريخ البدء: <span className="text-white font-mono">{new Date(res.startAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span></div>
-                          <div>تاريخ الانتهاء: <span className="text-white font-mono">{new Date(res.endAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span></div>
+                          <div>Start date: <span className="text-white font-mono">{new Date(res.startAt).toLocaleDateString('en-US')}</span></div>
+                          <div>End date: <span className="text-white font-mono">{new Date(res.endAt).toLocaleDateString('en-US')}</span></div>
                         </div>
 
                         <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between text-xs">
-                          <span className="text-purple-300">المهلة المتبقية:</span>
+                          <span className="text-purple-300">Time remaining:</span>
                           <span className={`font-extrabold ${isExpired ? 'text-red-400' : daysLeft <= 5 ? 'text-amber-400 animate-pulse' : 'text-violet-400'}`}>
-                            {isExpired ? 'انتهى الحجز (0 يوم)' : `${daysLeft} يوماً متبقياً`}
+                            {isExpired ? 'Reservation ended (0 days)' : `${daysLeft} days left`}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 justify-end mt-5 pt-3 border-t border-white/5">
+                      <div className="flex flex-wrap gap-2 justify-start mt-5 pt-3 border-t border-white/5">
                         {/* Simulation button for easy demo */}
                         {!isExpired && res.status === 'ACTIVE' && (
                           <button
                             onClick={() => handleSimulateTime(res.id)}
                             className="px-3 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-black rounded-lg text-[9px] font-bold transition-all cursor-pointer"
-                            title="لمحاكاة مرور 30 يوماً فوراً للتأكد من زوال الحجز وعودة الرواية للاقتراحات"
+                            title="Simulate 30 days passing instantly to confirm the reservation expires and the novel returns to suggestions"
                           >
-                            ⌛ محاكاة 30 يوماً
+                            ⌛ Simulate 30 days
                           </button>
                         )}
 
@@ -959,13 +959,13 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             onClick={() => handleCancelMyReservation(res.id, res.novelId, res.novelTitle)}
                             className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer"
                           >
-                            إلغاء الحجز ❌
+                            Cancel reservation ❌
                           </button>
                         )}
 
                         {res.extensionRequested ? (
                           <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg">
-                            ⏳ تم إرسال طلب التمديد وبانتظار الإدارة
+                            ⏳ Extension request sent, awaiting admin
                           </span>
                         ) : (
                           !isExpired && res.status === 'ACTIVE' && (
@@ -973,7 +973,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                               onClick={() => handleRequestExtension(res.id)}
                               className="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer"
                             >
-                              طلب تمديد الحجز ⏱️
+                              Request reservation extension ⏱️
                             </button>
                           )
                         )}
@@ -984,12 +984,12 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               </div>
             ) : (
               <div className="p-12 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
-                <p className="text-xs">لا تملك أي حجوزات نشطة حالياً.</p>
+                <p className="text-xs">You have no active reservations right now.</p>
                 <button
                   onClick={() => setActiveTab('claims')}
                   className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-bold mt-4 cursor-pointer"
                 >
-                  استكشف الروايات المقترحة لحجزها
+                  Explore suggested novels to reserve
                 </button>
               </div>
             )}
@@ -998,32 +998,32 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 2: Suggestions available for claiming/reservation */}
         {activeTab === 'claims' && (
-          <div className="flex flex-col gap-4 text-right">
+          <div className="flex flex-col gap-4 text-left">
             <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-xs text-purple-300 flex items-start gap-2 leading-relaxed">
               <AlertCircle size={14} className="shrink-0 text-violet-400 mt-0.5" />
               <span>
-                طبقاً لمستند المواصفات الفنية: عندما تختار "قبول ترجمة واستلام" رواية من الاقتراحات المرفوعة من الأعضاء، فإنها **تزول وتختفي من خانة الاقتراحات العامة** وتتحول تلقائياً إلى حالة **محجوزة لترجمتك** وتظهر فوراً في حسابك لبدء ترجمتها!
+                Per the technical spec: when you choose to "accept and pick up" a novel from member suggestions, it **disappears from the public suggestions** and automatically switches to **reserved for your translation**, appearing instantly in your account to start translating!
               </span>
             </div>
 
             {suggestions.length > 0 ? (
               <div className="flex flex-col gap-3">
                 {suggestions.map((sug) => (
-                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex flex-col md:flex-row gap-5 transition-all text-right">
+                  <div key={sug.id} className="p-5 bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex flex-col md:flex-row gap-5 transition-all text-left">
                     <img src={sug.cover} alt={sug.titleAr} className="w-24 h-36 rounded-xl object-cover border border-white/5 mx-auto md:mx-0" />
                     
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-center">
                           <h4 className="font-extrabold text-sm text-white">{sug.titleAr}</h4>
-                          <span className="text-[10px] bg-purple-500/10 text-purple-300 px-2.5 py-0.5 rounded-full font-extrabold">👍 {sug.votes} صوت للتأييد</span>
+                          <span className="text-[10px] bg-purple-500/10 text-purple-300 px-2.5 py-0.5 rounded-full font-extrabold">👍 {sug.votes} upvotes</span>
                         </div>
                         <p className="text-[10px] text-purple-400 mt-0.5">{sug.titleEn}</p>
                         <p className="text-xs text-purple-300 mt-3 leading-relaxed">{sug.description}</p>
                       </div>
 
                       <div className="flex flex-col sm:flex-row justify-between items-center mt-4 pt-3 border-t border-white/5 gap-3">
-                        <span className="text-[10px] text-purple-400">اقترح بواسطة: <span className="font-bold text-white">{sug.suggestedBy}</span></span>
+                        <span className="text-[10px] text-purple-400">Suggested by: <span className="font-bold text-white">{sug.suggestedBy}</span></span>
                         
                         <div className="flex gap-2">
                           {sug.novelUpdatesLink && (
@@ -1040,7 +1040,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             onClick={() => handleClaimSuggestion(sug)}
                             className="px-4 py-1.5 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md shadow-violet-500/10"
                           >
-                            طلب استلام الرواية وحجزها للترجمة 📝
+                            Accept & reserve this novel to translate 📝
                           </button>
                         </div>
                       </div>
@@ -1050,7 +1050,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               </div>
             ) : (
               <div className="p-12 text-center glass-panel rounded-2xl border border-white/5 text-purple-400">
-                <p className="text-sm font-semibold">لا توجد اقتراحات روائية بانتظار الترجمة حالياً.</p>
+                <p className="text-sm font-semibold">There are no novel suggestions awaiting translation right now.</p>
               </div>
             )}
           </div>
@@ -1058,7 +1058,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 3: Create Novel */}
         {activeTab === 'add-novel' && (
-          <div className="glass-panel p-6 rounded-2xl border border-white/5 text-right">
+          <div className="glass-panel p-6 rounded-2xl border border-white/5 text-left">
             
             {success && (
               <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center gap-2 text-xs mb-6">
@@ -1070,59 +1070,59 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             <form onSubmit={handleCreateNovel} className="flex flex-col gap-5 text-xs font-medium">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">الاسم العربي للرواية *</label>
+                  <label className="text-purple-200">Arabic title *</label>
                   <input 
                     type="text" 
                     required
                     value={titleAr}
                     onChange={(e) => setTitleAr(e.target.value)}
-                    placeholder="مثال: بداية ما بعد السد الأكبر"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    placeholder="e.g. The Beginning After the End (Arabic)"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">الاسم الإنجليزي للرواية *</label>
+                  <label className="text-purple-200">English title *</label>
                   <input 
                     type="text" 
                     required
                     value={titleEn}
                     onChange={(e) => setTitleEn(e.target.value)}
-                    placeholder="مثال: The Beginning of the Great Gate"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    placeholder="e.g. The Beginning After the End"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">المؤلف الأصلي للرواية *</label>
+                  <label className="text-purple-200">Original author *</label>
                   <input 
                     type="text" 
                     required
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="مثال: TurtleMe"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    placeholder="e.g. TurtleMe"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">اللغة الأصلية للرواية *</label>
+                  <label className="text-purple-200">Original language *</label>
                   <select 
                     value={lang}
                     onChange={(e) => setLang(e.target.value)}
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-purple-200 text-xs transition-all text-right cursor-pointer"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-purple-200 text-xs transition-all text-left cursor-pointer"
                   >
-                    <option value="الكورية">الكورية 🇰🇷</option>
-                    <option value="الصينية">الصينية 🇨🇳</option>
-                    <option value="اليابانية">اليابانية 🇯🇵</option>
-                    <option value="الإنجليزية">الإنجليزية 🇺🇸</option>
+                    <option value="Korean">Korean 🇰🇷</option>
+                    <option value="Chinese">Chinese 🇨🇳</option>
+                    <option value="Japanese">Japanese 🇯🇵</option>
+                    <option value="English">English 🇺🇸</option>
                   </select>
                 </div>
               </div>
 
               {/* Genres checkbox list */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200">اختر التصنيفات المناسبة للرواية</label>
+                <label className="text-purple-200">Select the appropriate genres for the novel</label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {genresOptions.map((g) => {
                     const isSelected = selectedGenres.includes(g);
@@ -1146,20 +1146,20 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
               {/* Synopsis description */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200">نبذة وقصة الرواية الأصلي بالتفصيل *</label>
+                <label className="text-purple-200">Full synopsis & story of the original novel *</label>
                 <textarea 
                   required
                   rows={4}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  placeholder="اكتب فصول النبذة الأولى بشكل فخم لجذب واهتمام مجتمع القراء..."
-                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                  placeholder="Write a compelling synopsis to draw in the reader community..."
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left resize-none"
                 />
               </div>
 
               {/* Cover Image Upload */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200">غلاف الرواية الفاخر (اختياري - سيتم تعيين غلاف مميز تلقائياً إن تركته فارغاً)</label>
+                <label className="text-purple-200">Premium novel cover (optional — a featured cover is auto-assigned if left blank)</label>
                 <div className="relative border-2 border-dashed border-white/10 hover:border-violet-500/40 rounded-2xl p-6 flex flex-col items-center justify-center bg-[#131F33] hover:bg-white/5 transition-all text-center cursor-pointer min-h-[120px]">
                   <input 
                     type="file" 
@@ -1170,39 +1170,39 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                       const extension = file.name.split('.').pop()?.toLowerCase();
                       const allowed = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
                       if (!extension || !allowed.includes(extension)) {
-                        alert('خطأ: نقبل ملفات صور غلاف بصيغة (PNG, JPG, JPEG, WEBP) فقط لضمان الجودة الفاخرة لغلاف الرواية!');
+                        alert('Error: only PNG, JPG, JPEG, or WEBP cover images are accepted to ensure premium cover quality!');
                         return;
                       }
                       // Compress before storing: raw multi-MB covers were the
                       // main reason publish syncs failed and novels vanished.
                       compressImageFile(file, 600)
                         .then((dataUrl) => setCoverImage(dataUrl))
-                        .catch(() => alert('تعذر معالجة صورة الغلاف. جرب صورة أصغر حجماً.'));
+                        .catch(() => alert('Could not process the cover image. Try a smaller one.'));
                     }}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   {coverImage ? (
                     <div className="flex flex-col items-center gap-2">
                       <img src={coverImage} alt="Cover Preview" className="w-20 h-28 object-cover rounded-xl border border-violet-500" referrerPolicy="no-referrer" />
-                      <span className="text-xs text-green-400 font-bold">تم تحميل الغلاف بنجاح ✓</span>
+                      <span className="text-xs text-green-400 font-bold">Cover uploaded successfully ✓</span>
                     </div>
                   ) : (
                     <>
                       <Upload size={24} className="text-purple-400 mb-2" />
-                      <p className="text-xs font-bold text-purple-200">اسحب ملف صورة الغلاف إلى هنا أو تصفح ملفاتك</p>
-                      <p className="text-[10px] text-purple-400 mt-1">نقبل صور (PNG, JPG, JPEG, WEBP) ويجب أن تكون الأبعاد عمودية بنسبة 2:3</p>
+                      <p className="text-xs font-bold text-purple-200">Drag the cover image here or browse your files</p>
+                      <p className="text-[10px] text-purple-400 mt-1">PNG, JPG, JPEG, WEBP accepted — dimensions must be portrait at a 2:3 ratio</p>
                     </>
                   )}
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-white/5">
+              <div className="flex gap-3 justify-start mt-4 pt-4 border-t border-white/5">
                 <button 
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-violet-600 to-rose-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-md shadow-violet-500/10"
                 >
-                  إنشاء ونشر الرواية فوراً بالمنصة 🚀
+                  Create & publish the novel instantly 🚀
                 </button>
               </div>
 
@@ -1213,17 +1213,17 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 4: Activity Desk & Scheduling */}
         {activeTab === 'activity' && (
-          <div className="flex flex-col gap-4 text-right animate-in fade-in duration-300">
+          <div className="flex flex-col gap-4 text-left animate-in fade-in duration-300">
             <div className="p-5 bg-gradient-to-r from-violet-950/20 to-purple-950/20 border border-violet-500/10 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                   <Calendar size={16} className="text-violet-400" />
-                  <span>لوحة الأنشطة وجدولة الفصول تلقائياً</span>
+                  <span>Activity board & automatic chapter scheduling</span>
                 </h3>
-                <p className="text-[10px] text-purple-400 mt-1">تتبع كل فصولك المترجمة، عدل عليها بدون قيود زمنية، وجدول مواعيد نشرها في ثوانٍ معدودة.</p>
+                <p className="text-[10px] text-purple-400 mt-1">Track all your translated chapters, edit them without time limits, and schedule their publish times in seconds.</p>
               </div>
               <span className="text-[10px] bg-violet-600/20 text-violet-300 px-3 py-1 rounded-xl font-bold border border-violet-500/20">
-                إجمالي فصولك: {chapters.length} فصلاً
+                Total chapters: {chapters.length}
               </span>
             </div>
 
@@ -1244,20 +1244,20 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                           </span>
                         </div>
                         <div className="flex flex-wrap items-center gap-3 mt-2 text-[9px] text-purple-400">
-                          <span>المشاهدات: {chap.views || 0} 👀</span>
-                          <span>تاريخ الإنشاء: {new Date(chap.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })} ⏱️</span>
-                          {chap.images && <span>مرفق به {chap.images.length} صورة 🖼️</span>}
+                          <span>Views: {chap.views || 0} 👀</span>
+                          <span>Created: {new Date(chap.createdAt).toLocaleDateString('en-US')} ⏱️</span>
+                          {chap.images && <span>{chap.images.length} attached image(s) 🖼️</span>}
                         </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-3 shrink-0">
                         {isScheduled ? (
                           <span className="text-[9px] bg-amber-500/15 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-xl font-bold font-mono">
-                            📅 مجدول للنشر: {new Date(chap.publishAt).toLocaleString('en-US', { hour12: true })}
+                            📅 Scheduled to publish: {new Date(chap.publishAt).toLocaleString('en-US', { hour12: true })}
                           </span>
                         ) : (
                           <span className="text-[9px] bg-green-500/15 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-xl font-bold">
-                            ✅ منشور علناً للقراء
+                            ✅ Published publicly to readers
                           </span>
                         )}
 
@@ -1267,17 +1267,17 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                           if (currentUser.role === 'OWNER') {
                             return (
                               <span className="text-[9px] bg-indigo-500/15 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-xl font-bold">
-                                🛡️ صلاحية المالك كاملة
+                                🛡️ Full owner permission
                               </span>
                             );
                           }
                           return perm.allowed ? (
                             <span className="text-[9px] bg-blue-500/15 text-blue-300 border border-blue-500/20 px-2.5 py-1 rounded-xl font-bold">
-                              ⏳ متبقي {perm.daysLeft} يوم للتعديل/الحذف
+                              ⏳ {perm.daysLeft} days left to edit/delete
                             </span>
                           ) : (
                             <span className="text-[9px] bg-red-500/15 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-xl font-bold">
-                              🔒 مغلق (مرت 15 يوماً)
+                              🔒 Locked (15 days passed)
                             </span>
                           );
                         })()}
@@ -1294,7 +1294,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             title={canModifyChapter(chap).reason}
                           >
                             <Edit size={12} />
-                            <span>تعديل الفصل ✍️</span>
+                            <span>Edit chapter ✍️</span>
                           </button>
                           <button 
                             disabled={!canModifyChapter(chap).allowed}
@@ -1307,7 +1307,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                             title={canModifyChapter(chap).reason}
                           >
                             <Trash2 size={12} />
-                            <span>حذف 🗑️</span>
+                            <span>Delete 🗑️</span>
                           </button>
                         </div>
                       </div>
@@ -1317,7 +1317,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               </div>
             ) : (
               <div className="p-10 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
-                لم تقم بنشر أو جدولة أي فصول بعد. اختر رواية من لوحة التحكم وابدأ بإضافة فصولك!
+                You haven't published or scheduled any chapters yet. Pick a novel from the control panel and start adding your chapters!
               </div>
             )}
           </div>
@@ -1325,16 +1325,16 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 5: Deleted Chapters Archive */}
         {activeTab === 'deleted-chapters' && (
-          <div className="flex flex-col gap-4 text-right animate-in fade-in duration-300">
+          <div className="flex flex-col gap-4 text-left animate-in fade-in duration-300">
             <div className="p-5 bg-gradient-to-r from-red-950/20 to-purple-950/20 border border-red-500/10 rounded-2xl">
               <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                 <Trash2 size={16} className="text-red-400 animate-pulse" />
-                <span>سلة المحذوفات وأرشيف الفصول المحذوفة</span>
+                <span>Trash & deleted-chapters archive</span>
               </h3>
               <p className="text-[10px] text-purple-400 mt-1">
                 {currentUser.role === 'OWNER' 
-                  ? 'بصفتك مالك الموقع، تظهر هنا كل الفصول المحذوفة من جميع المترجمين والكتّاب، حيث يمكنك استعادتها أو مسحها نهائياً لضمان سلامة المحتوى.'
-                  : 'الفصول التي قمت بحذفها تظل محفوظة هنا بأمان. يمكنك مراجعتها، استعادتها إلى فصول الرواية، أو حذفها نهائياً.'}
+                  ? 'As the site owner, all deleted chapters from every translator and writer appear here, where you can restore them or permanently erase them to keep the content clean.'
+                  : 'Chapters you delete are kept safely here. You can review them, restore them to the novel, or delete them permanently.'}
               </p>
             </div>
 
@@ -1353,8 +1353,8 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         </span>
                       </div>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-[9px] text-purple-400">
-                        <span>حذفها: {chap.deletedBy} 👤</span>
-                        <span>تاريخ الحذف: {new Date(chap.deletedAt).toLocaleString('ar-EG', { numberingSystem: 'latn' })} 📅</span>
+                        <span>Deleted by: {chap.deletedBy} 👤</span>
+                        <span>Deleted on: {new Date(chap.deletedAt).toLocaleString('en-US')} 📅</span>
                       </div>
                     </div>
 
@@ -1363,13 +1363,13 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         onClick={() => handleRestoreChapter(chap.id)}
                         className="p-2 px-3 bg-green-600/10 hover:bg-green-600/20 text-green-400 rounded-lg text-[10px] font-bold cursor-pointer transition-all border border-green-500/10 flex items-center gap-1"
                       >
-                        <span>استعادة الفصل ↩️</span>
+                        <span>Restore chapter ↩️</span>
                       </button>
                       <button 
                         onClick={() => handlePermanentlyDelete(chap.id)}
                         className="p-2 px-3 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-lg text-[10px] font-bold cursor-pointer transition-all border border-red-500/10 flex items-center gap-1"
                       >
-                        <span>حذف نهائي ❌</span>
+                        <span>Delete permanently ❌</span>
                       </button>
                     </div>
                   </div>
@@ -1377,7 +1377,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               </div>
             ) : (
               <div className="p-10 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-xs text-purple-400">
-                سلة المحذوفات فارغة تماماً ولا توجد فصول مؤرشفة حالياً.
+                The trash is completely empty and there are no archived chapters right now.
               </div>
             )}
           </div>
@@ -1385,77 +1385,77 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
         {/* TAB 6: Edit Requests */}
         {activeTab === 'edit-requests' && (
-          <div className="glass-panel p-6 rounded-2xl border border-white/5 text-right animate-in fade-in duration-300">
-            <h3 className="text-base font-extrabold text-white mb-4 flex items-center gap-2 justify-end">
-              <span>طلب تعديل خطأ في فصل 🛠️</span>
+          <div className="glass-panel p-6 rounded-2xl border border-white/5 text-left animate-in fade-in duration-300">
+            <h3 className="text-base font-extrabold text-white mb-4 flex items-center gap-2 justify-start">
+              <span>Request a chapter fix 🛠️</span>
               <AlertCircle className="text-violet-400" size={18} />
             </h3>
             <p className="text-xs text-purple-300 mb-6 leading-relaxed">
-              إذا واجهت أي خطأ في فصل ما أو انتهت مهلة الـ 15 يوماً المتاحة للتعديل، يمكنك تقديم طلب تعديل مباشر لمالك الموقع لتعديله نيابة عنك.
+              If you find an error in a chapter or the 15-day editing window has passed, you can submit a request directly to the site owner to edit it on your behalf.
             </p>
 
             {/* Submission Form */}
             <form onSubmit={handleCreateEditRequest} className="flex flex-col gap-5 text-xs font-medium">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">اسم الرواية *</label>
+                  <label className="text-purple-200">Novel title *</label>
                   <input 
                     type="text" 
                     required
                     value={reqNovelName}
                     onChange={(e) => setReqNovelName(e.target.value)}
-                    placeholder="مثال: بداية ما بعد السد الأكبر"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    placeholder="e.g. The Beginning After the End (Arabic)"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">الفصل المطلوب تعديله (الرقم أو الاسم) *</label>
+                  <label className="text-purple-200">Chapter to edit (number or title) *</label>
                   <input 
                     type="text" 
                     required
                     value={reqChapterName}
                     onChange={(e) => setReqChapterName(e.target.value)}
-                    placeholder="مثال: الفصل 25"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right"
+                    placeholder="e.g. Chapter 25"
+                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200">التغيير المطلوب والتعديلات المقترحة بالتفصيل *</label>
+                <label className="text-purple-200">Requested change and proposed edits in detail *</label>
                 <textarea 
                   required
                   rows={4}
                   value={reqDetails}
                   onChange={(e) => setReqDetails(e.target.value)}
-                  placeholder="يرجى كتابة التعديل أو التغيير المطلوب بدقة..."
-                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                  placeholder="Please describe the requested edit or change precisely..."
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left resize-none"
                 />
               </div>
 
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-start">
                 <button 
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-purple-600 to-violet-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-md"
                 >
-                  إرسال طلب التعديل للمالك 🚀
+                  Send edit request to the owner 🚀
                 </button>
               </div>
             </form>
 
             {/* List of submitted edit requests */}
             <div className="mt-8 border-t border-white/5 pt-6">
-              <h4 className="text-xs font-bold text-purple-200 mb-4">طلبات التعديل المرسلة الخاصة بك:</h4>
+              <h4 className="text-xs font-bold text-purple-200 mb-4">Your submitted edit requests:</h4>
               {myEditRequests.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {myEditRequests.map((r: any) => (
-                    <div key={r.id} className="p-4 bg-[#131F33] border border-white/5 rounded-xl flex justify-between items-center text-right text-xs">
+                    <div key={r.id} className="p-4 bg-[#131F33] border border-white/5 rounded-xl flex justify-between items-center text-left text-xs">
                       <div>
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${r.status === 'RESOLVED' ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                          {r.status === 'RESOLVED' ? 'تم التعديل ✓' : 'قيد المراجعة ⏱️'}
+                          {r.status === 'RESOLVED' ? 'Edited ✓' : 'Under review ⏱️'}
                         </span>
                         <div className="text-purple-300 mt-2">
-                          رواية: <span className="text-white font-bold">{r.novelName}</span> | {r.chapterName}
+                          Novel: <span className="text-white font-bold">{r.novelName}</span> | {r.chapterName}
                         </div>
                         <p className="text-purple-400 mt-1">{r.details}</p>
                       </div>
@@ -1466,7 +1466,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-purple-400">لم تقم بإرسال أي طلبات تعديل بعد.</p>
+                <p className="text-xs text-purple-400">You haven't submitted any edit requests yet.</p>
               )}
             </div>
           </div>
@@ -1481,7 +1481,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
           const progressPercent = ((pointsInfo.viewsThisMonth % 10) / 10) * 100;
 
           return (
-            <div className="flex flex-col gap-6 text-right animate-in fade-in duration-300">
+            <div className="flex flex-col gap-6 text-left animate-in fade-in duration-300">
               
               {/* Crowned Greeting */}
               {isCrowned && (
@@ -1489,9 +1489,9 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   <div className="absolute -top-10 -left-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl" />
                   <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl" />
                   <div className="text-4xl">🏆</div>
-                  <h3 className="text-lg font-extrabold text-yellow-400">تهانينا الحارة! أنت مترجم الشهر!</h3>
+                  <h3 className="text-lg font-extrabold text-yellow-400">Warm congratulations! You are Translator of the Month!</h3>
                   <p className="text-xs text-yellow-100 max-w-md">
-                    لقد تم تتويجك من قِبل الإدارة كـ <strong>مترجم الشهر</strong> نظراً لجهودك الاستثنائية وتفاعلك الرائع. تظهر رتبتك الخاصة الآن بجانب اسمك في جميع الفصول والتعليقات!
+                    Administration has crowned you <strong>Translator of the Month</strong> for your exceptional effort and great engagement. Your special rank now appears next to your name on all chapters and comments!
                   </p>
                 </div>
               )}
@@ -1501,31 +1501,31 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                 
                 {/* Views & Points Box */}
                 <div className="glass-panel p-6 rounded-2xl border border-white/5 md:col-span-2 flex flex-col gap-5 justify-between">
-                  <div className="flex justify-between items-center flex-row-reverse">
+                  <div className="flex justify-between items-center">
                     <span className="text-[10px] bg-violet-500/10 border border-violet-500/20 text-violet-400 px-2.5 py-1 rounded-full font-bold">
                       {currentMonth}
                     </span>
-                    <h4 className="text-sm font-extrabold text-white">إحصائيات النقاط والمشاهدات المعتمدة 📈</h4>
+                    <h4 className="text-sm font-extrabold text-white">Approved points & views stats 📈</h4>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div className="bg-[#0F1828] p-4 rounded-xl border border-white/5">
-                      <span className="text-[10px] text-purple-400 block mb-1">المشاهدات المعتمدة هذا الشهر</span>
+                      <span className="text-[10px] text-purple-400 block mb-1">Approved views this month</span>
                       <strong className="text-2xl font-extrabold text-white font-mono">{pointsInfo.viewsThisMonth}</strong>
-                      <span className="text-[9px] text-purple-500 block mt-1">مشاهدة</span>
+                      <span className="text-[9px] text-purple-500 block mt-1">views</span>
                     </div>
                     <div className="bg-gradient-to-br from-[#16233A] to-[#0D1626] p-4 rounded-xl border border-violet-500/10 shadow-inner">
-                      <span className="text-[10px] text-violet-400 block mb-1">نقاطك الحالية المكتسبة</span>
+                      <span className="text-[10px] text-violet-400 block mb-1">Your current earned points</span>
                       <strong className="text-2xl font-extrabold text-violet-400 font-mono">{pointsInfo.pointsThisMonth}</strong>
-                      <span className="text-[9px] text-violet-500 block mt-1">نقطة</span>
+                      <span className="text-[9px] text-violet-500 block mt-1">points</span>
                     </div>
                   </div>
 
                   {/* Progress to Next Point */}
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-[11px] text-purple-300">
-                      <span>{pointsInfo.viewsThisMonth % 10} / 10 مشاهدات للقطة التالية</span>
-                      <span>متبقي {nextPointViewsLeft} مشاهدات لنقطة جديدة</span>
+                      <span>{pointsInfo.viewsThisMonth % 10} / 10 views to the next point</span>
+                      <span>{nextPointViewsLeft} views left for a new point</span>
                     </div>
                     <div className="w-full bg-white/5 rounded-full h-2.5 overflow-hidden border border-white/5 p-[2px]">
                       <div 
@@ -1538,15 +1538,15 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
                 {/* Rules & Info */}
                 <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col gap-4 text-xs">
-                  <h4 className="font-extrabold text-white flex items-center gap-1.5 justify-end">
-                    <span>دليل نظام النقاط</span>
+                  <h4 className="font-extrabold text-white flex items-center gap-1.5 justify-start">
+                    <span>Points system guide</span>
                     <Award className="text-violet-400" size={16} />
                   </h4>
                   <ul className="flex flex-col gap-3 text-purple-300 list-disc list-inside">
-                    <li>كل <strong>10 مشاهدات معتمدة</strong> تمنحك <strong>نقطة واحدة</strong>.</li>
-                    <li><strong>حماية المشاهدات:</strong> لا تُحتسب المشاهدة إلا إذا أمضى القارئ <strong>30 ثانية على الأقل</strong> داخل الفصل.</li>
-                    <li>تتجدد النقاط وتصفر تلقائياً مع بداية كل شهر ميلادي لفتح باب المنافسة من جديد.</li>
-                    <li>مترجم الشهر يحصل على رتبة مؤقتة فخمة بجانب اسمه حتى إعلان فائز الشهر التالي.</li>
+                    <li>Every <strong>10 approved views</strong> earns you <strong>one point</strong>.</li>
+                    <li><strong>View protection:</strong> a view only counts if the reader spends <strong>at least 30 seconds</strong> in the chapter.</li>
+                    <li>Points reset automatically at the start of each calendar month to reopen the competition.</li>
+                    <li>The Translator of the Month gets a premium temporary rank next to their name until the next month's winner is announced.</li>
                   </ul>
                 </div>
 
@@ -1554,30 +1554,30 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
               {/* Points History */}
               <div className="glass-panel p-6 rounded-2xl border border-white/5">
-                <h4 className="text-sm font-extrabold text-white mb-4">سجل النقاط للأشهر السابقة 📜</h4>
+                <h4 className="text-sm font-extrabold text-white mb-4">Points history for previous months 📜</h4>
                 {pointsInfo.viewsHistory.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-purple-300 text-right">
+                    <table className="w-full text-xs text-purple-300 text-left">
                       <thead>
                         <tr className="border-b border-white/5 text-purple-400">
-                          <th className="pb-3 pt-1">الشهر الميلادي</th>
-                          <th className="pb-3 pt-1">المشاهدات المنجزة</th>
-                          <th className="pb-3 pt-1 text-left">النقاط المكتسبة</th>
+                          <th className="pb-3 pt-1">Calendar month</th>
+                          <th className="pb-3 pt-1">Views achieved</th>
+                          <th className="pb-3 pt-1 text-left">Points earned</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 font-mono">
                         {pointsInfo.viewsHistory.map((h, i) => (
                           <tr key={i} className="hover:bg-white/5 transition-colors">
                             <td className="py-3 font-sans">{h.month}</td>
-                            <td className="py-3">{h.views} مشاهدة</td>
-                            <td className="py-3 text-left text-violet-400 font-bold">{h.points} نقطة</td>
+                            <td className="py-3">{h.views} views</td>
+                            <td className="py-3 text-left text-violet-400 font-bold">{h.points} pts</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <p className="text-xs text-purple-400 text-center py-4">لا توجد بيانات تاريخية للأشهر السابقة حتى الآن.</p>
+                  <p className="text-xs text-purple-400 text-center py-4">No historical data for previous months yet.</p>
                 )}
               </div>
 
@@ -1589,15 +1589,15 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       {/* EDIT CHAPTER MODAL OVERLAY */}
       {editingChapter && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#0E1626] border border-violet-500/20 rounded-3xl p-6 max-w-2xl w-full text-right shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+          <div className="bg-[#0E1626] border border-violet-500/20 rounded-3xl p-6 max-w-2xl w-full text-left shadow-2xl animate-in zoom-in-95 duration-200 my-8">
             <h3 className="font-extrabold text-sm md:text-base text-white border-b border-white/5 pb-3 mb-4 flex items-center gap-2">
               <Edit size={18} className="text-violet-400" />
-              <span>تعديل الفصل: {editingChapter.title}</span>
+              <span>Edit chapter: {editingChapter.title}</span>
             </h3>
 
             <form onSubmit={handleSaveEditChapter} className="flex flex-col gap-4 text-xs">
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200 font-bold">عنوان الفصل</label>
+                <label className="text-purple-200 font-bold">Chapter title</label>
                 <input 
                   type="text" 
                   required
@@ -1609,7 +1609,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-purple-200 font-bold">متن الفصل</label>
+                  <label className="text-purple-200 font-bold">Chapter body</label>
                   
                   {/* Rich Text Format Helpers */}
                   <div className="flex gap-1">
@@ -1622,7 +1622,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         const end = textarea.selectionEnd;
                         const text = textarea.value;
                         const selected = text.substring(start, end);
-                        const replacement = `<b>${selected || 'نص غامق'}</b>`;
+                        const replacement = `<b>${selected || 'bold text'}</b>`;
                         setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
                       }} 
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] font-bold cursor-pointer"
@@ -1638,7 +1638,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         const end = textarea.selectionEnd;
                         const text = textarea.value;
                         const selected = text.substring(start, end);
-                        const replacement = `<i>${selected || 'نص مائل'}</i>`;
+                        const replacement = `<i>${selected || 'italic text'}</i>`;
                         setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
                       }} 
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] italic font-bold cursor-pointer"
@@ -1654,7 +1654,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                         const end = textarea.selectionEnd;
                         const text = textarea.value;
                         const selected = text.substring(start, end);
-                        const replacement = `<u>${selected || 'نص مسطر'}</u>`;
+                        const replacement = `<u>${selected || 'underlined text'}</u>`;
                         setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
                       }} 
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] underline font-bold cursor-pointer"
@@ -1676,7 +1676,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               {/* Image attachment fields removed per request to avoid cluttered inputs */}
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-purple-200 font-bold">📅 جدولة وقت النشر التلقائي بالتاريخ الميلادي</label>
+                <label className="text-purple-200 font-bold">📅 Schedule automatic publish time</label>
                 <input 
                   type="datetime-local" 
                   lang="en"
@@ -1686,22 +1686,22 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   max={getMaxScheduleDate()}
                   className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-mono"
                 />
-                <span className="text-[9px] text-purple-400">اختر التاريخ والوقت الميلادي الذي ترغب في إعادة جدولة الفصل فيه تلقائياً. اتركه فارغاً للنشر الفوري.</span>
+                <span className="text-[9px] text-purple-400">Pick the date and time to reschedule the chapter automatically. Leave blank to publish immediately.</span>
               </div>
 
-              <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-white/5">
+              <div className="flex gap-2 justify-start mt-4 pt-4 border-t border-white/5">
                 <button 
                   type="button" 
                   onClick={() => setEditingChapter(null)}
                   className="px-4 py-2 bg-white/5 hover:bg-white/10 text-purple-300 rounded-xl font-bold cursor-pointer"
                 >
-                  إلغاء
+                  Cancel
                 </button>
                 <button 
                   type="submit" 
                   className="px-5 py-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 text-white rounded-xl font-bold cursor-pointer shadow-lg shadow-violet-500/10"
                 >
-                  حفظ تعديلات الفصل 💾
+                  Save chapter edits 💾
                 </button>
               </div>
             </form>

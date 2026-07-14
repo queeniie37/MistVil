@@ -19,16 +19,16 @@ export type BadgeSpec = Omit<UserBadge, 'grantedAt'>;
 // Catalog the owner picks from: reader-fitting and translator-fitting awards.
 export const BADGE_CATALOG: BadgeSpec[] = [
   // Reader achievements
-  { id: 'reader-active', name: 'القارئ النشط', icon: '📖', desc: 'مواظبة مميزة على قراءة الروايات والفصول', kind: 'READER' },
-  { id: 'reader-blazing', name: 'القارئ المتفجر', icon: '🔥', desc: 'قراءة عدد ضخم من الفصول', kind: 'READER' },
-  { id: 'commenter-gold', name: 'المعلّق الذهبي', icon: '💬', desc: 'تفاعل مميز ومستمر بالتعليقات', kind: 'READER' },
-  { id: 'critic', name: 'الناقد المعتمد', icon: '⭐', desc: 'مراجعات وتقييمات عالية الجودة', kind: 'READER' },
-  { id: 'season-hero', name: 'بطل الموسم', icon: '🏆', desc: 'الأكثر نشاطاً وتفاعلاً هذا الموسم', kind: 'READER' },
+  { id: 'reader-active', name: 'Active Reader', icon: '📖', desc: 'Consistent dedication to reading novels and chapters', kind: 'READER' },
+  { id: 'reader-blazing', name: 'Blazing Reader', icon: '🔥', desc: 'Read a huge number of chapters', kind: 'READER' },
+  { id: 'commenter-gold', name: 'Golden Commenter', icon: '💬', desc: 'Outstanding, ongoing engagement in the comments', kind: 'READER' },
+  { id: 'critic', name: 'Certified Critic', icon: '⭐', desc: 'High-quality reviews and ratings', kind: 'READER' },
+  { id: 'season-hero', name: 'Season Hero', icon: '🏆', desc: 'Most active and engaged this season', kind: 'READER' },
   // Translator achievements
-  { id: 'translator-month', name: 'مترجم الشهر', icon: '🥇', desc: 'أفضل مترجم للشهر الحالي', kind: 'TRANSLATOR' },
-  { id: 'fast-publisher', name: 'الناشر السريع', icon: '⚡', desc: 'وتيرة نشر فصول شهرية غزيرة', kind: 'TRANSLATOR' },
-  { id: 'expert-translator', name: 'المترجم الخبير', icon: '🎖️', desc: 'ترجمة عدة روايات بجودة عالية', kind: 'TRANSLATOR' },
-  { id: 'platform-pillar', name: 'عمود المنصة', icon: '👑', desc: 'مساهمة استثنائية في إثراء المنصة', kind: 'TRANSLATOR' }
+  { id: 'translator-month', name: 'Translator of the Month', icon: '🥇', desc: 'Best translator for the current month', kind: 'TRANSLATOR' },
+  { id: 'fast-publisher', name: 'Fast Publisher', icon: '⚡', desc: 'A prolific monthly chapter-publishing pace', kind: 'TRANSLATOR' },
+  { id: 'expert-translator', name: 'Expert Translator', icon: '🎖️', desc: 'Translated several novels at high quality', kind: 'TRANSLATOR' },
+  { id: 'platform-pillar', name: 'Platform Pillar', icon: '👑', desc: 'Exceptional contribution to enriching the platform', kind: 'TRANSLATOR' }
 ];
 
 type BadgesMap = { [userId: string]: UserBadge[] };

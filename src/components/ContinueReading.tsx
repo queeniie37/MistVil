@@ -19,13 +19,13 @@ export default function ContinueReading({ progressItems, novels, onChapterClick 
   if (progressItems.length === 0) return null;
 
   return (
-    <div className="w-full text-right my-8">
+    <div className="w-full text-left my-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
           <Clock size={18} className="text-rose-400" />
-          <span>متابعة القراءة</span>
+          <span>Continue Reading</span>
         </h2>
-        <span className="text-xs text-purple-400">عرض الكل</span>
+        <span className="text-xs text-purple-400">View All</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -48,20 +48,20 @@ export default function ContinueReading({ progressItems, novels, onChapterClick 
               <div className="flex-1 min-w-0 flex flex-col justify-between">
                 <div>
                   <h4 className="font-bold text-xs text-white truncate group-hover:text-violet-400 transition-colors">
-                    {novel.titleAr}
+                    {novel.titleEn || novel.titleAr}
                   </h4>
                   <p className="text-[10px] text-purple-300 font-medium mt-1">
-                    الفصل {item.chapterNumber}
+                    Chapter {item.chapterNumber}
                   </p>
                 </div>
 
                 {/* Progress bar info */}
                 <div className="w-full mt-2">
                   <div className="flex items-center justify-between text-[9px] text-purple-400 mb-1">
-                    <span>{item.progress}% مكتمل</span>
+                    <span>{item.progress}% complete</span>
                     <span className="flex items-center gap-0.5">
                       <Clock size={8} />
-                      <span>نشط مؤخراً</span>
+                      <span>Recently active</span>
                     </span>
                   </div>
                   <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">

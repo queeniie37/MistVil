@@ -49,17 +49,17 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
     const extension = file.name.split('.').pop()?.toLowerCase() || '';
     const allowedExts = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'];
     if (!allowedTypes.includes(file.type) && !allowedExts.includes(extension)) {
-      setError('يرجى اختيار ملف صورة صالح بصيغة (PNG, JPG, JPEG, WEBP) لضمان التوافق والجودة.');
+      setError('Please choose a valid image file (PNG, JPG, JPEG, WEBP) for compatibility and quality.');
       return;
     }
     compressImageFile(file, 1200)
       .then((dataUrl) => {
         setImage(dataUrl);
-        setSuccess('تم تحميل الصورة وتحويلها بنجاح! 🎉');
+        setSuccess('Image uploaded and converted successfully! 🎉');
         setError('');
       })
       .catch(() => {
-        setError('فشل قراءة الملف أو ضغطه. حاول مرة أخرى بصورة أصغر.');
+        setError('Failed to read or compress the file. Try again with a smaller image.');
       });
   };
 
@@ -93,7 +93,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
   const handleCreateAd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !image.trim() || !content.trim()) {
-      setError('يرجى ملء جميع الحقول المطلوبة بالكامل.');
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -117,7 +117,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
     setImage('');
     setContent('');
     setShowInTicker(true);
-    setSuccess('تمت إضافة الإعلان بنجاح ونشره في المنصة! 🚀');
+    setSuccess('Ad added and published on the platform successfully! 🚀');
     setError('');
     setShowAddForm(false);
     loadAds();
@@ -129,14 +129,14 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
   // Delete ad
   const handleDeleteAd = (adId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Avoid triggering details modal
-    const isConfirmed = window.confirm('هل أنت متأكد تماماً من حذف هذا الإعلان نهائياً؟');
+    const isConfirmed = window.confirm('Are you absolutely sure you want to permanently delete this ad?');
     if (!isConfirmed) return;
 
     const allAds = MistVilDatabase.get<Ad[]>('ads', []);
     const filteredAds = allAds.filter(a => a.id !== adId);
     MistVilDatabase.set('ads', filteredAds);
 
-    setSuccess('تم حذف الإعلان بنجاح. ❌');
+    setSuccess('Ad deleted successfully. ❌');
     loadAds();
 
     if (selectedAd?.id === adId) {
@@ -147,16 +147,16 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
   };
 
   return (
-    <div className="w-full text-right mt-4 pb-12 animate-in fade-in duration-300">
+    <div className="w-full text-left mt-4 pb-12 animate-in fade-in duration-300">
       
       {/* Header Panel */}
       <div className="p-6 bg-[#131F33] rounded-3xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <Megaphone size={24} className="text-fuchsia-400 animate-pulse shrink-0" />
-            <span>مركز الإعلانات والبيانات العامة الفاخرة</span>
+            <span>Ads & Public Announcements Center</span>
           </h1>
-          <p className="text-xs text-purple-300 mt-1">تصفح آخر الإعلانات المميزة، الفعاليات المجدولة، والتحديثات الرسمية لمنصة ميست فيل.</p>
+          <p className="text-xs text-purple-300 mt-1">Browse the latest featured ads, scheduled events, and official MistVil updates.</p>
         </div>
         
         {currentUser.role === 'OWNER' && (
@@ -170,7 +170,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
             className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 shrink-0"
           >
             <Plus size={14} />
-            <span>إضافة إعلان جديد 📢</span>
+            <span>Add New Ad 📢</span>
           </button>
         )}
       </div>
@@ -200,7 +200,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
               <div className="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
                 <h3 className="font-extrabold text-sm text-white flex items-center gap-1.5">
                   <Sparkles size={14} className="text-fuchsia-400" />
-                  <span>لوحة إنشاء إعلان جديد بالمنصة 🎨</span>
+                  <span>Create a New Platform Ad 🎨</span>
                 </h3>
                 <button 
                   onClick={() => setShowAddForm(false)}
@@ -214,20 +214,20 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 
                 {/* Title */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">عنوان الإعلان الرسمي *</label>
+                  <label className="text-purple-200">Official ad title *</label>
                   <input 
                     type="text" 
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="مثال: تم فتح باب الانضمام لفرق الترجمة الفخمة..."
-                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white transition-all text-right"
+                    placeholder="e.g. Applications are now open to join our premium translation teams..."
+                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-white transition-all text-left"
                   />
                 </div>
 
                 {/* Drag & Drop PNG File Uploader */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">صورة الإعلان الرئيسية *</label>
+                  <label className="text-purple-200">Main ad image *</label>
                   
                   <div 
                     onDragOver={handleDragOver}
@@ -250,8 +250,8 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     />
                     <label htmlFor="ad-image-uploader" className="cursor-pointer w-full h-full flex flex-col items-center">
                       <Upload size={24} className="text-violet-400 animate-bounce mb-1" />
-                      <span className="font-bold text-white text-xs">اسحب صورة الإعلان وأفلتها هنا أو انقر للتصفح 📂</span>
-                      <span className="text-[10px] text-purple-400 mt-1">يدعم صور (PNG, JPG, JPEG, WEBP) لضمان جودة التصاميم</span>
+                      <span className="font-bold text-white text-xs">Drag & drop the ad image here or click to browse 📂</span>
+                      <span className="text-[10px] text-purple-400 mt-1">Supports PNG, JPG, JPEG, WEBP for high-quality designs</span>
                     </label>
                   </div>
 
@@ -259,14 +259,14 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     <div className="mt-3 p-3 bg-[#0E1626] rounded-xl border border-white/5 flex items-center gap-4 justify-between">
                       <div className="flex items-center gap-3">
                         <img src={image} alt="Ad Cover" className="w-16 h-12 rounded object-cover border border-white/10 shadow-md" referrerPolicy="no-referrer" />
-                        <span className="text-[10px] text-green-400 font-bold">تم إرفاق الصورة بنجاح وتجهيزها!</span>
+                        <span className="text-[10px] text-green-400 font-bold">Image attached and prepared successfully!</span>
                       </div>
                       <button 
                         type="button" 
                         onClick={() => setImage('')}
                         className="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg text-[10px]"
                       >
-                        إزالة الصورة ❌
+                        Remove image ❌
                       </button>
                     </div>
                   )}
@@ -276,14 +276,14 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
 
                 {/* Details Content */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">تفاصيل ومعلومات الإعلان بالتفصيل *</label>
+                  <label className="text-purple-200">Full ad details & information *</label>
                   <textarea 
                     required
                     rows={6}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="اكتب تفاصيل الإعلان وشروطه وروابط التواصل إن وُجدت بوضوح تام..."
-                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-right resize-none"
+                    placeholder="Write the ad details, terms, and any contact links clearly..."
+                    className="bg-[#0E1626] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left resize-none"
                   />
                 </div>
 
@@ -297,24 +297,24 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 cursor-pointer"
                   />
                   <label htmlFor="showInTicker" className="text-purple-200 cursor-pointer font-bold select-none text-[11px]">
-                    عرض وتضمين هذا الإعلان في شريط الإعلانات المتحرك العلوي للمنصة 
+                    Show and include this ad in the top scrolling ads bar of the platform 
                   </label>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 justify-end pt-3 border-t border-white/5">
+                <div className="flex gap-2 justify-start pt-3 border-t border-white/5">
                   <button 
                     type="button" 
                     onClick={() => setShowAddForm(false)}
                     className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-purple-300 font-bold"
                   >
-                    إلغاء
+                    Cancel
                   </button>
                   <button 
                     type="submit" 
                     className="px-6 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-xl font-bold shadow-md shadow-violet-500/10"
                   >
-                    نشر الإعلان الآن 📢
+                    Publish ad now 📢
                   </button>
                 </div>
 
@@ -329,7 +329,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 <div 
                   key={ad.id}
                   onClick={() => setSelectedAd(ad)}
-                  className={`p-5 bg-[#131F33] border rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-right transition-all cursor-pointer group hover:-translate-y-0.5 ${selectedAd?.id === ad.id ? 'border-violet-500/50 bg-violet-950/5' : 'border-white/5 hover:border-violet-500/15'}`}
+                  className={`p-5 bg-[#131F33] border rounded-2xl flex flex-col md:flex-row gap-5 items-center md:items-start text-left transition-all cursor-pointer group hover:-translate-y-0.5 ${selectedAd?.id === ad.id ? 'border-violet-500/50 bg-violet-950/5' : 'border-white/5 hover:border-violet-500/15'}`}
                 >
                   <img src={ad.image} alt={ad.title} className="w-24 h-24 rounded-xl object-cover border border-white/10 shrink-0 shadow-md" referrerPolicy="no-referrer" />
                   
@@ -342,7 +342,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                           <button 
                             onClick={(e) => handleDeleteAd(ad.id, e)}
                             className="p-1.5 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-all cursor-pointer"
-                            title="حذف الإعلان"
+                            title="Delete ad"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -351,10 +351,10 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
 
                       <p className="text-[10px] text-purple-400 mt-1 flex items-center gap-1.5">
                         <Calendar size={11} />
-                        <span>نُشر في: {new Date(ad.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                        <span>Published: {new Date(ad.createdAt).toLocaleDateString('en-US')}</span>
                         {ad.showInTicker && (
                           <span className="text-[8px] bg-fuchsia-500/10 text-fuchsia-300 px-1.5 py-0.5 rounded border border-fuchsia-500/10 font-bold">
-                            يظهر في الشريط ⚡
+                            Shown in bar ⚡
                           </span>
                         )}
                       </p>
@@ -365,7 +365,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-white/5 text-[10px] text-fuchsia-400 font-bold text-left group-hover:underline">
-                      انقر للتفاصيل الكاملة للإعلان ←
+                      Click for full ad details →
                     </div>
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
             ) : (
               <div className="p-12 text-center bg-[#131F33] border border-dashed border-white/5 rounded-3xl text-purple-400">
                 <Megaphone size={32} className="mx-auto mb-3 text-purple-500/40" />
-                <p className="text-sm font-semibold">لا توجد إعلانات نشطة في المنصة حالياً.</p>
+                <p className="text-sm font-semibold">There are no active ads on the platform right now.</p>
               </div>
             )}
           </div>
@@ -383,7 +383,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
         {/* LEFT COLUMN: Selected Advertisement Detail View */}
         <div className="lg:col-span-1">
           {selectedAd ? (
-            <div className="p-6 bg-[#131F33] border border-fuchsia-500/10 rounded-3xl sticky top-24 animate-in fade-in slide-in-from-bottom-4 duration-300 text-right">
+            <div className="p-6 bg-[#131F33] border border-fuchsia-500/10 rounded-3xl sticky top-24 animate-in fade-in slide-in-from-bottom-4 duration-300 text-left">
               <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 mb-5 shadow-lg">
                 <img src={selectedAd.image} alt={selectedAd.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-[9px] text-purple-200 flex items-center gap-1">
@@ -393,7 +393,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 <button 
                   onClick={() => setSelectedAd(null)}
                   className="absolute top-2 left-2 p-1 bg-black/60 hover:bg-black/85 rounded-full text-white cursor-pointer"
-                  title="إغلاق التفاصيل"
+                  title="Close details"
                 >
                   <X size={14} />
                 </button>
@@ -414,21 +414,21 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                   onClick={() => setSelectedAd(null)}
                   className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-purple-300 font-bold rounded-xl text-xs text-center transition-all cursor-pointer"
                 >
-                  إغلاق التفاصيل ✕
+                  Close details ✕
                 </button>
                 <a 
                   href={`mailto:support@mistvil.com?subject=Inquiry: ${encodeURIComponent(selectedAd.title)}`}
                   className="px-4 py-2.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold rounded-xl text-xs text-center transition-all flex items-center justify-center gap-1"
                 >
-                  <span>استفسار 📧</span>
+                  <span>Inquire 📧</span>
                 </a>
               </div>
             </div>
           ) : (
             <div className="p-8 bg-[#131F33]/40 border border-white/5 border-dashed rounded-3xl text-center text-purple-400 sticky top-24">
               <Megaphone size={28} className="mx-auto mb-3 text-purple-500/30" />
-              <h3 className="text-xs font-bold text-white mb-1">تصفح تفاصيل الإعلانات</h3>
-              <p className="text-[10px] text-purple-400 leading-relaxed">اختر أي إعلان من القائمة الجانبية أو من شريط الإعلانات العلوي لعرض التفاصيل الكاملة وروابط المراسلة المباشرة.</p>
+              <h3 className="text-xs font-bold text-white mb-1">Browse ad details</h3>
+              <p className="text-[10px] text-purple-400 leading-relaxed">Select any ad from the side list or the top ads bar to view full details and direct contact links.</p>
             </div>
           )}
         </div>
