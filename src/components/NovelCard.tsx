@@ -89,9 +89,11 @@ export default function NovelCard({ novel, isBookmarked, onBookmarkToggle, onCli
           <h3 className="font-bold text-xs text-white group-hover:text-violet-400 transition-colors line-clamp-2 h-9">
             {novel.titleEn || novel.titleAr}
           </h3>
-          <span className="text-[10px] text-purple-400 block truncate mt-0.5">
-            {novel.titleAr}
-          </span>
+          {novel.titleAr && novel.titleAr !== novel.titleEn && (
+            <span className="text-[10px] text-purple-400 block truncate mt-0.5">
+              {novel.titleAr}
+            </span>
+          )}
         </div>
 
         {/* Bottom Metadata */}

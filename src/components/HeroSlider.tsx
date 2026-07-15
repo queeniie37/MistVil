@@ -90,7 +90,7 @@ export default function HeroSlider({ featuredNovels, onStartReading, onViewDetai
             {currentNovel.titleEn || currentNovel.titleAr}
           </h1>
           <p className="text-xs md:text-sm text-purple-300 font-medium mt-1 select-none">
-            {currentNovel.titleAr} | Author: <span className="text-purple-200">{currentNovel.author}</span>
+            {currentNovel.titleAr && currentNovel.titleAr !== currentNovel.titleEn ? `${currentNovel.titleAr} | ` : ''}Author: <span className="text-purple-200">{currentNovel.author}</span>
           </p>
 
           {/* Details Row */}
