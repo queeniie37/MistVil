@@ -1213,6 +1213,14 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
               </span>
             </div>
 
+            {/* Permanent pinned notice about the chapter edit window */}
+            <div className="p-3.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center gap-2.5">
+              <Clock size={16} className="text-amber-400 shrink-0" />
+              <p className="text-[11px] font-bold text-amber-200">
+                Chapters can be edited within 15 days of their publish date.
+              </p>
+            </div>
+
             {chapters.length > 0 ? (
               <div className="flex flex-col gap-3">
                 {chapters.map((chap) => {

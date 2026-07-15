@@ -977,10 +977,31 @@ export default function App() {
   // except cancelled or pending ones. Interaction (bookmarks, comments, votes) still requires signing in.
   const activeNovels = useMemo(() => novels.filter(n => n.status !== 'CANCELLED' && n.status !== 'PENDING'), [novels]);
 
-  // Filter trending list (sorted by views / popular)
-  const trendingNovels = useMemo(() => [...activeNovels]
-    .sort((a, b) => b.views - a.views)
-    .slice(0, 8), [activeNovels]);
+  // Trending list — ranked by BOTH views and comment engagement. Each comment
+  // (and reply) for the novel, whether left on the novel page or on one of its
+  // chapters, adds to the score alongside its view count.
+  const trendingNovels = useMemo(() => {
+    const allComments = MistVilDatabase.get<any[]>('comments', []).filter(c => c && !c.deleted);
+    const allChapters = MistVilDatabase.get<any[]>('chapters', []);
+    const chapterToNovel: Record<string, string> = {};
+    allChapters.forEach(ch => { if (ch && ch.id) chapterToNovel[ch.id] = ch.novelId; });
+
+    const commentScore: Record<string, number> = {};
+    allComments.forEach(c => {
+      const novelId = c.refType === 'CHAPTER' ? (chapterToNovel[c.refId] || '') : (c.refId || '');
+      if (!novelId) return;
+      const replies = Array.isArray(c.replies) ? c.replies.length : 0;
+      commentScore[novelId] = (commentScore[novelId] || 0) + 1 + replies;
+    });
+
+    // Comments are weighted higher than a single view since they signal much
+    // stronger engagement, so they meaningfully influence what trends.
+    const trendScore = (n: Novel) => (n.views || 0) + (commentScore[n.id] || 0) * 5;
+
+    return [...activeNovels]
+      .sort((a, b) => trendScore(b) - trendScore(a))
+      .slice(0, 8);
+  }, [activeNovels, novels]);
 
   // Latest added chapters list (with new tag)
   const latestChaptersList = useMemo(() => [...activeNovels]
