@@ -653,7 +653,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
   // Submit new novel draft for Admin Review / Publish immediately for Owner
   const handleCreateNovel = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!titleAr || !titleEn || !author || !desc) {
+    if (!titleEn || !author || !desc) {
       alert('Please fill in the required fields.');
       return;
     }
@@ -669,7 +669,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
     const newNovel: Novel = {
       id: `novel-draft-${Date.now()}`,
-      titleAr,
+      titleAr: titleEn, // Arabic title removed from the form — mirror the English title
       titleEn,
       author,
       translatorId: currentUser.id,
@@ -1070,20 +1070,9 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             <form onSubmit={handleCreateNovel} className="flex flex-col gap-5 text-xs font-medium">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">Arabic title *</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={titleAr}
-                    onChange={(e) => setTitleAr(e.target.value)}
-                    placeholder="e.g. The Beginning After the End (Arabic)"
-                    className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-purple-200">English title *</label>
-                  <input 
-                    type="text" 
+                  <label className="text-purple-200">Novel title *</label>
+                  <input
+                    type="text"
                     required
                     value={titleEn}
                     onChange={(e) => setTitleEn(e.target.value)}
@@ -1091,9 +1080,6 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                     className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-xs transition-all text-left"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-purple-200">Original author *</label>
                   <input 

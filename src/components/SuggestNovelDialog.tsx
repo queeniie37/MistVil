@@ -12,7 +12,6 @@ interface SuggestNovelDialogProps {
 const KNOWN_GENRES = ['Action', 'Fantasy', 'Adventure', 'Thriller', 'System', 'Isekai', 'Murim', 'Drama', 'Mystery', 'Romance', 'Comedy', 'Regression', 'Music'];
 
 export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggestion }: SuggestNovelDialogProps) {
-  const [titleAr, setTitleAr] = useState('');
   const [titleEn, setTitleEn] = useState('');
   const [novelUpdatesLink, setNovelUpdatesLink] = useState('');
   const [description, setDescription] = useState('');
@@ -70,13 +69,13 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
       return;
     }
 
-    if (!titleAr || !titleEn || !description) {
+    if (!titleEn || !description) {
       setError('Please fill in the required fields to submit your suggestion.');
       return;
     }
 
     onAddSuggestion({
-      titleAr,
+      titleAr: titleEn, // Arabic title removed from the form — mirror the English title
       titleEn,
       novelUpdatesLink,
       cover: cover || 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?q=80&w=600',
@@ -112,30 +111,17 @@ export default function SuggestNovelDialog({ currentUser, onClose, onAddSuggesti
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           
-          {/* Row 1: Titles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-purple-200">Arabic title *</label>
-              <input 
-                type="text" 
-                required
-                value={titleAr}
-                onChange={(e) => setTitleAr(e.target.value)}
-                placeholder="e.g. Lord of Divine Deception (Arabic)"
-                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-purple-200">English title *</label>
-              <input 
-                type="text" 
-                required
-                value={titleEn}
-                onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="e.g. Lord of Divine Deception"
-                className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left"
-              />
-            </div>
+          {/* Row 1: Title */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-purple-200">Novel title *</label>
+            <input
+              type="text"
+              required
+              value={titleEn}
+              onChange={(e) => setTitleEn(e.target.value)}
+              placeholder="e.g. Lord of Divine Deception"
+              className="bg-white/5 border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white text-sm transition-all text-left"
+            />
           </div>
 
           {/* Row 2: Link */}

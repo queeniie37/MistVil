@@ -1236,7 +1236,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               {novel.titleEn || novel.titleAr}
             </h1>
             <h3 className="text-sm text-purple-300 font-semibold mt-1">
-              {novel.titleAr} {novel.titleOriginal ? `| ${novel.titleOriginal}` : ''}
+              {novel.titleAr && novel.titleAr !== novel.titleEn ? novel.titleAr : ''} {novel.titleOriginal ? `| ${novel.titleOriginal}` : ''}
             </h3>
 
             <p className="text-xs text-purple-400 mt-2 flex items-center gap-1.5 flex-wrap justify-start md:justify-start">
