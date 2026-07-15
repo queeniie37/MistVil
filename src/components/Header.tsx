@@ -268,7 +268,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
 
             {/* Notifications Panel */}
             {notificationsOpen && (
-              <div className="absolute left-0 mt-3 w-80 max-w-[calc(100vw-2rem)] glass-panel rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-3 w-80 max-w-[calc(100vw-2rem)] glass-panel rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
                   <h4 className="font-bold text-sm text-purple-200">Notifications</h4>
                   <button 
@@ -330,7 +330,7 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
 
             {/* Profile Dropdown */}
             {profileOpen && (
-              <div className="absolute left-0 mt-3 w-64 glass-panel rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-3 w-64 max-w-[calc(100vw-2rem)] glass-panel rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-3 pb-3 border-b border-white/5 mb-3 text-left">
                   <img src={currentUser.avatar} alt={currentUser.username} className="w-12 h-12 rounded-full border border-violet-500/20" />
                   <div>
