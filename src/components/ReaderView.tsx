@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronLeft, Settings, Type, BookOpen, HelpCircle, Heart, Check, Share2, Clipboard, MessageSquare, X, ChevronDown, Bold, AlignRight, AlignCenter, AlignLeft, AlignJustify } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Settings, Type, BookOpen, HelpCircle, Heart, Check, Share2, Clipboard, MessageSquare, X, ChevronDown, Bold, AlignRight, AlignCenter, AlignLeft, AlignJustify, Shield } from 'lucide-react';
 import { Chapter, Novel, User, Comment, CommentReply, Report } from '../types';
 import { MistVilDatabase } from '../data';
 import { isUserTranslatorOfTheMonth } from '../utils/points';
@@ -87,6 +87,9 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
   const [reportDetails, setReportDetails] = useState('');
   const [isSpoilerComment, setIsSpoilerComment] = useState(false);
   const [revealedSpoilers, setRevealedSpoilers] = useState<string[]>([]);
+  // When true, the chapter body is blurred/hidden to deter screenshots and
+  // screen recording (triggered when the tab loses focus or PrintScreen is hit).
+  const [screenshotGuard, setScreenshotGuard] = useState(false);
 
   // Reader Settings Setters
   const updateThemeMode = (mode: 'normal' | 'black' | 'sepia' | 'blue' | 'green' | 'pink' | 'purple') => {
@@ -300,19 +303,47 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     const blockContextMenu = (e: MouseEvent) => e.preventDefault();
     const blockDrag = (e: DragEvent) => e.preventDefault();
     
+    // Best-effort screenshot deterrence. The web platform cannot truly block an
+    // OS-level screen capture, but we can neutralize the most common paths and
+    // discourage the rest: wipe the clipboard on PrintScreen, and blur the
+    // chapter body whenever the tab is backgrounded or loses focus (which many
+    // capture / screen-record tools trigger).
+    const guardOnce = () => {
+      setScreenshotGuard(true);
+      window.setTimeout(() => setScreenshotGuard(false), 1500);
+    };
+
     const blockShortcuts = (e: KeyboardEvent) => {
-      // Block Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (View Source)
+      // Block Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (View Source), Ctrl+C (Copy)
       if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C')) {
         e.preventDefault();
         alert('Chapter content is protected against theft, copying, and downloading under MistVil copyright ©');
       }
+      // PrintScreen / screenshot shortcuts (PrtScn, Win+Shift+S, Cmd+Shift+3/4/5)
+      const isScreenshot =
+        e.key === 'PrintScreen' ||
+        ((e.metaKey || e.ctrlKey) && e.shiftKey && ['s', 'S', '3', '4', '5'].includes(e.key));
+      if (isScreenshot) {
+        e.preventDefault();
+        try { navigator.clipboard?.writeText(''); } catch { /* clipboard may be unavailable */ }
+        guardOnce();
+        alert('Screenshots are disabled inside MistVil chapters. The content is protected by copyright ©');
+      }
     };
+
+    const handleVisibility = () => { if (document.hidden) setScreenshotGuard(true); else setScreenshotGuard(false); };
+    const handleBlur = () => setScreenshotGuard(true);
+    const handleFocus = () => setScreenshotGuard(false);
 
     document.addEventListener('copy', blockCopy);
     document.addEventListener('cut', blockCut);
     document.addEventListener('contextmenu', blockContextMenu);
     document.addEventListener('dragstart', blockDrag);
     document.addEventListener('keydown', blockShortcuts);
+    document.addEventListener('keyup', blockShortcuts);
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
 
     return () => {
       document.removeEventListener('copy', blockCopy);
@@ -320,6 +351,10 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       document.removeEventListener('contextmenu', blockContextMenu);
       document.removeEventListener('dragstart', blockDrag);
       document.removeEventListener('keydown', blockShortcuts);
+      document.removeEventListener('keyup', blockShortcuts);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
     };
   }, [currentUser]);
 
@@ -720,12 +755,22 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
         </div>
       )}
 
+      {/* Screenshot-guard overlay: covers the chapter while the tab is
+          backgrounded / a capture is attempted (non-owners only). */}
+      {currentUser.role !== 'OWNER' && screenshotGuard && (
+        <div className="fixed inset-0 z-[90] bg-[#0A1120]/95 backdrop-blur-xl flex flex-col items-center justify-center gap-3 text-center px-6 select-none">
+          <Shield size={40} className="text-violet-400" />
+          <p className="text-sm font-extrabold text-white">Screenshots are disabled inside chapters</p>
+          <p className="text-xs text-purple-300 max-w-xs">This content is protected by MistVil copyright ©. Return to the tab to keep reading.</p>
+        </div>
+      )}
+
       {/* Main Chapter Content Frame */}
       <div
         ref={readerRef}
-        className={`w-full max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16 leading-relaxed relative watermarked-text ${currentUser.role !== 'OWNER' ? 'select-none print-protected' : ''}`}
+        className={`w-full max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16 leading-relaxed relative watermarked-text transition-all duration-150 ${currentUser.role !== 'OWNER' ? 'select-none print-protected' : ''} ${currentUser.role !== 'OWNER' && screenshotGuard ? 'blur-xl pointer-events-none' : ''}`}
         data-watermark={`MISTVIL - ${currentUser.username}`}
-        style={{ 
+        style={{
           fontSize: `${fontSize}px`, 
           fontFamily: 
             fontFamily === 'cairo' ? '"Cairo", "Tajawal", sans-serif' :
