@@ -288,11 +288,12 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
               setAllNovels(updated);
               setPendingNovels(updated.filter(n => n.status === 'PENDING'));
 
-              // Archive chapters inside the deleted novel object
+              // Archive chapters inside the deleted novel object, then
+              // tombstone-delete them so the removal survives the
+              // server-side chapters merge on every device.
               const allChapters = MistVilDatabase.get<any[]>('chapters', []);
               const novelChapters = allChapters.filter(c => c.novelId === novelId);
-              const remainingChapters = allChapters.filter(c => c.novelId !== novelId);
-              MistVilDatabase.set('chapters', remainingChapters);
+              MistVilDatabase.deleteChapters(novelChapters.map(c => c.id));
 
               // Move novel to deleted_novels in DB
               const allDeletedNovels = MistVilDatabase.get<any[]>('deleted_novels', []);
@@ -333,7 +334,10 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
 
     if (savedChapters && savedChapters.length > 0) {
       const allChapters = MistVilDatabase.get<any[]>('chapters', []);
-      MistVilDatabase.set('chapters', [...allChapters, ...savedChapters]);
+      // Fresh updatedAt so restored chapters outrank their deletion
+      // tombstones in the server-side chapters merge.
+      const restoredChapters = savedChapters.map((c: any) => ({ ...c, updatedAt: new Date().toISOString() }));
+      MistVilDatabase.set('chapters', [...allChapters, ...restoredChapters]);
     }
 
     window.dispatchEvent(new Event('novels-updated'));
@@ -395,7 +399,10 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
     setDeletedChapters(remainingDeleted);
 
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
+    // Fresh updatedAt so the restore outranks the deletion tombstone in the
+    // server-side chapters merge.
     const { deletedAt, deletedBy, deletedById, ...originalChapter } = chapToRestore;
+    originalChapter.updatedAt = new Date().toISOString();
     MistVilDatabase.set('chapters', [...allChapters, originalChapter]);
 
     const allNovels = MistVilDatabase.get<any[]>('novels', []);

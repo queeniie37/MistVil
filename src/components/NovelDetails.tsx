@@ -703,6 +703,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       content: normalizeChapterText(newChapterContent),
       views: 0,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       isDraft: isScheduled,
       publishAt: newChapterPublishAt || undefined,
       images: imgUrls.length > 0 ? imgUrls : undefined
@@ -841,8 +842,10 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               const allChapters = MistVilDatabase.get<any[]>('chapters', []);
               const deletedChaptersList = allChapters.filter(c => c.novelId === novel.id);
               const deletedChapterIds = deletedChaptersList.map(c => c.id);
-              const updatedChapters = allChapters.filter(c => c.novelId !== novel.id);
-              MistVilDatabase.set('chapters', updatedChapters);
+              // Tombstone-delete so the removal propagates through the
+              // server-side chapters merge instead of being resurrected (or
+              // wiping unrelated chapters) by stale devices.
+              MistVilDatabase.deleteChapters(deletedChapterIds);
 
               const allReservations = MistVilDatabase.get<any[]>('reservations', []);
               const updatedReservations = allReservations.filter(r => r.novelId !== novel.id);
@@ -900,10 +903,11 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             'Permanently delete chapter ⚠️ (final confirm 2/2)',
             `Final, definitive confirmation: are you absolutely sure you want to permanently delete chapter ${chapterNumber} and all its comments? This action can never be undone!`,
             () => {
-              // Delete from active chapters
+              // Delete from active chapters (tombstone so the deletion
+              // survives the server-side chapters merge on every device)
               const allChapters = MistVilDatabase.get<any[]>('chapters', []);
               const remainingChapters = allChapters.filter(c => c.id !== chapterId);
-              MistVilDatabase.set('chapters', remainingChapters);
+              MistVilDatabase.deleteChapters([chapterId]);
 
               // Filter local state
               setChapters(prev => prev.filter(c => c.id !== chapterId));

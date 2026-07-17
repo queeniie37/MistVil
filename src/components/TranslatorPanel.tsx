@@ -283,9 +283,10 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
             'Delete chapter and move to archive (final confirm 2/2) ⚠️',
             `Final, definitive warning: are you absolutely and definitively sure you want to remove this chapter and move it to the trash?`,
             () => {
-              // Remove from active chapters
+              // Remove from active chapters (tombstone so the deletion
+              // survives the server-side chapters merge on every device)
               const remainingChapters = allChapters.filter(c => c.id !== chapterId);
-              MistVilDatabase.set('chapters', remainingChapters);
+              MistVilDatabase.deleteChapters([chapterId]);
 
               // Get original novel title
               const allNovels = MistVilDatabase.get<any[]>('novels', []);
@@ -342,8 +343,10 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
     // Add back to active chapters
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
     
-    // Clean deleted meta
+    // Clean deleted meta; fresh updatedAt so the restore outranks the
+    // deletion tombstone in the server-side chapters merge.
     const { deletedAt, deletedBy, deletedById, ...originalChapter } = chapToRestore;
+    originalChapter.updatedAt = new Date().toISOString();
     MistVilDatabase.set('chapters', [...allChapters, originalChapter]);
 
     // Recalculate chapters count for novel
@@ -471,6 +474,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
           ...c,
           title: `Chapter ${editingChapter.number}: ${editChapterTitle}`,
           content: normalizeChapterText(editChapterContent),
+          updatedAt: new Date().toISOString(),
           isDraft: isScheduled,
           publishAt: editChapterPublishAt || undefined,
           images: imgUrls.length > 0 ? imgUrls : undefined
