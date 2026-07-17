@@ -301,7 +301,7 @@ export default function App() {
     const repairedNovels = loadedNovels.map(n => {
       if (n.status === 'PENDING' && (n.translatorName === 'MISTVIL' || n.translatorId === 'mistvil-owner')) {
         databaseNeedsSave = true;
-        return { ...n, status: 'AVAILABLE' as const };
+        return { ...n, status: 'AVAILABLE' as const, updatedAt: new Date().toISOString() };
       }
       return n;
     });
@@ -344,7 +344,7 @@ export default function App() {
       const repairedSynced = syncedNovels.map(n => {
         if (n.status === 'PENDING' && (n.translatorName === 'MISTVIL' || n.translatorId === 'mistvil-owner')) {
           syncedNeedsSave = true;
-          return { ...n, status: 'AVAILABLE' as const };
+          return { ...n, status: 'AVAILABLE' as const, updatedAt: new Date().toISOString() };
         }
         return n;
       });
@@ -546,8 +546,10 @@ export default function App() {
               matchingSug.status = 'PENDING';
             }
             
-            // 3. Set novel status to CANCELLED
+            // 3. Set novel status to CANCELLED (fresh updatedAt so the
+            // cancellation outranks stale copies in the server-side merge)
             correspondingNovel.status = 'CANCELLED';
+            correspondingNovel.updatedAt = new Date().toISOString();
 
             // 4. Notify translator
             allNotifs.push({

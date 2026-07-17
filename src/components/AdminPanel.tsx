@@ -284,7 +284,9 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
             () => {
               const loadedNovels = MistVilDatabase.get<Novel[]>('novels', []);
               const updated = loadedNovels.filter(n => n.id !== novelId);
-              MistVilDatabase.set('novels', updated);
+              // Tombstone-delete so the removal propagates through the
+              // server-side novels merge on every device.
+              MistVilDatabase.deleteNovels([novelId]);
               setAllNovels(updated);
               setPendingNovels(updated.filter(n => n.status === 'PENDING'));
 
@@ -327,7 +329,10 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
     MistVilDatabase.set('deleted_novels', remainingDeleted);
     setDeletedNovels(remainingDeleted);
 
+    // Fresh updatedAt so the restored novel outranks its deletion tombstone
+    // in the server-side novels merge.
     const { deletedAt, deletedBy, chapters: savedChapters, ...originalNovel } = target;
+    originalNovel.updatedAt = new Date().toISOString();
     const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
     MistVilDatabase.set('novels', [...allNovels, originalNovel]);
     setAllNovels([...allNovels, originalNovel]);
@@ -460,7 +465,9 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
     const targetNovel = allNovels.find(n => n.id === novelId);
     if (!targetNovel) return;
 
-    const updated = allNovels.map(n => n.id === novelId ? { ...n, status: 'TRANSLATING' as const } : n);
+    // Fresh updatedAt so the approval outranks stale copies in the
+    // server-side novels merge.
+    const updated = allNovels.map(n => n.id === novelId ? { ...n, status: 'TRANSLATING' as const, updatedAt: new Date().toISOString() } : n);
     MistVilDatabase.set('novels', updated);
     setPendingNovels(updated.filter(n => n.status === 'PENDING'));
 
@@ -491,9 +498,10 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
     const targetNovel = allNovels.find(n => n.id === novelId);
     if (!targetNovel) return;
 
-    // Remove or set as CANCELLED
+    // Remove via tombstone so the rejection propagates through the
+    // server-side novels merge on every device.
     const updated = allNovels.filter(n => n.id !== novelId);
-    MistVilDatabase.set('novels', updated);
+    MistVilDatabase.deleteNovels([novelId]);
     setPendingNovels(updated.filter(n => n.status === 'PENDING'));
 
     // Notify creator with reject reason

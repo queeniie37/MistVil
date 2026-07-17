@@ -835,9 +835,10 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             'Permanently delete novel ⚠️ (final confirm 2/2)',
             `Final, definitive confirmation: are you absolutely sure you want to delete "${novel.titleEn || novel.titleAr}" and all its chapters, comments, and data forever? This action cannot be undone under any circumstances!`,
             () => {
-              const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
-              const updatedNovels = allNovels.filter(n => n.id !== novel.id);
-              MistVilDatabase.set('novels', updatedNovels);
+              // Tombstone-delete so the removal propagates through the
+              // server-side novels merge instead of being resurrected (or
+              // wiping unrelated novels) by stale devices.
+              MistVilDatabase.deleteNovels([novel.id]);
 
               const allChapters = MistVilDatabase.get<any[]>('chapters', []);
               const deletedChaptersList = allChapters.filter(c => c.novelId === novel.id);
