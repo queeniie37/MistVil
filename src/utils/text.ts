@@ -53,22 +53,20 @@ export function slugifyTitle(raw: string): string {
     .slice(0, 80);                   // keep URLs reasonably short
 }
 
-// Standard English footer copy. The footer text lives in the shared database,
-// and older databases were seeded with Arabic default strings. Those exact
-// legacy strings (and empty values) are mapped to the English default so the
-// footer reads fully in English for every visitor — no database migration
-// required. Any genuinely custom text the owner types is left untouched.
+// Standard English footer copy. The footer text lives in the shared database.
 export const EN_FOOTER_DESCRIPTION = 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.';
 export const EN_FOOTER_SUPPORT = 'Via the official Discord ticket below';
 export const EN_FOOTER_COMMUNITY = 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!';
 
-const LEGACY_AR_FOOTER_DEFAULTS = new Set([
-  'منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.',
-  'عبر تذكرة الديسكورد الرسمية بالأسفل',
-  'انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!',
-]);
+// MistVil is an English-only platform. Some databases were seeded with Arabic
+// footer defaults, so any stored footer value that is empty OR contains Arabic
+// script falls back to the standard English copy — the footer always reads in
+// English regardless of what is stored, with no database migration needed.
+// (Matching Arabic script directly, rather than exact legacy strings, is
+// robust to invisible-character or diacritic differences in the stored text.)
+const ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
 
 export function normalizeFooterText(value: string | undefined, english: string): string {
   const v = (value || '').trim();
-  return (!v || LEGACY_AR_FOOTER_DEFAULTS.has(v)) ? english : value!;
+  return (!v || ARABIC_SCRIPT.test(v)) ? english : value!;
 }
