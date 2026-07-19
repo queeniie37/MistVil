@@ -10,6 +10,7 @@ import { DEFAULT_USERS, MistVilDatabase } from './data';
 import { isImageSource, safeEmojiOrFallback, compressImageFile } from './utils/media';
 import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
+import { slugifyTitle } from './utils/text';
 
 // Component imports
 import Header from './components/Header';
@@ -87,26 +88,69 @@ function AccessDeniedPanel({ message, isGuest, onNavigateHome }: { message: stri
 export default function App() {
   // Core states
   const [currentUser, setCurrentUser] = useState<User>(DEFAULT_USERS.GUEST);
-  // Every in-app screen gets its own URL hash (e.g. #/novel?d=...). This is
-  // what makes the browser back/forward buttons walk through visited screens
-  // even after a page reload or on browsers that drop history state objects.
+  // Every in-app screen gets its own clean URL hash under the site "type"
+  // segment /novel/ — e.g. #/novel/home, #/novel/suggestions, and for a novel
+  // #/novel/<english-title-slug> (plus the chapter number for the reader:
+  // #/novel/<english-title-slug>/12). This is what makes the browser
+  // back/forward buttons walk through visited screens — and gives shareable,
+  // readable links — even after a reload or on browsers that drop history
+  // state objects. Static-host friendly: everything lives in the hash, so no
+  // server rewrite rules are needed.
+
+  // Fixed, non-novel screens. Any first segment NOT in this set after /novel/
+  // is treated as a novel's English-title slug.
+  const RESERVED_PAGES = new Set([
+    'home', 'explore', 'suggestions', 'teams', 'notifications', 'profile',
+    'profile-edit', 'translator-panel', 'admin', 'ads', 'privacy-policy',
+    'terms-of-service', 'contact-us',
+  ]);
+
   const buildScreenHash = (page: string, params: any) => {
-    let h = `#/${page}`;
-    if (params !== null && params !== undefined) {
-      try { h += `?d=${encodeURIComponent(JSON.stringify(params))}`; } catch { /* ignore */ }
+    // Novel detail → #/novel/<english-slug>
+    if (page === 'novel') {
+      const slug = params?.slug || novelSlugById(params?.id) || 'library';
+      return `#/novel/${slug}`;
     }
-    return h;
+    // Chapter reader → #/novel/<english-slug>/<chapter-number>
+    if (page === 'reader') {
+      const slug = params?.slug || novelSlugById(params?.novelId) || 'library';
+      const ch = params?.chapterNumber;
+      return ch != null ? `#/novel/${slug}/${ch}` : `#/novel/${slug}`;
+    }
+    // Every other screen → #/novel/<page-name> (home, explore, …)
+    return `#/novel/${page}`;
   };
   const parseScreenHash = (): { page: string; params: any } | null => {
     try {
-      const raw = window.location.hash || '';
-      const m = raw.match(/^#\/([\w-]+)(?:\?d=(.*))?$/);
-      if (!m) return null;
-      let params: any = null;
-      if (m[2]) {
-        try { params = JSON.parse(decodeURIComponent(m[2])); } catch { params = null; }
+      let raw = window.location.hash || '';
+      if (!raw.startsWith('#/')) return null;
+      raw = raw.slice(2); // drop the leading "#/"
+
+      // New scheme: everything nested under the /novel/ type segment.
+      if (raw === 'novel' || raw === '' || raw === 'novel/') {
+        return { page: 'home', params: null };
       }
-      return { page: m[1], params };
+      if (raw.startsWith('novel/')) {
+        const segs = raw.slice('novel/'.length).split('/').filter(Boolean)
+          .map((s) => { try { return decodeURIComponent(s); } catch { return s; } });
+        const seg0 = segs[0] || 'home';
+        if (RESERVED_PAGES.has(seg0)) return { page: seg0, params: null };
+        // A novel slug, optionally followed by a chapter number → reader.
+        if (segs[1] && /^\d+$/.test(segs[1])) {
+          return { page: 'reader', params: { slug: seg0, chapterNumber: Number(segs[1]) } };
+        }
+        return { page: 'novel', params: { slug: seg0 } };
+      }
+
+      // Backward compatibility: old #/<page>?d=<json> links from earlier
+      // sessions/bookmarks still resolve so nobody lands on a broken screen.
+      const m = raw.match(/^([\w-]+)(?:\?d=(.*))?$/);
+      if (m) {
+        let params: any = null;
+        if (m[2]) { try { params = JSON.parse(decodeURIComponent(m[2])); } catch { params = null; } }
+        return { page: m[1], params };
+      }
+      return null;
     } catch {
       return null;
     }
@@ -152,6 +196,42 @@ export default function App() {
   }, []);
 
   const [novels, setNovels] = useState<Novel[]>([]);
+
+  // Slug helpers power the clean /novel/<english-title> URLs. The URL only ever
+  // carries the human-readable slug; internally screens still work off the
+  // novel id, so these translate between the two. novelSlugById falls back to
+  // the raw id (before novels have loaded, or when a title has no latin text)
+  // so a link is never empty, and novelIdBySlug also matches that id fallback.
+  const novelSlugById = (id?: string): string => {
+    if (!id) return '';
+    const n = novels.find((nv) => nv.id === id);
+    if (!n) return id;
+    return slugifyTitle(n.titleEn) || id;
+  };
+  const novelIdBySlug = (slug?: string): string | undefined => {
+    if (!slug) return undefined;
+    const bySlug = novels.find((nv) => slugifyTitle(nv.titleEn) === slug);
+    if (bySlug) return bySlug.id;
+    const byId = novels.find((nv) => nv.id === slug);
+    return byId?.id;
+  };
+
+  // When a novel/reader link is opened directly (or pasted/shared), the hash
+  // only carries the English-title slug. Once the novels list has loaded,
+  // backfill the concrete novel id into the current params so the rest of the
+  // app — which still keys off ids (bookmarks, chapter navigation, "back") —
+  // keeps working unchanged.
+  useEffect(() => {
+    if (!novels.length || !currentParams) return;
+    if (currentPage === 'novel' && currentParams.slug && !currentParams.id) {
+      const id = novelIdBySlug(currentParams.slug);
+      if (id) setCurrentParams((p: any) => ({ ...p, id }));
+    } else if (currentPage === 'reader' && currentParams.slug && !currentParams.novelId) {
+      const novelId = novelIdBySlug(currentParams.slug);
+      if (novelId) setCurrentParams((p: any) => ({ ...p, novelId }));
+    }
+  }, [novels, currentPage, currentParams]);
+
   const [news, setNews] = useState<News[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
@@ -400,16 +480,18 @@ export default function App() {
         title = `Library & Explore | Browse Novels - ${siteName}`;
         break;
       case 'novel':
-        if (currentParams && currentParams.id) {
-          const novel = novels.find(n => n.id === currentParams.id);
+        if (currentParams) {
+          const nid = currentParams.id || novelIdBySlug(currentParams.slug);
+          const novel = novels.find(n => n.id === nid);
           if (novel) {
             title = `${novel.titleEn || novel.titleAr} (${novel.titleAr}) | ${siteName}`;
           }
         }
         break;
       case 'reader':
-        if (currentParams && currentParams.novelId) {
-          const novel = novels.find(n => n.id === currentParams.novelId);
+        if (currentParams) {
+          const nid = currentParams.novelId || novelIdBySlug(currentParams.slug);
+          const novel = novels.find(n => n.id === nid);
           if (novel) {
             title = `Chapter ${currentParams.chapterNumber} of ${novel.titleEn || novel.titleAr} | ${siteName}`;
           }
@@ -952,7 +1034,9 @@ export default function App() {
   // when chapter numbers are non-contiguous (e.g. after deletions).
   const handleReaderNavigateChapter = (direction: 'next' | 'prev') => {
     if (currentPage !== 'reader' || !currentParams) return;
-    const { novelId, chapterNumber } = currentParams;
+    const { chapterNumber } = currentParams;
+    // A directly-opened reader link carries only the slug until backfill runs.
+    const novelId = currentParams.novelId || novelIdBySlug(currentParams.slug);
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
     const chaptersOfNovel = allChapters.filter(c => c.novelId === novelId).sort((a, b) => a.number - b.number);
 
@@ -1223,28 +1307,36 @@ export default function App() {
         )}
 
         {/* ==================== SCREEN 3: NOVEL PROFILE DETAILS ==================== */}
-        {currentPage === 'novel' && currentParams && (
-          <NovelDetails 
-            novelId={currentParams.id}
-            currentUser={currentUser}
-            onBack={() => handleNavigate('explore')}
-            onReadChapter={handleReadChapter}
-            isBookmarked={bookmarks.includes(currentParams.id)}
-            onBookmarkToggle={handleBookmarkToggle}
-            autoOpenAddChapter={currentParams.autoOpenAddChapter}
-          />
-        )}
+        {currentPage === 'novel' && currentParams && (() => {
+          // The URL may carry only the slug (direct/shared link); resolve it to
+          // the concrete id so the details screen works before the backfill runs.
+          const nid = currentParams.id || novelIdBySlug(currentParams.slug);
+          return (
+            <NovelDetails
+              novelId={nid}
+              currentUser={currentUser}
+              onBack={() => handleNavigate('explore')}
+              onReadChapter={handleReadChapter}
+              isBookmarked={bookmarks.includes(nid)}
+              onBookmarkToggle={handleBookmarkToggle}
+              autoOpenAddChapter={currentParams.autoOpenAddChapter}
+            />
+          );
+        })()}
 
         {/* ==================== SCREEN 4: READ CHAPTERS VIEWPORT ==================== */}
-        {currentPage === 'reader' && currentParams && (
-          <ReaderView 
-            novelId={currentParams.novelId}
-            chapterNumber={currentParams.chapterNumber}
-            currentUser={currentUser}
-            onBack={() => handleNavigate('novel', { id: currentParams.novelId })}
-            onNavigateChapter={handleReaderNavigateChapter}
-          />
-        )}
+        {currentPage === 'reader' && currentParams && (() => {
+          const nid = currentParams.novelId || novelIdBySlug(currentParams.slug);
+          return (
+            <ReaderView
+              novelId={nid}
+              chapterNumber={currentParams.chapterNumber}
+              currentUser={currentUser}
+              onBack={() => handleNavigate('novel', { id: nid })}
+              onNavigateChapter={handleReaderNavigateChapter}
+            />
+          );
+        })()}
 
         {/* ==================== SCREEN 5: TRANSLATORS CLAIMS / SUGGESTIONS LIST ==================== */}
         {currentPage === 'suggestions' && (
