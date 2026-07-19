@@ -123,3 +123,19 @@ export function spreadPlainTextLines(text: string): string {
     .filter((l) => l.length > 0);
   return lines.map((l) => `<div>${escapeText(l)}</div>`).join('<div><br></div>');
 }
+
+// Turn a novel's English title into a clean, URL-friendly slug so links read
+// like "/novel/the-beginning-after-the-end" instead of an opaque id. Strips
+// accents/punctuation, lowercases, and joins words with single hyphens.
+// Returns '' when the title has no latin characters (caller falls back to id).
+export function slugifyTitle(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '') // drop combining accents
+    .toLowerCase()
+    .replace(/['"’`]/g, '')          // drop apostrophes/quotes entirely
+    .replace(/[^a-z0-9]+/g, '-')     // everything else becomes a separator
+    .replace(/^-+|-+$/g, '')         // trim leading/trailing hyphens
+    .slice(0, 80);                   // keep URLs reasonably short
+}
