@@ -20,11 +20,16 @@ interface ContactMessage {
 export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
   const isOwner = currentUser?.role === 'OWNER';
   
-  // State for the form
-  const [name, setName] = useState(currentUser?.username || '');
-  const [email, setEmail] = useState(currentUser?.email || '');
+  // State for the form. Name and email start empty so the sender always fills
+  // in their own details, even when signed in.
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+
+  // Official support email shown in the contact channels — kept in sync with
+  // the footer email the owner manages.
+  const supportEmail = MistVilDatabase.get<string>('footer_email', 'mistvil112@gmail.com');
   
   // Messages state for the Owner Panel
   const [messages, setMessages] = useState<ContactMessage[]>(() => 
@@ -123,7 +128,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
-                <span className="text-xs font-mono text-purple-100 select-all">support@mistvil.com</span>
+                <span className="text-xs font-mono text-purple-100 select-all">{supportEmail}</span>
                 <span className="text-xs text-purple-300 font-bold">Email</span>
               </div>
               <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
