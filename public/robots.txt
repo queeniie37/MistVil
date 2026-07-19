@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mistvil.com/sitemap.xml
+Sitemap: https://mistvil.online/sitemap.xml
