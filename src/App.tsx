@@ -10,7 +10,7 @@ import { DEFAULT_USERS, MistVilDatabase } from './data';
 import { isImageSource, safeEmojiOrFallback, compressImageFile } from './utils/media';
 import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
-import { slugifyTitle } from './utils/text';
+import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
 
 // Component imports
 import Header from './components/Header';
@@ -30,6 +30,13 @@ import ContactUs from './components/ContactUs';
 import AdsTicker from './components/AdsTicker';
 import AdsPage from './components/AdsPage';
 import TranslatorRequestForm from './components/TranslatorRequestForm';
+
+// Footer copy is stored in the shared database; some databases hold legacy
+// Arabic defaults. readFooterText maps those known defaults (via the shared
+// normalizer) to the standard English copy so the footer reads fully in
+// English everywhere.
+const readFooterText = (key: string, english: string): string =>
+  normalizeFooterText(MistVilDatabase.get<string>(key, english), english);
 
 // Themed placeholders shown when a remote image (cover/avatar/banner) fails to
 // load, so visitors never see a broken-image icon. Inline SVG data URIs can
@@ -280,10 +287,10 @@ export default function App() {
   const safeSiteName = (typeof siteName === 'string' && siteName.trim()) ? siteName.trim() : 'MistVil';
 
   // Footer dynamic values
-  const [footerDesc, setFooterDesc] = useState(() => MistVilDatabase.get<string>('footer_description', 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.'));
+  const [footerDesc, setFooterDesc] = useState(() => readFooterText('footer_description', EN_FOOTER_DESCRIPTION));
   const [footerEmail, setFooterEmail] = useState(() => MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
-  const [footerSupport, setFooterSupport] = useState(() => MistVilDatabase.get<string>('footer_support_text', 'Via the official Discord ticket below'));
-  const [footerCommunityText, setFooterCommunityText] = useState(() => MistVilDatabase.get<string>('footer_community_text', 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!'));
+  const [footerSupport, setFooterSupport] = useState(() => readFooterText('footer_support_text', EN_FOOTER_SUPPORT));
+  const [footerCommunityText, setFooterCommunityText] = useState(() => readFooterText('footer_community_text', EN_FOOTER_COMMUNITY));
   
   const defaultSocialLinks = [
     { id: "discord", name: "Discord", icon: "👾", url: "https://discord.gg/mistvil", active: true },
@@ -340,10 +347,10 @@ export default function App() {
     window.addEventListener('site-settings-updated', handleSiteUpdate);
 
     const handleFooterUpdate = () => {
-      setFooterDesc(MistVilDatabase.get<string>('footer_description', 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.'));
+      setFooterDesc(readFooterText('footer_description', EN_FOOTER_DESCRIPTION));
       setFooterEmail(MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
-      setFooterSupport(MistVilDatabase.get<string>('footer_support_text', 'Via the official Discord ticket below'));
-      setFooterCommunityText(MistVilDatabase.get<string>('footer_community_text', 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!'));
+      setFooterSupport(readFooterText('footer_support_text', EN_FOOTER_SUPPORT));
+      setFooterCommunityText(readFooterText('footer_community_text', EN_FOOTER_COMMUNITY));
       setFooterSocials(MistVilDatabase.get<any[]>('footer_socials', defaultSocialLinks));
     };
     window.addEventListener('footer-settings-updated', handleFooterUpdate);

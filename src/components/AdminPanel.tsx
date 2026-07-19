@@ -6,6 +6,7 @@ import { isImageSource, safeEmojiOrFallback, compressImageFile } from '../utils/
 import { getAllTranslatorsPoints, crownTranslator, getCrownedTranslatorId, getCurrentMonthKey } from '../utils/points';
 import { BADGE_CATALOG, getUserBadges, grantBadge, revokeBadge } from '../utils/badges';
 import { UserDirectory } from '../utils/directory';
+import { normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from '../utils/text';
 import ConfirmModal from './ConfirmModal';
 
 interface AdminPanelProps {
@@ -73,10 +74,10 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
   });
 
   // Footer dynamic inputs
-  const [footerDescInput, setFooterDescInput] = useState(() => MistVilDatabase.get<string>('footer_description', 'منصة عربية رائدة تعنى بترجمة، اقتراح وقراءة الروايات الخفيفة وروايات الفانتازيا والويب المظلمة بأعلى دقة ومعايير حماية وجمالية بصرية فخمة للغاية.'));
+  const [footerDescInput, setFooterDescInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_description', EN_FOOTER_DESCRIPTION), EN_FOOTER_DESCRIPTION));
   const [footerEmailInput, setFooterEmailInput] = useState(() => MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
-  const [footerSupportInput, setFooterSupportInput] = useState(() => MistVilDatabase.get<string>('footer_support_text', 'عبر تذكرة الديسكورد الرسمية بالأسفل'));
-  const [footerCommunityTextInput, setFooterCommunityTextInput] = useState(() => MistVilDatabase.get<string>('footer_community_text', 'انضم لعائلتنا الروائية الكبرى لتصلك إشعارات الفصول فور صدورها قبل الجميع حياً!'));
+  const [footerSupportInput, setFooterSupportInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_support_text', EN_FOOTER_SUPPORT), EN_FOOTER_SUPPORT));
+  const [footerCommunityTextInput, setFooterCommunityTextInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_community_text', EN_FOOTER_COMMUNITY), EN_FOOTER_COMMUNITY));
 
   const defaultSocialLinks = [
     { id: "discord", name: "Discord", icon: "👾", url: "https://discord.gg/mistvil", active: true },
