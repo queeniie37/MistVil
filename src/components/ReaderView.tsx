@@ -237,6 +237,35 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     }
   }, [novelId, chapterNumber, currentUser]);
 
+  // Live-refresh the chapter itself: new chapters arrive through the
+  // background server sync every couple of seconds. Without this listener,
+  // a reader sitting on the latest chapter would never see the "next
+  // chapter" button light up when a new one drops, and a chapter link
+  // opened before the first sync finished would stay stuck on loading.
+  useEffect(() => {
+    const refreshChapter = () => {
+      const allChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
+      let novelChapters = allChapters.filter(c => c.novelId === novelId);
+      novelChapters = novelChapters.filter(c => !c.publishAt || new Date(c.publishAt) <= new Date());
+      novelChapters.sort((a, b) => a.number - b.number);
+      const currentIndex = novelChapters.findIndex(c => c.number === chapterNumber);
+      setHasPrevChapter(currentIndex > 0);
+      setHasNextChapter(currentIndex !== -1 && currentIndex < novelChapters.length - 1);
+      const foundChapter = novelChapters.find(c => c.number === chapterNumber);
+      if (foundChapter) setChapter(prev => (prev && prev.id === foundChapter.id && prev.content === foundChapter.content) ? prev : foundChapter);
+      if (!novel) {
+        const foundNovel = MistVilDatabase.get<Novel[]>('novels', []).find(n => n.id === novelId);
+        if (foundNovel) setNovel(foundNovel);
+      }
+    };
+    window.addEventListener('chapters-updated', refreshChapter);
+    window.addEventListener('novels-updated', refreshChapter);
+    return () => {
+      window.removeEventListener('chapters-updated', refreshChapter);
+      window.removeEventListener('novels-updated', refreshChapter);
+    };
+  }, [novelId, chapterNumber, novel]);
+
   // Live-refresh comments: other visitors' comments arrive through the
   // background server sync. Without this listener, anyone who opened the
   // chapter before the first sync completed (e.g. a fresh guest) would

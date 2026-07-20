@@ -500,6 +500,15 @@ export default function App() {
       syncDb();
     }, 2000);
 
+    // Browsers throttle background-tab timers, so the poll above may pause
+    // while the visitor is away. Sync immediately the moment the tab becomes
+    // visible/focused again so freshly published chapters show up right away.
+    const syncOnReturn = () => {
+      if (document.visibilityState === 'visible') syncDb();
+    };
+    document.addEventListener('visibilitychange', syncOnReturn);
+    window.addEventListener('focus', syncOnReturn);
+
     // Run automatic reservation expiration check
     checkReservationsExpiration(loadedNovels, loadedSuggestions);
     checkScheduledChapters();
@@ -512,6 +521,8 @@ export default function App() {
     return () => {
       clearInterval(schedulerInterval);
       clearInterval(syncInterval);
+      document.removeEventListener('visibilitychange', syncOnReturn);
+      window.removeEventListener('focus', syncOnReturn);
       document.removeEventListener('error', handleImageError, true);
       window.removeEventListener('ads-updated', handleAdsUpdate);
       window.removeEventListener('notifications-updated', handleNotificationsUpdate);
@@ -577,6 +588,76 @@ export default function App() {
     }
     
     document.title = title;
+
+    // SEO: keep the description, social-preview (Open Graph / Twitter) tags,
+    // and canonical URL in sync with the screen being viewed, so shared links
+    // and search snippets describe the actual page instead of always showing
+    // the generic homepage text.
+    const setMeta = (selector: string, content: string) => {
+      const el = document.querySelector(selector) as HTMLMetaElement | null;
+      if (el) el.setAttribute('content', content);
+    };
+    let description = 'Your premium platform to read, write, and translate exclusive fantasy novels and stories. Explore daily live chapters from translated Korean, Chinese, and Japanese novels, plus original works crafted to a high artistic standard.';
+    if (currentPage === 'explore') {
+      description = `Browse the full ${siteName} library: translated and original fantasy, action, and light novels with new chapters added daily.`;
+    } else if (currentPage === 'novel' || currentPage === 'reader') {
+      const nid = currentParams ? (currentParams.id || currentParams.novelId || novelIdBySlug(currentParams.slug)) : undefined;
+      const novel = novels.find(n => n.id === nid);
+      if (novel) {
+        const desc = (novel.description || '').trim().slice(0, 155);
+        description = desc || `Read ${novel.titleEn || novel.titleAr} online on ${siteName} — new chapters published regularly.`;
+      }
+    } else if (currentPage === 'suggestions') {
+      description = `Suggest and vote for the next novels to be translated on ${siteName}.`;
+    } else if (currentPage === 'teams') {
+      description = `Meet the ${siteName} translators and writing teams behind your favorite novels.`;
+    }
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="twitter:description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="twitter:title"]', title);
+    const pageUrl = `https://mistvil.com/${window.location.hash || ''}`;
+    setMeta('meta[property="og:url"]', pageUrl);
+    setMeta('meta[property="twitter:url"]', pageUrl);
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = pageUrl;
+
+    // Structured data: describe the open novel as a schema.org Book so search
+    // engines can show rich results (title, author, rating) for novel links.
+    const LD_ID = 'mistvil-novel-jsonld';
+    const prevLd = document.getElementById(LD_ID);
+    if (prevLd) prevLd.remove();
+    if (currentPage === 'novel' || currentPage === 'reader') {
+      const nid = currentParams ? (currentParams.id || currentParams.novelId || novelIdBySlug(currentParams.slug)) : undefined;
+      const novel = novels.find(n => n.id === nid);
+      if (novel) {
+        const ld: any = {
+          '@context': 'https://schema.org',
+          '@type': 'Book',
+          name: novel.titleEn || novel.titleAr,
+          alternateName: novel.titleAr,
+          author: { '@type': 'Person', name: novel.author },
+          inLanguage: 'en',
+          url: `https://mistvil.com/#/novel/${slugifyTitle(novel.titleEn) || novel.id}`,
+          publisher: { '@type': 'Organization', name: siteName },
+        };
+        if (novel.genres?.length) ld.genre = novel.genres;
+        if (novel.ratingCount > 0) {
+          ld.aggregateRating = { '@type': 'AggregateRating', ratingValue: novel.rating, ratingCount: novel.ratingCount, bestRating: 5 };
+        }
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = LD_ID;
+        script.textContent = JSON.stringify(ld);
+        document.head.appendChild(script);
+      }
+    }
   }, [currentPage, currentParams, novels, siteName]);
 
   // Guest browsers must stay read-only on shared data: never let an anonymous
