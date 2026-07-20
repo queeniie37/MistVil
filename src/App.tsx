@@ -304,6 +304,53 @@ export default function App() {
   ];
   const [footerSocials, setFooterSocials] = useState<any[]>(() => MistVilDatabase.get<any[]>('footer_socials', defaultSocialLinks));
 
+  // Force browser form-validation bubbles ("Please fill out this field", etc.)
+  // to English site-wide. The native messages follow the browser's UI
+  // language, so an Arabic browser shows them in Arabic; MistVil is an
+  // English-only platform, so we override them via the Constraint Validation
+  // API. Setting a custom message on the 'invalid' event replaces the bubble
+  // text; clearing it on input restores native checks for the next submit.
+  useEffect(() => {
+    const englishValidationMessage = (el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement): string => {
+      const v = el.validity;
+      const type = (el as HTMLInputElement).type;
+      if (v.valueMissing) {
+        if (el.tagName === 'SELECT') return 'Please select an item in the list.';
+        if (type === 'checkbox' || type === 'radio') return 'Please check this box if you want to proceed.';
+        return 'Please fill out this field.';
+      }
+      if (v.typeMismatch) {
+        if (type === 'email') return 'Please enter a valid email address.';
+        if (type === 'url') return 'Please enter a valid URL (including http:// or https://).';
+        return 'Please enter a valid value.';
+      }
+      if (v.patternMismatch) return 'Please match the requested format.';
+      if (v.tooShort) return `Please lengthen this text to ${(el as HTMLInputElement).minLength} characters or more.`;
+      if (v.tooLong) return `Please shorten this text to ${(el as HTMLInputElement).maxLength} characters or fewer.`;
+      if (v.rangeUnderflow) return `Value must be greater than or equal to ${(el as HTMLInputElement).min}.`;
+      if (v.rangeOverflow) return `Value must be less than or equal to ${(el as HTMLInputElement).max}.`;
+      if (v.stepMismatch || v.badInput) return 'Please enter a valid value.';
+      return 'Please fill out this field.';
+    };
+    const isFormField = (t: EventTarget | null): t is HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement =>
+      !!t && typeof (t as any).setCustomValidity === 'function' && !!(t as any).willValidate;
+    const onInvalid = (e: Event) => {
+      if (isFormField(e.target)) e.target.setCustomValidity(englishValidationMessage(e.target));
+    };
+    const onInputClear = (e: Event) => {
+      if (isFormField(e.target)) e.target.setCustomValidity('');
+    };
+    // Capture phase: the 'invalid' event does not bubble.
+    document.addEventListener('invalid', onInvalid, true);
+    document.addEventListener('input', onInputClear, true);
+    document.addEventListener('change', onInputClear, true);
+    return () => {
+      document.removeEventListener('invalid', onInvalid, true);
+      document.removeEventListener('input', onInputClear, true);
+      document.removeEventListener('change', onInputClear, true);
+    };
+  }, []);
+
   // Initialize data on mount
   useEffect(() => {
     MistVilDatabase.initialize();
