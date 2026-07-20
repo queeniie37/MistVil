@@ -237,17 +237,17 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     }
   }, [novelId, chapterNumber, currentUser]);
 
-  // The one-shot load above only sees what's already in the local cache. A
-  // fresh visitor (guest included) who deep-links straight into a chapter —
-  // or clicks one before the first server sync lands — found nothing and was
-  // stuck on the "Loading..." screen forever. Retry whenever synced data
-  // arrives (plus a light fallback tick for a scheduled chapter whose publish
-  // time arrives while waiting) so every published chapter is readable by
-  // everyone without signing in.
+  // Live-refresh from the background server sync (both directions):
+  // - A fresh visitor who deep-links straight into a chapter before the
+  //   first sync lands is no longer stuck on "Loading..." — the chapter
+  //   (and its comments) fill in the moment the data arrives.
+  // - A reader sitting on the latest chapter sees the "next chapter"
+  //   button light up seconds after a new chapter is published, without
+  //   navigating or reloading.
+  // The fallback tick also picks up a scheduled chapter the moment its
+  // publish time passes (no sync event fires then — the data didn't change).
   useEffect(() => {
-    if (novel && chapter) return;
-
-    const fillFromSync = () => {
+    const refreshChapter = () => {
       const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
       const foundNovel = allNovels.find(n => n.id === novelId);
       if (foundNovel) setNovel(prev => prev ?? foundNovel);
@@ -258,23 +258,26 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
         .filter(c => !c.publishAt || new Date(c.publishAt) <= new Date())
         .sort((a, b) => a.number - b.number);
       const currentIndex = novelChapters.findIndex(c => c.number === chapterNumber);
+      setHasPrevChapter(currentIndex > 0);
+      setHasNextChapter(currentIndex !== -1 && currentIndex < novelChapters.length - 1);
       if (currentIndex !== -1) {
-        setHasPrevChapter(currentIndex > 0);
-        setHasNextChapter(currentIndex < novelChapters.length - 1);
         const foundChapter = novelChapters[currentIndex];
-        setChapter(prev => prev ?? foundChapter);
-        const allComments = MistVilDatabase.get<Comment[]>('comments', []);
-        setComments(allComments.filter(c => c.refId === foundChapter.id));
+        // First fill of a deep-linked chapter: pull its comments too.
+        if (!chapter) {
+          const allComments = MistVilDatabase.get<Comment[]>('comments', []);
+          setComments(allComments.filter(c => c.refId === foundChapter.id));
+        }
+        setChapter(prev => (prev && prev.id === foundChapter.id && prev.content === foundChapter.content) ? prev : foundChapter);
       }
     };
 
-    fillFromSync();
-    window.addEventListener('chapters-updated', fillFromSync);
-    window.addEventListener('novels-updated', fillFromSync);
-    const retryTimer = setInterval(fillFromSync, 3000);
+    refreshChapter();
+    window.addEventListener('chapters-updated', refreshChapter);
+    window.addEventListener('novels-updated', refreshChapter);
+    const retryTimer = setInterval(refreshChapter, 3000);
     return () => {
-      window.removeEventListener('chapters-updated', fillFromSync);
-      window.removeEventListener('novels-updated', fillFromSync);
+      window.removeEventListener('chapters-updated', refreshChapter);
+      window.removeEventListener('novels-updated', refreshChapter);
       clearInterval(retryTimer);
     };
   }, [novelId, chapterNumber, novel, chapter]);
