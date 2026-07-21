@@ -157,3 +157,32 @@ export function normalizeFooterText(value: string | undefined, english: string):
   const v = (value || '').trim();
   return (!v || ARABIC_SCRIPT.test(v)) ? english : value!;
 }
+
+// Renders stored chapter text inside a contenteditable editor: images display
+// as actual images (instead of their long base64 <img …> markup) and b/i/u
+// formatting is live. Everything else stays escaped so nothing but those
+// whitelisted tags can ever execute inside the editor.
+export function chapterTextToEditorHtml(text: string): string {
+  const isSafeImgSrc = (src: string) => {
+    const v = src.trim().toLowerCase();
+    return v.startsWith('data:image/') || v.startsWith('https://') || v.startsWith('http://') || v.startsWith('/');
+  };
+  const restoreLine = (line: string): string => {
+    let out = line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/&lt;(\/?)(b|i|u)&gt;/gi, '<$1$2>');
+    out = out.replace(/&lt;img\s+src="([^"]+)"\s*(?:\/)?&gt;/gi, (m, src) =>
+      isSafeImgSrc(src) ? `<img src="${src}" />` : m);
+    return out;
+  };
+  return (text || '')
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((l) => {
+      const r = restoreLine(l);
+      return `<div>${r || '<br>'}</div>`;
+    })
+    .join('');
+}

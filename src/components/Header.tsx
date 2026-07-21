@@ -99,7 +99,13 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
       { id: '2', title: 'Your novel was approved', message: 'The novel "Return of the Shadow King" was approved and published successfully.', isRead: true, createdAt: '1 hour ago' }
     ]);
 
+    const myBookmarks = MistVilDatabase.get<string[]>('bookmarks', []);
     const filtered = rawNotifications.filter(n => {
+      // New-chapter announcements tagged forBookmarkers reach exactly the
+      // members who bookmarked that novel.
+      if (n.forBookmarkers && n.novelId) {
+        return currentUser.role !== 'GUEST' && myBookmarks.includes(n.novelId);
+      }
       if (currentUser.role === 'GUEST') {
         return !n.userId && !n.email;
       }

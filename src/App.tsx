@@ -706,18 +706,19 @@ export default function App() {
             chapterId: chap.id
           });
 
-          // Public "new chapter" announcement for readers — sent at the
-          // scheduled time, not when the chapter was created (no userId =
-          // visible to everyone).
+          // "New chapter" announcement for readers — sent at the scheduled
+          // time, not when the chapter was created. Tagged forBookmarkers so
+          // it reaches everyone who bookmarked this novel.
           allNotifs.unshift({
             id: `notif-chapter-live-${Date.now()}-${chap.id}`,
-            title: 'New chapter released!',
-            message: `"${chap.title}" of "${novelTitle}" has been published and is now available to read!`,
+            title: 'New chapter released! 📚',
+            message: `A new chapter of "${novelTitle}" has been published — read it now!`,
             type: 'CHAPTER',
             isRead: false,
-            createdAt: 'now',
+            createdAt: new Date().toISOString(),
             novelId: chap.novelId,
-            chapterId: chap.id
+            chapterId: chap.id,
+            forBookmarkers: true
           });
         }
       }
@@ -1845,6 +1846,11 @@ export default function App() {
                   { id: '2', title: 'Your novel was approved', message: 'The novel "Return of the Shadow King" was approved and published successfully.', isRead: true, createdAt: '1 hour ago' }
                 ]);
                 const userNotifications = rawNotifs.filter(n => {
+                  // New-chapter announcements tagged forBookmarkers reach
+                  // exactly the members who bookmarked that novel.
+                  if (n.forBookmarkers && n.novelId) {
+                    return currentUser.role !== 'GUEST' && bookmarks.includes(n.novelId);
+                  }
                   if (currentUser.role === 'GUEST') {
                     return !n.userId && !n.email;
                   }
