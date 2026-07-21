@@ -194,13 +194,25 @@ if ($method === 'POST') {
     $backupDir = __DIR__ . '/backups';
     if (!is_dir($backupDir)) { @mkdir($backupDir, 0755, true); }
     if (is_dir($backupDir) && file_exists($DB_FILE)) {
+        // Hourly snapshots: newest 24.
         $stampFile = $backupDir . '/mistvil_db-' . gmdate('Ymd-H') . '.json';
         if (!file_exists($stampFile)) {
             @copy($DB_FILE, $stampFile);
-            $old = glob($backupDir . '/mistvil_db-*.json');
+            $old = glob($backupDir . '/mistvil_db-????????-??.json');
             if ($old && count($old) > 24) {
                 sort($old);
                 foreach (array_slice($old, 0, count($old) - 24) as $f) { @unlink($f); }
+            }
+        }
+        // Daily snapshots: newest 30 — so content lost and only noticed days
+        // later can still be recovered.
+        $dailyFile = $backupDir . '/mistvil_db-daily-' . gmdate('Ymd') . '.json';
+        if (!file_exists($dailyFile)) {
+            @copy($DB_FILE, $dailyFile);
+            $oldDaily = glob($backupDir . '/mistvil_db-daily-*.json');
+            if ($oldDaily && count($oldDaily) > 30) {
+                sort($oldDaily);
+                foreach (array_slice($oldDaily, 0, count($oldDaily) - 30) as $f) { @unlink($f); }
             }
         }
     }

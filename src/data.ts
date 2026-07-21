@@ -603,18 +603,26 @@ export class MistVilDatabase {
         }
 
         // The server database has NO entry for this key at all (fresh/reset
-        // db file after a hosting move or manual restore). For the library
-        // collections, a device that still holds records restores them
-        // instead of treating "server empty" as the truth.
-        if (!(key in serverDb) && (key === 'novels' || key === 'chapters')) {
+        // db file after a hosting move or manual restore). A signed-in device
+        // that still holds the data restores it instead of treating "server
+        // empty" as the truth. This only fires when the whole key vanished —
+        // normal deletes rewrite the key, so they are never resurrected.
+        if (!(key in serverDb)) {
           const localValStr = storeRead(`mistvil_${key}`);
-          let localList: any[] = [];
-          try { localList = localValStr ? JSON.parse(localValStr) : []; } catch { localList = []; }
-          if (Array.isArray(localList) && localList.length > 0) {
-            const u = this.get<{ role?: string } | null>('current_user_data', null);
-            if (u && u.role && u.role !== 'GUEST') {
-              console.warn(`Server database lost all "${key}" — restoring ${localList.length} record(s) from this device.`);
-              this.pushToServer(key, JSON.stringify(localList));
+          if (localValStr) {
+            let localVal: any = null;
+            try { localVal = JSON.parse(localValStr); } catch { localVal = null; }
+            const hasData = Array.isArray(localVal)
+              ? localVal.length > 0
+              : (localVal && typeof localVal === 'object')
+                ? Object.keys(localVal).length > 0
+                : (typeof localVal === 'string' && localVal.trim() !== '');
+            if (hasData) {
+              const u = this.get<{ role?: string } | null>('current_user_data', null);
+              if (u && u.role && u.role !== 'GUEST') {
+                console.warn(`Server database lost "${key}" — restoring it from this device.`);
+                this.pushToServer(key, localValStr);
+              }
             }
           }
           continue;
