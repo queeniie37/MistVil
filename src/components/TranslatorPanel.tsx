@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Plus, CheckCircle, Flame, Clock, Award, Check, Layers, AlertCircle, Edit, Trash2, Calendar, BookOpen, Eye, RefreshCw, Upload, Image } from 'lucide-react';
 import { Novel, Suggestion, Reservation, User } from '../types';
 import { MistVilDatabase, COVER_IMAGES } from '../data';
 import { compressImageFile } from '../utils/media';
-import { normalizeChapterText } from '../utils/text';
+import { normalizeChapterText, chapterTextToEditorHtml } from '../utils/text';
 import { getTranslatorPoints, getAllTranslatorsPoints, isUserTranslatorOfTheMonth, getCurrentMonthKey } from '../utils/points';
 import ConfirmModal from './ConfirmModal';
 
@@ -61,6 +61,17 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
   const [editChapterContent, setEditChapterContent] = useState('');
   const [editChapterPublishAt, setEditChapterPublishAt] = useState('');
   const [editChapterImages, setEditChapterImages] = useState('');
+
+  // The edit modal uses a rich (contenteditable) editor so illustrations
+  // render as actual images while editing — not as their long base64 markup.
+  // The editor's HTML is only stamped in when the modal opens; afterwards the
+  // translator's own typing is the source of truth.
+  const editEditorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (editingChapter && editEditorRef.current) {
+      editEditorRef.current.innerHTML = chapterTextToEditorHtml(normalizeChapterText(editingChapter.content));
+    }
+  }, [editingChapter]);
 
   const getMaxScheduleDate = () => {
     const maxDate = new Date();
@@ -405,9 +416,10 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
 
     setEditingChapter(chapter);
     setEditChapterTitle(chapter.title.split(':').slice(1).join(':').trim() || chapter.title);
-    // Legacy chapters may still hold pasted HTML soup — clean it so the
-    // editor shows readable text, and the next save persists the clean form.
-    setEditChapterContent(normalizeChapterText(chapter.content));
+    // Legacy chapters may still hold pasted HTML soup — clean it first, then
+    // convert to editor HTML so images render as images while editing. The
+    // save handler normalizes the editor HTML back to clean chapter text.
+    setEditChapterContent(chapterTextToEditorHtml(normalizeChapterText(chapter.content)));
     setEditChapterPublishAt(chapter.publishAt || '');
     setEditChapterImages(chapter.images ? chapter.images.join(', ') : '');
   };
@@ -460,8 +472,17 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       }
     }
 
+    // The rich editor produces HTML; normalize it back to clean chapter text
+    // (the contenteditable div can't carry a `required` attribute, so the
+    // emptiness check lives here).
+    const cleanContent = normalizeChapterText(editChapterContent);
+    if (!cleanContent.trim()) {
+      alert('Sorry, the chapter content is required!');
+      return;
+    }
+
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
-    
+
     const imgUrls = editChapterImages.split(',')
       .map(url => url.trim())
       .filter(url => url.length > 0);
@@ -473,7 +494,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
         return {
           ...c,
           title: `Chapter ${editingChapter.number}: ${editChapterTitle}`,
-          content: normalizeChapterText(editChapterContent),
+          content: cleanContent,
           updatedAt: new Date().toISOString(),
           isDraft: isScheduled,
           publishAt: editChapterPublishAt || undefined,
@@ -1611,63 +1632,37 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
                   
                   {/* Rich Text Format Helpers */}
                   <div className="flex gap-1">
-                    <button 
-                      type="button" 
-                      onClick={() => {
-                        const textarea = document.getElementById('edit-content-textarea') as HTMLTextAreaElement;
-                        if (!textarea) return;
-                        const start = textarea.selectionStart;
-                        const end = textarea.selectionEnd;
-                        const text = textarea.value;
-                        const selected = text.substring(start, end);
-                        const replacement = `<b>${selected || 'bold text'}</b>`;
-                        setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
-                      }} 
+                    <button
+                      type="button"
+                      onClick={() => { editEditorRef.current?.focus(); document.execCommand('bold'); }}
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] font-bold cursor-pointer"
                     >
                       B
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={() => {
-                        const textarea = document.getElementById('edit-content-textarea') as HTMLTextAreaElement;
-                        if (!textarea) return;
-                        const start = textarea.selectionStart;
-                        const end = textarea.selectionEnd;
-                        const text = textarea.value;
-                        const selected = text.substring(start, end);
-                        const replacement = `<i>${selected || 'italic text'}</i>`;
-                        setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
-                      }} 
+                    <button
+                      type="button"
+                      onClick={() => { editEditorRef.current?.focus(); document.execCommand('italic'); }}
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] italic font-bold cursor-pointer"
                     >
                       I
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={() => {
-                        const textarea = document.getElementById('edit-content-textarea') as HTMLTextAreaElement;
-                        if (!textarea) return;
-                        const start = textarea.selectionStart;
-                        const end = textarea.selectionEnd;
-                        const text = textarea.value;
-                        const selected = text.substring(start, end);
-                        const replacement = `<u>${selected || 'underlined text'}</u>`;
-                        setEditChapterContent(text.substring(0, start) + replacement + text.substring(end));
-                      }} 
+                    <button
+                      type="button"
+                      onClick={() => { editEditorRef.current?.focus(); document.execCommand('underline'); }}
                       className="px-2 py-1 bg-white/5 hover:bg-white/15 text-white border border-white/5 rounded-lg text-[9px] underline font-bold cursor-pointer"
                     >
                       U
                     </button>
                   </div>
                 </div>
-                <textarea 
+                {/* Rich editor: illustrations render as real images while
+                    editing instead of their long base64 markup. */}
+                <div
+                  ref={editEditorRef}
                   id="edit-content-textarea"
-                  required
-                  rows={16}
-                  value={editChapterContent}
-                  onChange={(e) => setEditChapterContent(e.target.value)}
-                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-sans min-h-[45vh] resize-y"
+                  contentEditable
+                  onInput={(e) => setEditChapterContent((e.target as HTMLElement).innerHTML)}
+                  className="bg-[#131F33] border border-white/10 focus:border-violet-500 outline-none rounded-xl px-4 py-3 text-white font-sans text-base leading-8 min-h-[45vh] max-h-[65vh] overflow-y-auto [&_img]:max-h-[400px] [&_img]:w-auto [&_img]:max-w-full [&_img]:my-4 [&_img]:mx-auto [&_img]:rounded-xl [&_img]:border [&_img]:border-white/10 [&_img]:block [&_img]:object-contain"
                 />
               </div>
 

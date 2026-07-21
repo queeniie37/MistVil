@@ -683,6 +683,15 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       alert('Sorry, the chapter number must be a whole number greater than 0!');
       return;
     }
+    // Never allow two chapters of the same novel to share a number — pull the
+    // freshest synced list so a chapter just published from another device
+    // counts too.
+    const existingChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
+    const numberTaken = existingChapters.some(c => c.novelId === novel.id && !(c as any).deleted && Number(c.number) === parsedChNum);
+    if (numberTaken) {
+      alert(`Sorry, chapter ${parsedChNum} already exists for this novel! Pick a different number, or edit the existing chapter from the work panel.`);
+      return;
+    }
     if (!newChapterTitle.trim()) {
       alert('Sorry, the chapter title is required!');
       return;
@@ -786,7 +795,24 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
           novelId: novel.id,
           chapterId: newChap.id
         };
-    MistVilDatabase.set('notifications', [...allNotifs, newNotif]);
+    const updatedNotifs = [...allNotifs, newNotif];
+    // Announce the new chapter to everyone who bookmarked this novel: a
+    // shared notification (no userId) tagged forBookmarkers, which each
+    // member's device shows only when the novel is in their own bookmarks.
+    if (!isScheduled) {
+      updatedNotifs.push({
+        id: `notif-chapter-live-${Date.now()}-${newChap.id}`,
+        title: 'New chapter released! 📚',
+        message: `A new chapter of "${novel.titleEn || novel.titleAr}" has been published — read it now!`,
+        type: 'CHAPTER' as const,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        novelId: novel.id,
+        chapterId: newChap.id,
+        forBookmarkers: true
+      } as any);
+    }
+    MistVilDatabase.set('notifications', updatedNotifs);
 
     if (isScheduled) {
       alert(`📅 Chapter ${newChapterNum} scheduled successfully! It won't appear to readers until ${new Date(newChapterPublishAt).toLocaleString('en-US')}, and you can track it from the Activity & Scheduling page.`);
