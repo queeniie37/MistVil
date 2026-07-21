@@ -378,8 +378,32 @@ export class MistVilDatabase {
   // publish POST finished (or after it failed) and overwrote localStorage.
   private static pendingSync = new Map<string, string>();
 
+  // The pending set survives page reloads: a publish whose POST kept failing
+  // (network drop, server hiccup) used to vanish when the tab closed — the
+  // chapter existed only on the author's device and never reached readers.
+  // The pending key names are persisted locally and re-armed on the next
+  // visit, so the retry continues until the server confirms the write.
+  private static persistPendingKeys(): void {
+    try { storeWrite('mistvil_pending_sync_keys', JSON.stringify([...this.pendingSync.keys()])); } catch { /* ignore */ }
+  }
+  private static pendingResumed = false;
+  private static resumePendingWrites(): void {
+    if (this.pendingResumed) return;
+    this.pendingResumed = true;
+    try {
+      const raw = storeRead('mistvil_pending_sync_keys');
+      const keys: string[] = raw ? JSON.parse(raw) : [];
+      for (const key of Array.isArray(keys) ? keys : []) {
+        if (typeof key !== 'string' || this.pendingSync.has(key)) continue;
+        const val = storeRead(`mistvil_${key}`);
+        if (val) this.pushToServer(key, val);
+      }
+    } catch { /* ignore */ }
+  }
+
   private static pushToServer(key: string, serialized: string): void {
     this.pendingSync.set(key, serialized);
+    this.persistPendingKeys();
     fetch('/api/db', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -390,6 +414,7 @@ export class MistVilDatabase {
         // Only clear if no newer local write replaced this one meanwhile
         if (this.pendingSync.get(key) === serialized) {
           this.pendingSync.delete(key);
+          this.persistPendingKeys();
         }
       })
       .catch((err) => {
@@ -562,6 +587,10 @@ export class MistVilDatabase {
         'footer_community_text', 'footer_socials'
       ];
       
+      // Publishes that never reached the server in an earlier session keep
+      // retrying here instead of silently disappearing with the closed tab.
+      this.resumePendingWrites();
+
       for (const key of keysToSync) {
         // A local write to this key hasn't been confirmed by the server yet
         // (publish POST still in flight, or it failed). Pulling the server's
@@ -570,6 +599,24 @@ export class MistVilDatabase {
         const pendingValue = this.pendingSync.get(key);
         if (pendingValue !== undefined) {
           this.pushToServer(key, pendingValue);
+          continue;
+        }
+
+        // The server database has NO entry for this key at all (fresh/reset
+        // db file after a hosting move or manual restore). For the library
+        // collections, a device that still holds records restores them
+        // instead of treating "server empty" as the truth.
+        if (!(key in serverDb) && (key === 'novels' || key === 'chapters')) {
+          const localValStr = storeRead(`mistvil_${key}`);
+          let localList: any[] = [];
+          try { localList = localValStr ? JSON.parse(localValStr) : []; } catch { localList = []; }
+          if (Array.isArray(localList) && localList.length > 0) {
+            const u = this.get<{ role?: string } | null>('current_user_data', null);
+            if (u && u.role && u.role !== 'GUEST') {
+              console.warn(`Server database lost all "${key}" — restoring ${localList.length} record(s) from this device.`);
+              this.pushToServer(key, JSON.stringify(localList));
+            }
+          }
           continue;
         }
         if (key in serverDb) {
