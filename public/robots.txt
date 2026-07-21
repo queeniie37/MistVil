@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://mistvil.online/sitemap.xml
+Sitemap: https://mistvil.online/api/sitemap.php
