@@ -3,6 +3,7 @@ import { Search, Bell, Moon, Sun, User as UserIcon, LogOut, Settings, Award, Shi
 import { User, UserRole } from '../types';
 import { DEFAULT_USERS, MistVilDatabase } from '../data';
 import { isImageSource, safeEmojiOrFallback } from '../utils/media';
+import { matchesSearchWords } from '../utils/text';
 import LoginModal from './LoginModal';
 
 interface HeaderProps {
@@ -77,16 +78,14 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
       setSearchResults([]);
       return;
     }
-    // All uploaded novels are searchable by every visitor (guests included), except cancelled ones
+    // All uploaded novels are searchable by every visitor (guests included),
+    // except cancelled ones. Matching is case-insensitive and word-based: every
+    // typed word must appear somewhere in the novel's titles/author/genres, in
+    // any order ("beginning end" finds "The Beginning After The End").
     const novels = MistVilDatabase.get<any[]>('novels', []);
     const filtered = novels.filter(n => {
       if (n.status === 'CANCELLED') return false;
-      return (
-        n.titleAr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.genres.some((g: string) => g.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
+      return matchesSearchWords(searchQuery, [n.titleAr, n.titleEn, n.titleOriginal, n.author, ...(n.genres || [])]);
     });
     setSearchResults(filtered);
   }, [searchQuery]);

@@ -158,6 +158,17 @@ export function normalizeFooterText(value: string | undefined, english: string):
   return (!v || ARABIC_SCRIPT.test(v)) ? english : value!;
 }
 
+// Word-based, case-insensitive search matching for the site's search boxes.
+// The query is split into words and a record matches when EVERY word appears
+// somewhere in its searchable text — in any order. So "beginning end", "END
+// beginning", or "The Beginning" all find "The Beginning After The End".
+export function matchesSearchWords(query: string, fields: (string | undefined)[]): boolean {
+  const words = (query || '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const haystack = fields.filter(Boolean).join(' ').toLowerCase();
+  return words.every((w) => haystack.includes(w));
+}
+
 // Renders stored chapter text inside a contenteditable editor: images display
 // as actual images (instead of their long base64 <img …> markup) and b/i/u
 // formatting is live. Everything else stays escaped so nothing but those
