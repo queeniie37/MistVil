@@ -435,6 +435,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       refId: novel.id,
       refType: 'NOVEL',
+      authorId: currentUser.id,
       authorName: currentUser.username,
       authorAvatar: currentUser.avatar,
       authorRole: currentUser.role,

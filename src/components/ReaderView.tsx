@@ -420,6 +420,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       id: `comm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       refId: chapter.id,
       refType: 'CHAPTER',
+      authorId: currentUser.id,
       authorName: currentUser.username,
       authorAvatar: currentUser.avatar,
       authorRole: currentUser.role,

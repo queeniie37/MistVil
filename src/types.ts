@@ -121,6 +121,7 @@ export interface Notification {
 
 export interface CommentReply {
   id: string;
+  authorId?: string; // stable user id (legacy replies may lack it)
   authorName: string;
   authorAvatar?: string;
   authorRole: UserRole;
@@ -133,6 +134,7 @@ export interface Comment {
   id: string;
   refId: string; // novelId or chapterId
   refType: 'NOVEL' | 'CHAPTER';
+  authorId?: string; // stable user id so the owner can list a member's comments (legacy comments may lack it)
   authorName: string;
   authorAvatar?: string;
   authorRole: UserRole;
