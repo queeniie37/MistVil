@@ -80,4 +80,5 @@ jobs:
           # Also keep the hourly server-side backups between deploys.
           exclude: |
             **/mistvil_db.json
+            **/mistvil_users.json
             **/backups/**

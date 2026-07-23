@@ -189,6 +189,66 @@ app.post("/api/db", (req, res) => {
   res.json({ success: true });
 });
 
+// Cross-device accounts (dev parity with public/api/auth.php). Accounts live
+// in a separate file that the public /api/db never returns; only a salted
+// password hash (computed in the browser) is stored/compared here, and every
+// response strips it.
+const USERS_FILE = path.join(process.cwd(), "mistvil_users.json");
+function loadUsers(): any[] {
+  if (fs.existsSync(USERS_FILE)) {
+    try {
+      const d = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
+      if (Array.isArray(d)) return d;
+    } catch { /* ignore */ }
+  }
+  return [];
+}
+function saveUsers(list: any[]): void {
+  try { fs.writeFileSync(USERS_FILE, JSON.stringify(list), "utf-8"); } catch (e) { console.error("users write failed", e); }
+}
+function publicUser(u: any): any { const { passwordHash, ...rest } = u; return rest; }
+
+app.post("/api/auth", (req, res) => {
+  const body = req.body || {};
+  const action = body.action;
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const hash = typeof body.passwordHash === "string" ? body.passwordHash : "";
+  if (!email || !hash) return res.status(400).json({ error: "Missing email or credentials" });
+  if (email === "mistvil112@gmail.com") return res.status(403).json({ error: "This email is reserved for the platform owner" });
+
+  const users = loadUsers();
+  const idx = users.findIndex((u) => typeof u.email === "string" && u.email.toLowerCase() === email);
+
+  if (action === "register") {
+    if (idx !== -1) return res.status(409).json({ error: "This email is already registered." });
+    const username = typeof body.username === "string" ? body.username.trim() : "";
+    if (!username) return res.status(400).json({ error: "Username is required." });
+    const user = {
+      id: typeof body.id === "string" ? body.id : `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      username, email, role: "MEMBER", xp: 0, level: 1,
+      avatar: typeof body.avatar === "string" ? body.avatar : "",
+      bio: typeof body.bio === "string" ? body.bio : "",
+      passwordHash: hash, createdAt: new Date().toISOString(),
+    };
+    users.push(user);
+    saveUsers(users);
+    return res.json({ user: publicUser(user) });
+  }
+  if (action === "login") {
+    if (idx === -1 || users[idx].passwordHash !== hash) return res.status(401).json({ error: "Incorrect email or password." });
+    return res.json({ user: publicUser(users[idx]) });
+  }
+  if (action === "update") {
+    if (idx === -1 || users[idx].passwordHash !== hash) return res.status(401).json({ error: "Not authorized to update this account." });
+    const updates = body.updates && typeof body.updates === "object" ? body.updates : {};
+    const allowed = ["username", "avatar", "bio", "banner", "discord", "telegram", "paypalEmail", "supportLink", "socialLinks", "customStatus"];
+    for (const f of allowed) if (f in updates) users[idx][f] = updates[f];
+    saveUsers(users);
+    return res.json({ user: publicUser(users[idx]) });
+  }
+  return res.status(400).json({ error: "Unknown action" });
+});
+
 // Mount Vite or static assets depending on environment
 async function setupServer() {
   if (process.env.NODE_ENV !== "production") {

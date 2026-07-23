@@ -86,3 +86,49 @@ export async function verifyOwnerLogin(email: string, password: string): Promise
   if (email.toLowerCase() !== OWNER_EMAIL) return false;
   return (await hashPassword(password)) === OWNER_PASSWORD_HASH;
 }
+
+// ---------------------------------------------------------------------------
+// Cross-device accounts. These call /api/auth (auth.php in production, the
+// Express route in dev), which stores accounts in a separate file that the
+// public database never exposes. Only the salted password hash leaves the
+// browser — never the plaintext. Each returns { ok, user?, error? }; on a
+// network/endpoint failure ok is false with `offline: true` so the caller can
+// fall back to the local-only path.
+export interface AuthResult { ok: boolean; user?: any; error?: string; offline?: boolean; }
+
+async function authRequest(payload: Record<string, unknown>): Promise<AuthResult> {
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      // No auth endpoint deployed (e.g. old hosting) — let the caller fall back.
+      return { ok: false, offline: true };
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: (data && data.error) || 'Request failed.' };
+    return { ok: true, user: data.user };
+  } catch {
+    return { ok: false, offline: true };
+  }
+}
+
+export async function registerAccount(fields: { id: string; email: string; username: string; password: string; avatar?: string; bio?: string; }): Promise<AuthResult> {
+  const passwordHash = await hashPassword(fields.password);
+  return authRequest({ action: 'register', id: fields.id, email: fields.email.toLowerCase(), username: fields.username, avatar: fields.avatar || '', bio: fields.bio || '', passwordHash });
+}
+
+export async function loginAccount(email: string, password: string): Promise<AuthResult> {
+  const passwordHash = await hashPassword(password);
+  return authRequest({ action: 'login', email: email.toLowerCase(), passwordHash });
+}
+
+// Update a profile on the server. The caller already holds the account's
+// salted hash (stored at login), so no plaintext password is needed.
+export async function updateAccountByHash(email: string, passwordHash: string, updates: Record<string, unknown>): Promise<AuthResult> {
+  if (!email || !passwordHash) return { ok: false, offline: true };
+  return authRequest({ action: 'update', email: email.toLowerCase(), passwordHash, updates });
+}

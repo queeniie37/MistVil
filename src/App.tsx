@@ -11,6 +11,7 @@ import { isImageSource, safeEmojiOrFallback, compressImageFile } from './utils/m
 import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
 import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
+import { updateAccountByHash } from './utils/auth';
 
 // Component imports
 import Header from './components/Header';
@@ -1015,6 +1016,21 @@ export default function App() {
       }
     }
     
+    // Persist the profile change to the shared account server too, so it
+    // follows the reader onto every device. Best-effort: the local save above
+    // already succeeded, and the owner account isn't stored on that server.
+    const pwHash = (updatedUser as any).passwordHash || (MistVilDatabase.get<any>('current_user_data', null)?.passwordHash);
+    if (pwHash && updatedUser.role !== 'OWNER' && updatedUser.email) {
+      updateAccountByHash(updatedUser.email, pwHash, {
+        username: updatedUser.username,
+        avatar: updatedUser.avatar,
+        bio: updatedUser.bio,
+        banner: updatedUser.banner,
+        paypalEmail: updatedUser.paypalEmail,
+        supportLink: updatedUser.supportLink,
+      }).catch(() => { /* offline — local copy still saved */ });
+    }
+
     window.dispatchEvent(new Event('user-updated'));
     alert('Your profile was saved and updated successfully and published live on the site! 🎉');
     // Editing happens on its own dedicated page — return to the profile

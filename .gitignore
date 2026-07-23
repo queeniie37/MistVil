@@ -10,3 +10,7 @@ coverage/
 # runtime shared database (created by the server/PHP)
 mistvil_db.json
 **/mistvil_db.json
+
+# Local accounts store (server-side only, like the shared db)
+mistvil_users.json
+**/mistvil_users.json

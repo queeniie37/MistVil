@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LogIn, UserPlus, X, Shield, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { MistVilDatabase, DEFAULT_USERS } from '../data';
-import { hashPassword, verifyOwnerLogin } from '../utils/auth';
+import { hashPassword, verifyOwnerLogin, registerAccount, loginAccount } from '../utils/auth';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -54,6 +54,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         return;
       }
 
+      const passwordHash = await hashPassword(password);
       const newUser: User & { password?: string; passwordHash?: string } = {
         id: `user-${Date.now()}`,
         username: username,
@@ -64,16 +65,28 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}`,
         bio: 'A passionate reader and new member of the MistVil family.',
         // Store only a salted hash — never the plaintext password
-        passwordHash: await hashPassword(password)
+        passwordHash
       };
 
-      MistVilDatabase.set('users_db', [...usersDb, newUser]);
-      MistVilDatabase.set('current_user_data', newUser);
+      // Create the account on the server so it works from every device. If the
+      // email is already taken there, stop; if the server can't be reached,
+      // fall back to a local-only account so the site still works.
+      const reg = await registerAccount({ id: newUser.id, email: newUser.email, username, password, avatar: newUser.avatar, bio: newUser.bio });
+      if (!reg.ok && !reg.offline) {
+        setError(reg.error || 'This email is already registered.');
+        return;
+      }
+      // Keep the server-assigned identity when available, but always keep the
+      // local hash so this device can also sign in offline later.
+      const stored = reg.ok && reg.user ? { ...newUser, ...reg.user, passwordHash } : newUser;
+
+      MistVilDatabase.set('users_db', [...usersDb, stored]);
+      MistVilDatabase.set('current_user_data', stored);
       MistVilDatabase.set('current_role', 'MEMBER');
 
       setSuccess('Account created successfully as a reader! 👤');
       setTimeout(() => {
-        onLoginSuccess(newUser);
+        onLoginSuccess(stored);
         onClose();
       }, 1500);
 
@@ -97,10 +110,33 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         return;
       }
 
-      // Check in user database (hashed). Accounts created before hashing
-      // still hold a plaintext `password` — verify once, then migrate them
-      // to `passwordHash` and remove the plaintext permanently.
       const inputHash = await hashPassword(password);
+
+      // Try the shared account server first so a reader can sign in from ANY
+      // device — not only the one they registered on. On success, cache the
+      // account locally (with the hash) so this device also works offline.
+      const srv = await loginAccount(email, password);
+      if (srv.ok && srv.user) {
+        const user = { ...srv.user, passwordHash: inputHash };
+        const existingIdx = usersDb.findIndex(u => u && (u.id === user.id || (u.email || '').toLowerCase() === email.toLowerCase()));
+        if (existingIdx !== -1) usersDb[existingIdx] = { ...usersDb[existingIdx], ...user };
+        else usersDb.push(user);
+        MistVilDatabase.set('users_db', usersDb);
+        MistVilDatabase.set('current_user_data', user);
+        MistVilDatabase.set('current_role', user.role);
+        setSuccess(`Welcome back, ${user.username}! ✨`);
+        setTimeout(() => { onLoginSuccess(user); onClose(); }, 1500);
+        return;
+      }
+      // The server explicitly rejected the credentials (not a network error).
+      if (!srv.offline) {
+        setError(srv.error || 'Incorrect email or password.');
+        return;
+      }
+
+      // Offline / no server: fall back to the local account database. Accounts
+      // created before hashing still hold a plaintext `password` — verify once,
+      // then migrate them to `passwordHash` and drop the plaintext.
       const userIndex = usersDb.findIndex(u =>
         u.email.toLowerCase() === email.toLowerCase() &&
         (u.passwordHash === inputHash || (u.password && u.password === password))
