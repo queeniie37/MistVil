@@ -24,14 +24,25 @@ RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 # running Node.js server. The client keeps calling /api/db.
 RewriteRule ^api/db/?$ api/db.php [L]
 
+# Route the cross-device accounts API to its PHP handler. The client calls
+# /api/auth for register/login/profile-update.
+RewriteRule ^api/auth/?$ api/auth.php [L]
+
+# Route the dynamic per-novel sitemap for search engines.
+RewriteRule ^api/sitemap\.php$ api/sitemap.php [L]
+
 # Single-page app fallback: serve index.html for any path that is not a real
 # file or directory, so deep links and refreshes don't 404.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [L]
 
-# Never expose the shared data file directly to the public.
+# Never expose the shared data file or the accounts file directly to the
+# public — accounts (emails + password hashes) are read only by auth.php.
 <Files "mistvil_db.json">
+  Require all denied
+</Files>
+<Files "mistvil_users.json">
   Require all denied
 </Files>
 
