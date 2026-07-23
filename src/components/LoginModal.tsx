@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LogIn, UserPlus, X, Shield, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { MistVilDatabase, DEFAULT_USERS } from '../data';
-import { hashPassword, verifyOwnerLogin, registerAccount, loginAccount } from '../utils/auth';
+import { hashPassword, verifyOwnerLogin, registerAccount, loginAccount, ensureAccountOnServer } from '../utils/auth';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -152,6 +152,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         usersDb[userIndex] = user;
         MistVilDatabase.set('users_db', usersDb);
       }
+
+      // Opportunistically publish this local account to the shared server so
+      // it becomes usable from other devices from now on.
+      ensureAccountOnServer({ ...user, passwordHash: user.passwordHash || inputHash }).catch(() => { /* offline */ });
 
       MistVilDatabase.set('current_user_data', user);
       MistVilDatabase.set('current_role', user.role);

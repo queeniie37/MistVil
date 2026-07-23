@@ -11,7 +11,7 @@ import { isImageSource, safeEmojiOrFallback, compressImageFile } from './utils/m
 import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
 import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
-import { updateAccountByHash } from './utils/auth';
+import { updateAccountByHash, ensureAccountOnServer } from './utils/auth';
 
 // Component imports
 import Header from './components/Header';
@@ -419,7 +419,25 @@ export default function App() {
       } else {
         setCurrentUser(savedUser);
       }
-    } else {
+    }
+
+    // One-time migration: make sure every account cached on THIS device exists
+    // on the shared account server, so pre-existing users (registered before
+    // the server existed) can sign in from any device without re-registering.
+    // Best-effort and idempotent — a 409 just means it's already there.
+    try {
+      const localAccounts = MistVilDatabase.get<any[]>('users_db', []);
+      const cur = savedUser as any;
+      const toMigrate = [...localAccounts];
+      if (cur && cur.passwordHash && !toMigrate.some(u => u && u.id === cur.id)) toMigrate.push(cur);
+      for (const acc of toMigrate) {
+        if (acc && acc.email && acc.passwordHash && (acc.email || '').toLowerCase() !== 'mistvil112@gmail.com') {
+          ensureAccountOnServer(acc).catch(() => { /* offline — retry next load */ });
+        }
+      }
+    } catch { /* ignore */ }
+
+    if (!savedUser) {
       const initialRole = MistVilDatabase.get<UserRole>('current_role', 'GUEST');
       if (initialRole === 'OWNER') {
         setCurrentUser(DEFAULT_USERS.GUEST);
