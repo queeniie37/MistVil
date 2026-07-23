@@ -126,6 +126,26 @@ export async function loginAccount(email: string, password: string): Promise<Aut
   return authRequest({ action: 'login', email: email.toLowerCase(), passwordHash });
 }
 
+// Migration/upsert: push a locally-stored account (which already holds its
+// salted hash) up to the shared account server, so accounts created before the
+// server existed — or on another device — become usable everywhere. A 409
+// ("already registered") is success for our purposes: the account is present.
+export async function ensureAccountOnServer(account: { id?: string; email?: string; username?: string; passwordHash?: string; avatar?: string; bio?: string; }): Promise<AuthResult> {
+  if (!account || !account.email || !account.passwordHash || !account.username) return { ok: false, offline: true };
+  if (account.email.toLowerCase() === OWNER_EMAIL) return { ok: false };
+  const res = await authRequest({
+    action: 'register',
+    id: account.id,
+    email: account.email.toLowerCase(),
+    username: account.username,
+    avatar: account.avatar || '',
+    bio: account.bio || '',
+    passwordHash: account.passwordHash,
+  });
+  if (res.error && /already registered/i.test(res.error)) return { ok: true };
+  return res;
+}
+
 // Update a profile on the server. The caller already holds the account's
 // salted hash (stored at login), so no plaintext password is needed.
 export async function updateAccountByHash(email: string, passwordHash: string, updates: Record<string, unknown>): Promise<AuthResult> {
