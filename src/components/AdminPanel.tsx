@@ -20,7 +20,11 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
   const [activeReservations, setActiveReservations] = useState<Reservation[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [translatorRequests, setTranslatorRequests] = useState<TranslatorRequest[]>([]);
-  const [activeTab, setActiveTab] = useState<'novels' | 'reservations' | 'logs' | 'translator_requests' | 'settings' | 'users' | 'reports' | 'edit-requests' | 'points' | 'badges' | 'trash'>('novels');
+  const [activeTab, setActiveTab] = useState<'novels' | 'reservations' | 'logs' | 'translator_requests' | 'settings' | 'users' | 'user-comments' | 'reports' | 'edit-requests' | 'points' | 'badges' | 'trash'>('novels');
+  // "Members & their comments" panel: which member is expanded to show all
+  // of their comments across every novel and chapter.
+  const [selectedCommenterId, setSelectedCommenterId] = useState<string | null>(null);
+  const [commenterSearch, setCommenterSearch] = useState('');
   // Badges tab: selected catalog badge per member + a version bump to re-render after grant/revoke
   const [badgeSelections, setBadgeSelections] = useState<{ [userId: string]: string }>({});
   const [badgesVersion, setBadgesVersion] = useState(0);
@@ -847,7 +851,14 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
           <span>إدارة رتب الأعضاء 👤</span>
           {activeTab === 'users' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
         </button>
-        <button 
+        <button
+          onClick={() => setActiveTab('user-comments')}
+          className={`pb-3 px-6 relative transition-colors ${activeTab === 'user-comments' ? 'text-white' : 'hover:text-white'}`}
+        >
+          <span>المستخدمون وتعليقاتهم 💬</span>
+          {activeTab === 'user-comments' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-rose-500 rounded-full" />}
+        </button>
+        <button
           onClick={() => setActiveTab('reports')}
           className={`pb-3 px-6 relative transition-colors ${activeTab === 'reports' ? 'text-white' : 'hover:text-white'}`}
         >
@@ -1734,6 +1745,160 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
             </div>
           </div>
         )}
+
+        {/* TAB: Members & all of their comments across every novel/chapter */}
+        {activeTab === 'user-comments' && (() => {
+          // Every comment (excluding deleted tombstones) drawn from the synced
+          // shared database, so the owner sees comments made from ANY device.
+          const allComments = MistVilDatabase.get<any[]>('comments', []).filter(c => c && !c.deleted);
+          const novelsList = MistVilDatabase.get<Novel[]>('novels', []);
+          const chaptersList = MistVilDatabase.get<any[]>('chapters', []);
+          const directory = MistVilDatabase.get<UserDirectory>('user_directory', {});
+
+          const novelById = new Map<string, Novel>();
+          novelsList.forEach(n => novelById.set(n.id, n));
+          const chapterById = new Map<string, any>();
+          chaptersList.forEach(ch => chapterById.set(ch.id, ch));
+
+          // Where was a comment posted? Returns a readable novel/chapter label.
+          const locationOf = (c: any): string => {
+            if (c.refType === 'CHAPTER') {
+              const ch = chapterById.get(c.refId);
+              if (ch) {
+                const nov = novelById.get(ch.novelId);
+                const novelName = nov ? (nov.titleEn || nov.titleAr) : 'رواية';
+                return `${novelName} — الفصل ${ch.number}`;
+              }
+              return 'فصل (غير متوفر)';
+            }
+            const nov = novelById.get(c.refId);
+            return nov ? `${nov.titleEn || nov.titleAr} — صفحة الرواية` : 'رواية (غير متوفرة)';
+          };
+
+          // Group comments per author. Match by stable authorId when present;
+          // legacy comments without one fall back to a name-based key so they
+          // still show up under that display name.
+          const keyOf = (c: any): string => (c.authorId ? `id:${c.authorId}` : `name:${(c.authorName || '').toLowerCase()}`);
+          const groups = new Map<string, { id?: string; name: string; avatar?: string; role?: string; comments: any[] }>();
+          for (const c of allComments) {
+            const k = keyOf(c);
+            if (!groups.has(k)) {
+              groups.set(k, { id: c.authorId, name: c.authorName || 'عضو', avatar: c.authorAvatar, role: c.authorRole, comments: [] });
+            }
+            groups.get(k)!.comments.push(c);
+          }
+          // Fold in directory members who exist but haven't commented yet, so
+          // the list shows every known member — with a 0 count.
+          for (const [uid, entry] of Object.entries(directory)) {
+            const k = `id:${uid}`;
+            if (!groups.has(k)) {
+              groups.set(k, { id: uid, name: entry.username, avatar: entry.avatar, role: entry.role, comments: [] });
+            }
+          }
+
+          let members = [...groups.entries()].map(([k, g]) => ({ key: k, ...g }));
+          members.sort((a, b) => b.comments.length - a.comments.length || a.name.localeCompare(b.name));
+          const q = commenterSearch.trim().toLowerCase();
+          if (q) members = members.filter(m => m.name.toLowerCase().includes(q));
+
+          const selected = members.find(m => m.key === selectedCommenterId) || null;
+          const selectedComments = selected
+            ? selected.comments.slice().sort((a, b) => (Date.parse(b.createdAt || '') || 0) - (Date.parse(a.createdAt || '') || 0))
+            : [];
+
+          return (
+            <div className="flex flex-col gap-6 text-right animate-in fade-in duration-300">
+              <div className="p-6 bg-[#131F33] rounded-3xl border border-white/5 shadow-xl">
+                <div className="flex items-center gap-3 border-b border-white/5 pb-4 mb-4">
+                  <MessageSquare className="text-violet-400" size={20} />
+                  <div>
+                    <h3 className="font-extrabold text-sm text-white font-sans">المستخدمون وتعليقاتهم 💬</h3>
+                    <p className="text-[10px] text-purple-400 mt-0.5">بصفتك المالك، اختر أي عضو لعرض جميع تعليقاته النصية في كل رواية وكل فصل. البيانات مزامنة من كل الأجهزة.</p>
+                  </div>
+                </div>
+
+                {!selected ? (
+                  <>
+                    <input
+                      type="text"
+                      value={commenterSearch}
+                      onChange={(e) => setCommenterSearch(e.target.value)}
+                      placeholder="ابحث عن عضو بالاسم..."
+                      className="w-full mb-4 px-4 py-2.5 rounded-xl bg-[#101B2E] border border-white/10 text-xs text-white focus:outline-none focus:border-violet-500 text-right"
+                    />
+                    <div className="flex flex-col gap-3">
+                      {members.map((m) => (
+                        <button
+                          key={m.key}
+                          onClick={() => setSelectedCommenterId(m.key)}
+                          className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 hover:bg-white/[0.04] transition-all flex items-center justify-between gap-3 text-right cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={m.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${m.name}`}
+                              alt={m.name}
+                              className="w-11 h-11 rounded-xl object-cover border border-white/10 bg-black/20"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div>
+                              <h4 className="font-bold text-white text-sm">{m.name}</h4>
+                              {m.role && <span className="text-[10px] text-purple-400">{m.role}</span>}
+                            </div>
+                          </div>
+                          <span className={`text-[11px] px-3 py-1 rounded-full font-bold ${m.comments.length > 0 ? 'bg-violet-500/20 text-violet-300' : 'bg-white/5 text-purple-400'}`}>
+                            {m.comments.length} تعليق
+                          </span>
+                        </button>
+                      ))}
+                      {members.length === 0 && (
+                        <div className="p-12 text-center text-purple-400 text-sm">لا يوجد أعضاء أو تعليقات لعرضها بعد.</div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setSelectedCommenterId(null)}
+                      className="mb-4 px-4 py-2 bg-white/5 hover:bg-white/10 text-purple-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    >
+                      → رجوع لقائمة الأعضاء
+                    </button>
+                    <div className="flex items-center gap-3 mb-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <img
+                        src={selected.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${selected.name}`}
+                        alt={selected.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-white/10 bg-black/20"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <h4 className="font-bold text-white text-sm">{selected.name}</h4>
+                        <span className="text-[11px] text-violet-300 font-bold">{selectedComments.length} تعليق في المجمل</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      {selectedComments.map((c) => (
+                        <div key={c.id} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col gap-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-[10px] bg-violet-500/15 text-violet-300 px-2.5 py-0.5 rounded-full font-bold">{locationOf(c)}</span>
+                            <span className="text-[10px] text-purple-400 font-mono">{c.createdAt ? new Date(c.createdAt).toLocaleString('en-GB') : ''}</span>
+                          </div>
+                          <p className="text-xs text-purple-100 leading-relaxed whitespace-pre-wrap text-right">{c.content}</p>
+                          {Array.isArray(c.replies) && c.replies.length > 0 && (
+                            <span className="text-[10px] text-purple-400">{c.replies.length} رد على هذا التعليق</span>
+                          )}
+                        </div>
+                      ))}
+                      {selectedComments.length === 0 && (
+                        <div className="p-10 text-center text-purple-400 text-sm">هذا العضو لم يكتب أي تعليق بعد.</div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* TAB: Offensive Comment Reports */}
         {activeTab === 'reports' && (
