@@ -602,6 +602,18 @@ export default function App() {
       case 'ads':
         title = `Ads & Promotions Center | ${siteName}`;
         break;
+      case 'profile-edit':
+        title = `Edit Profile | ${siteName}`;
+        break;
+      case 'contact-us':
+        title = `Contact Us | ${siteName}`;
+        break;
+      case 'privacy-policy':
+        title = `Privacy Policy | ${siteName}`;
+        break;
+      case 'terms-of-service':
+        title = `Terms of Service | ${siteName}`;
+        break;
       default:
         break;
     }
