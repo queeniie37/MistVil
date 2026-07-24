@@ -99,11 +99,16 @@ export default function Header({ currentUser, onRoleChange, onNavigate, currentP
     ]);
 
     const myBookmarks = MistVilDatabase.get<string[]>('bookmarks', []);
+    const bookmarkTimes = MistVilDatabase.get<Record<string, string>>('bookmark_times', {});
     const filtered = rawNotifications.filter(n => {
       // New-chapter announcements tagged forBookmarkers reach exactly the
-      // members who bookmarked that novel.
+      // members who bookmarked that novel — and only for chapters published
+      // AFTER they added it (never older ones).
       if (n.forBookmarkers && n.novelId) {
-        return currentUser.role !== 'GUEST' && myBookmarks.includes(n.novelId);
+        if (currentUser.role === 'GUEST' || !myBookmarks.includes(n.novelId)) return false;
+        const since = bookmarkTimes[n.novelId] ? Date.parse(bookmarkTimes[n.novelId]) : 0;
+        const notifTime = Date.parse(n.createdAt || '') || 0;
+        return !since || !notifTime || notifTime >= since;
       }
       if (currentUser.role === 'GUEST') {
         return !n.userId && !n.email;

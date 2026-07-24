@@ -1126,12 +1126,21 @@ export default function App() {
       return;
     }
 
-    const updated = bookmarks.includes(novelId) 
-      ? bookmarks.filter(id => id !== novelId) 
-      : [...bookmarks, novelId];
-    
+    const isAdding = !bookmarks.includes(novelId);
+    const updated = isAdding
+      ? [...bookmarks, novelId]
+      : bookmarks.filter(id => id !== novelId);
+
     setBookmarks(updated);
     MistVilDatabase.set('bookmarks', updated);
+
+    // Remember WHEN each novel was bookmarked, so the reader only receives
+    // chapter alerts published AFTER they added it — never older ones. Kept
+    // per-device (like bookmarks themselves). Re-adding refreshes the time.
+    const times = MistVilDatabase.get<Record<string, string>>('bookmark_times', {});
+    if (isAdding) times[novelId] = new Date().toISOString();
+    else delete times[novelId];
+    MistVilDatabase.set('bookmark_times', times);
 
     // Update novel bookmarksCount
     const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
@@ -1879,11 +1888,17 @@ export default function App() {
                   { id: '1', title: 'New chapter available!', message: 'Chapter 165 of "The Beginning After the End" is now available to read.', isRead: false, createdAt: '10 minutes ago' },
                   { id: '2', title: 'Your novel was approved', message: 'The novel "Return of the Shadow King" was approved and published successfully.', isRead: true, createdAt: '1 hour ago' }
                 ]);
+                const bookmarkTimes = MistVilDatabase.get<Record<string, string>>('bookmark_times', {});
                 const userNotifications = rawNotifs.filter(n => {
                   // New-chapter announcements tagged forBookmarkers reach
-                  // exactly the members who bookmarked that novel.
+                  // exactly the members who bookmarked that novel — and only
+                  // for chapters published AFTER they added it (never older
+                  // ones). A missing bookmark time (legacy) means "show all".
                   if (n.forBookmarkers && n.novelId) {
-                    return currentUser.role !== 'GUEST' && bookmarks.includes(n.novelId);
+                    if (currentUser.role === 'GUEST' || !bookmarks.includes(n.novelId)) return false;
+                    const since = bookmarkTimes[n.novelId] ? Date.parse(bookmarkTimes[n.novelId]) : 0;
+                    const notifTime = Date.parse(n.createdAt || '') || 0;
+                    return !since || !notifTime || notifTime >= since;
                   }
                   if (currentUser.role === 'GUEST') {
                     return !n.userId && !n.email;
