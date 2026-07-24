@@ -108,6 +108,7 @@ const PRIVATE_LOCAL_KEYS = new Set([
   'current_role',
   'bookmarks',
   'bookmark_times',
+  'counted_chapter_views',
   'reading_history'
 ]);
 
@@ -548,6 +549,20 @@ export class MistVilDatabase {
     } catch (e) {
       console.error("Error writing to storage", e);
     }
+  }
+
+  // Count a chapter read on the SERVER, atomically. A raw "views + 1" written
+  // through the merged shared store loses concurrent increments (two readers
+  // both read N and both write N+1); letting the server do the +1 under its
+  // file lock keeps every read. De-duplication (one count per reader per
+  // chapter) is enforced by the caller via counted_chapter_views.
+  static incrementViews(chapterId: string, novelId: string): void {
+    if (!chapterId && !novelId) return;
+    fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: '__increment_views', value: { chapterId, novelId } }),
+    }).catch(() => { /* offline — the read simply isn't counted, never double-counted */ });
   }
 
   // ETag of the last database payload we processed; lets the fast poll
