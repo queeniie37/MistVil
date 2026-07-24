@@ -296,28 +296,32 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     return () => window.removeEventListener('comments-updated', refresh);
   }, [chapter]);
 
-  // Views are only counted if reader spends > 30 seconds
+  // A read is counted only once the reader has spent 30 seconds on the
+  // chapter — and only ONCE per reader per chapter (re-reads never inflate the
+  // count). The actual +1 happens atomically on the server so simultaneous
+  // readers don't overwrite each other's count.
   useEffect(() => {
-    if (!novelId || !chapterNumber) return;
+    const chapterId = chapter?.id;
+    if (!novelId || !chapterId) return;
+
+    // Already counted on this device? Don't start another timer.
+    const counted = MistVilDatabase.get<string[]>('counted_chapter_views', []);
+    if (counted.includes(chapterId)) return;
 
     const timer = setTimeout(() => {
-      const allNovels = MistVilDatabase.get<Novel[]>('novels', []);
-      const updatedNovels = allNovels.map(n => n.id === novelId ? { ...n, views: n.views + 1 } : n);
-      MistVilDatabase.set('novels', updatedNovels);
-      setNovel(prev => prev && prev.id === novelId ? { ...prev, views: prev.views + 1 } : prev);
-
-      const allChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
-      const updatedChapters = allChapters.map(c => 
-        (c.novelId === novelId && c.number === chapterNumber) 
-          ? { ...c, views: (c.views || 0) + 1 } 
-          : c
-      );
-      MistVilDatabase.set('chapters', updatedChapters);
-      setChapter(prev => prev && prev.novelId === novelId && prev.number === chapterNumber ? { ...prev, views: (prev.views || 0) + 1 } : prev);
+      const already = MistVilDatabase.get<string[]>('counted_chapter_views', []);
+      if (already.includes(chapterId)) return;
+      // Mark counted locally FIRST so navigating away and back can't double-count.
+      MistVilDatabase.setLocal('counted_chapter_views', [...already, chapterId]);
+      // Optimistic UI bump (the authoritative count arrives on the next sync).
+      setNovel(prev => prev && prev.id === novelId ? { ...prev, views: (prev.views || 0) + 1 } : prev);
+      setChapter(prev => prev && prev.id === chapterId ? { ...prev, views: (prev.views || 0) + 1 } : prev);
+      // Server-atomic increment — no lost counts under concurrency.
+      MistVilDatabase.incrementViews(chapterId, novelId);
     }, 30000); // 30 seconds
 
     return () => clearTimeout(timer);
-  }, [novelId, chapterNumber]);
+  }, [novelId, chapter?.id]);
 
   // Track scrolling progress
   useEffect(() => {

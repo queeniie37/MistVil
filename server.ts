@@ -164,7 +164,14 @@ function mergeById(stored: any, incoming: any): any[] {
   for (const c of incomingList) {
     if (!c || typeof c !== "object" || typeof c.id !== "string") continue;
     const prev = byId.get(c.id);
-    if (!prev || commentTime(c) >= commentTime(prev)) byId.set(c.id, c);
+    const winner = (!prev || commentTime(c) >= commentTime(prev)) ? { ...c } : { ...prev };
+    // A view counter must never go backwards: keep the highest count seen on
+    // either side, so a content edit carrying a stale view number can't wipe
+    // reads accumulated meanwhile.
+    if (prev && ("views" in prev || "views" in c)) {
+      winner.views = Math.max(Number(prev.views) || 0, Number(c.views) || 0);
+    }
+    byId.set(c.id, winner);
   }
   const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
   return [...byId.values()].filter((c) => !c.deleted || commentTime(c) > cutoff);
@@ -174,6 +181,22 @@ app.post("/api/db", (req, res) => {
   const { key, value } = req.body;
   if (!key || typeof key !== "string") {
     return res.status(400).json({ error: "Missing key" });
+  }
+  if (key === "__increment_views") {
+    // Atomic view increment — the server owns the +1 so concurrent readers
+    // never overwrite each other's count.
+    const { chapterId, novelId } = (value || {}) as { chapterId?: string; novelId?: string };
+    const db = loadDb();
+    if (chapterId && Array.isArray(db.chapters)) {
+      db.chapters = db.chapters.map((c: any) =>
+        c && c.id === chapterId ? { ...c, views: (Number(c.views) || 0) + 1 } : c);
+    }
+    if (novelId && Array.isArray(db.novels)) {
+      db.novels = db.novels.map((n: any) =>
+        n && n.id === novelId ? { ...n, views: (Number(n.views) || 0) + 1 } : n);
+    }
+    saveDb(db);
+    return res.json({ success: true });
   }
   if (PRIVATE_KEYS.has(key)) {
     return res.status(403).json({ error: "This key is private and cannot be synced" });

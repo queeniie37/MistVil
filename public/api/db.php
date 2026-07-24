@@ -114,7 +114,16 @@ function merge_by_id($stored, $incoming) {
     foreach ($incoming as $c) {
         if (!is_array($c) || !isset($c['id']) || !is_string($c['id'])) continue;
         $prev = isset($by_id[$c['id']]) ? $by_id[$c['id']] : null;
-        if ($prev === null || comment_time($c) >= comment_time($prev)) $by_id[$c['id']] = $c;
+        $winner = ($prev === null || comment_time($c) >= comment_time($prev)) ? $c : $prev;
+        // A view counter must never go backwards: keep the highest count seen
+        // on either side, so a content edit with a stale view number can't
+        // wipe reads accumulated meanwhile.
+        if ($prev !== null && (isset($prev['views']) || isset($c['views']))) {
+            $pv = isset($prev['views']) ? (int)$prev['views'] : 0;
+            $cv = isset($c['views']) ? (int)$c['views'] : 0;
+            $winner['views'] = max($pv, $cv);
+        }
+        $by_id[$c['id']] = $winner;
     }
     $cutoff = (time() - 30 * 24 * 60 * 60) * 1000;
     $merged = array();
@@ -179,6 +188,40 @@ if ($method === 'POST') {
         echo json_encode(array('error' => 'Missing key'));
         exit;
     }
+
+    // Atomic view increment — the server owns the +1 (under its file lock) so
+    // concurrent readers never overwrite each other's count. De-duplication
+    // (one count per reader per chapter) is enforced on the client.
+    if ($key === '__increment_views') {
+        $val = isset($body['value']) && is_array($body['value']) ? $body['value'] : array();
+        $chapterId = isset($val['chapterId']) ? $val['chapterId'] : '';
+        $novelId = isset($val['novelId']) ? $val['novelId'] : '';
+        $db = load_db($DB_FILE);
+        if ($chapterId !== '' && isset($db['chapters']) && is_array($db['chapters'])) {
+            foreach ($db['chapters'] as &$c) {
+                if (is_array($c) && isset($c['id']) && $c['id'] === $chapterId) {
+                    $c['views'] = (isset($c['views']) ? (int)$c['views'] : 0) + 1;
+                }
+            }
+            unset($c);
+        }
+        if ($novelId !== '' && isset($db['novels']) && is_array($db['novels'])) {
+            foreach ($db['novels'] as &$n) {
+                if (is_array($n) && isset($n['id']) && $n['id'] === $novelId) {
+                    $n['views'] = (isset($n['views']) ? (int)$n['views'] : 0) + 1;
+                }
+            }
+            unset($n);
+        }
+        if (!save_db($DB_FILE, $db)) {
+            http_response_code(500);
+            echo json_encode(array('error' => 'Failed to write database file'));
+            exit;
+        }
+        echo json_encode(array('success' => true));
+        exit;
+    }
+
     if (in_array($key, $PRIVATE_KEYS, true)) {
         http_response_code(403);
         echo json_encode(array('error' => 'This key is private and cannot be synced'));
