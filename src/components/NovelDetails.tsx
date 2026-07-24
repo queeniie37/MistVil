@@ -797,9 +797,25 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
           chapterId: newChap.id
         };
     const updatedNotifs = [...allNotifs, newNotif];
+    // If someone other than the novel's own translator published it (e.g. the
+    // owner), the translator still gets their own "new chapter" notice.
+    if (novel.translatorId && novel.translatorId !== currentUser.id) {
+      updatedNotifs.push({
+        id: `notif-translator-${Date.now()}-${newChap.id}`,
+        userId: novel.translatorId,
+        title: isScheduled ? '📅 Chapter scheduled on your novel' : 'New chapter published on your novel',
+        message: `Chapter ${newChapterNum} of "${novel.titleEn || novel.titleAr}" ${isScheduled ? 'was scheduled' : 'was published'}.`,
+        type: 'CHAPTER' as const,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        novelId: novel.id,
+        chapterId: newChap.id
+      } as any);
+    }
     // Announce the new chapter to everyone who bookmarked this novel: a
     // shared notification (no userId) tagged forBookmarkers, which each
-    // member's device shows only when the novel is in their own bookmarks.
+    // member's device shows only when the novel is in their own bookmarks
+    // (and only for chapters published after they added it).
     if (!isScheduled) {
       updatedNotifs.push({
         id: `notif-chapter-live-${Date.now()}-${newChap.id}`,

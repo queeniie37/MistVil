@@ -92,6 +92,7 @@ const PRIVATE_KEYS = new Set([
   "current_user_data",
   "current_role",
   "bookmarks",
+  "bookmark_times",
   "reading_history",
 ]);
 
