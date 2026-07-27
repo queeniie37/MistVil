@@ -12,6 +12,7 @@ import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
 import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
 import { updateAccountByHash, ensureAccountOnServer } from './utils/auth';
+import { byChapterNumberAsc, isChapterNumber, chapterNum } from './utils/chapters';
 
 // Component imports
 import Header from './components/Header';
@@ -1236,20 +1237,25 @@ export default function App() {
     // A directly-opened reader link carries only the slug until backfill runs.
     const novelId = currentParams.novelId || novelIdBySlug(currentParams.slug);
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
-    const chaptersOfNovel = allChapters.filter(c => c.novelId === novelId).sort((a, b) => a.number - b.number);
+    const chaptersOfNovel = allChapters.filter(c => c.novelId === novelId).sort(byChapterNumberAsc);
 
     let nextNum = chapterNumber;
-    const currentIndex = chaptersOfNovel.findIndex(c => c.number === chapterNumber);
+    const currentIndex = chaptersOfNovel.findIndex(c => isChapterNumber(c, chapterNumber));
     if (currentIndex !== -1) {
       if (direction === 'next' && currentIndex < chaptersOfNovel.length - 1) {
-        nextNum = chaptersOfNovel[currentIndex + 1].number;
+        nextNum = chapterNum(chaptersOfNovel[currentIndex + 1]);
       } else if (direction === 'prev' && currentIndex > 0) {
-        nextNum = chaptersOfNovel[currentIndex - 1].number;
+        nextNum = chapterNum(chaptersOfNovel[currentIndex - 1]);
       }
-    } else if (direction === 'next') {
-      nextNum = Math.min(chapterNumber + 1, chaptersOfNovel.length);
     } else {
-      nextNum = Math.max(chapterNumber - 1, 1);
+      // The current number isn't in the list (chapter deleted, or the novel
+      // uses sparse numbering like 80 → 100 → 1000). Move to the nearest
+      // EXISTING chapter in that direction instead of guessing a number —
+      // guessing used to land on a chapter that doesn't exist.
+      const nearest = direction === 'next'
+        ? chaptersOfNovel.find(c => chapterNum(c) > chapterNumber)
+        : [...chaptersOfNovel].reverse().find(c => chapterNum(c) < chapterNumber);
+      if (nearest) nextNum = chapterNum(nearest);
     }
 
     handleNavigate('reader', { novelId, chapterNumber: nextNum });
