@@ -4,6 +4,7 @@ import { Chapter, Novel, User, Comment, CommentReply, Report } from '../types';
 import { MistVilDatabase } from '../data';
 import { isUserTranslatorOfTheMonth } from '../utils/points';
 import { normalizeChapterText } from '../utils/text';
+import { byChapterNumberAsc, isChapterNumber, chapterNum } from '../utils/chapters';
 
 // Chapter text is author-provided. Escape all HTML, then re-allow only the
 // simple formatting tags the chapter editor can produce (<b>, <i>, <u>, <img>) so a
@@ -195,14 +196,14 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
     // Scheduling page of the translator panel before that.
     novelChapters = novelChapters.filter(c => !c.publishAt || new Date(c.publishAt) <= new Date());
 
-    // Sort chapters by number ascending
-    novelChapters.sort((a, b) => a.number - b.number);
+    // Sort chapters by number ascending — highest number always last
+    novelChapters.sort(byChapterNumberAsc);
 
-    const currentIndex = novelChapters.findIndex(c => c.number === chapterNumber);
+    const currentIndex = novelChapters.findIndex(c => isChapterNumber(c, chapterNumber));
     setHasPrevChapter(currentIndex > 0);
     setHasNextChapter(currentIndex !== -1 && currentIndex < novelChapters.length - 1);
 
-    const foundChapter = novelChapters.find(c => c.number === chapterNumber);
+    const foundChapter = novelChapters.find(c => isChapterNumber(c, chapterNumber));
     if (foundChapter) {
       setChapter(foundChapter);
       
@@ -256,8 +257,8 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       const novelChapters = allChapters
         .filter(c => c.novelId === novelId)
         .filter(c => !c.publishAt || new Date(c.publishAt) <= new Date())
-        .sort((a, b) => a.number - b.number);
-      const currentIndex = novelChapters.findIndex(c => c.number === chapterNumber);
+        .sort(byChapterNumberAsc);
+      const currentIndex = novelChapters.findIndex(c => isChapterNumber(c, chapterNumber));
       setHasPrevChapter(currentIndex > 0);
       setHasNextChapter(currentIndex !== -1 && currentIndex < novelChapters.length - 1);
       if (currentIndex !== -1) {
@@ -519,7 +520,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       targetId: reportingComment.id,
       targetName: `${reportingComment.authorName}: ${reportingComment.content}`,
       reason: reportReason,
-      details: `Novel: ${novel.titleEn || novel.titleAr} • Chapter ${chapter.number}${reportDetails ? ` - Details: ${reportDetails}` : ''}`,
+      details: `Novel: ${novel.titleEn || novel.titleAr} • Chapter ${chapterNum(chapter)}${reportDetails ? ` - Details: ${reportDetails}` : ''}`,
       reportedBy: currentUser.role === 'GUEST' ? 'Guest' : currentUser.username,
       status: 'PENDING',
       createdAt: new Date().toISOString()
@@ -604,7 +605,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
 
         <div className="text-center min-w-0">
           <h4 className={`font-extrabold text-xs truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-950' : 'text-white'}`}>{novel.titleAr}</h4>
-          <span className={`text-[10px] mt-0.5 block font-bold truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-500' : 'text-purple-400'}`}>Chapter {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim()}</span>
+          <span className={`text-[10px] mt-0.5 block font-bold truncate max-w-[140px] sm:max-w-md mx-auto ${isLightTheme ? 'text-neutral-500' : 'text-purple-400'}`}>Chapter {chapterNum(chapter)}: {chapter.title.split(':').slice(1).join(':').trim()}</span>
         </div>
 
         {/* Customizer triggers */}
@@ -838,7 +839,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
       >
         <div className={`mb-8 text-center ${currentUser.role !== 'OWNER' ? 'select-none' : ''}`}>
           <h2 className="text-xl md:text-3xl font-extrabold tracking-tight border-b border-white/5 pb-4">
-            Chapter {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim() || 'Translated chapter'}
+            Chapter {chapterNum(chapter)}: {chapter.title.split(':').slice(1).join(':').trim() || 'Translated chapter'}
           </h2>
           <span className="text-xs text-purple-400 mt-2 block">Translation and publishing rights reserved for MistVil and the translator: {novel.translatorName}</span>
         </div>

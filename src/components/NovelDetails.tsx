@@ -4,6 +4,7 @@ import { Novel, Chapter, Comment, Review, User, UserRole, Report, Suggestion } f
 import { MistVilDatabase } from '../data';
 import { compressImageFile } from '../utils/media';
 import { normalizeChapterText, spreadPlainTextLines } from '../utils/text';
+import { byChapterNumberAsc, chapterNum } from '../utils/chapters';
 import { isUserTranslatorOfTheMonth } from '../utils/points';
 import ConfirmModal from './ConfirmModal';
 
@@ -194,7 +195,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     }
 
     const allChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
-    let foundChapters = allChapters.filter(c => c.novelId === novelId).sort((a, b) => a.number - b.number);
+    let foundChapters = allChapters.filter(c => c.novelId === novelId).sort(byChapterNumberAsc);
 
     // Scheduled (future publishAt) chapters never show in the novel's
     // chapter list — not even for the owner/translator. Until their publish
@@ -235,7 +236,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       }
 
       const allChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
-      let list = allChapters.filter(c => c.novelId === novelId).sort((a, b) => a.number - b.number);
+      let list = allChapters.filter(c => c.novelId === novelId).sort(byChapterNumberAsc);
       // Scheduled chapters are hidden from the chapter list for everyone
       // (owner and translator included) until their publish time arrives.
       list = list.filter(c => !c.publishAt || new Date(c.publishAt) <= new Date());
@@ -688,7 +689,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     // freshest synced list so a chapter just published from another device
     // counts too.
     const existingChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
-    const numberTaken = existingChapters.some(c => c.novelId === novel.id && !(c as any).deleted && Number(c.number) === parsedChNum);
+    const numberTaken = existingChapters.some(c => c.novelId === novel.id && !(c as any).deleted && chapterNum(c) === parsedChNum);
     if (numberTaken) {
       alert(`Sorry, chapter ${parsedChNum} already exists for this novel! Pick a different number, or edit the existing chapter from the work panel.`);
       return;
@@ -741,7 +742,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     const allChapters = MistVilDatabase.get<Chapter[]>('chapters', []);
     const updatedChaps = [...allChapters, newChap];
     MistVilDatabase.set('chapters', updatedChaps);
-    const novelChaps = updatedChaps.filter(c => c.novelId === novel.id).sort((a, b) => a.number - b.number);
+    const novelChaps = updatedChaps.filter(c => c.novelId === novel.id).sort(byChapterNumberAsc);
     setChapters(novelChaps);
     setNewChapterNumber('');
 
@@ -856,7 +857,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     const published = chapters
       .filter(c => !c.publishAt || new Date(c.publishAt).getTime() <= Date.now())
       .slice()
-      .sort((a, b) => a.number - b.number);
+      .sort(byChapterNumberAsc);
     if (published.length === 0) {
       alert('There are no published chapters to download yet.');
       return;
@@ -1585,7 +1586,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               {/* Grid of Chapters (ordered by the ascending/descending toggle) */}
               {chapters.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[...chapters].sort((a, b) => chaptersAscending ? a.number - b.number : b.number - a.number).map((chapter) => {
+                  {[...chapters].sort((a, b) => chaptersAscending ? byChapterNumberAsc(a, b) : byChapterNumberAsc(b, a)).map((chapter) => {
                     const isRead = readChapters.some(rc => rc.novelId === novel.id && rc.chapterNumber === chapter.number);
                     return (
                       <div
@@ -1599,7 +1600,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                       >
                         <div className="min-w-0">
                           <h4 className={`font-bold text-xs transition-colors truncate ${isRead ? 'text-violet-300 group-hover:text-violet-200' : 'text-purple-100 group-hover:text-violet-400'}`}>
-                            Chapter {chapter.number}: {chapter.title.split(':').slice(1).join(':').trim() || 'Translated chapter'}
+                            Chapter {chapterNum(chapter)}: {chapter.title.split(':').slice(1).join(':').trim() || 'Translated chapter'}
                             {isRead && (
                               <span className="mr-2 text-[9px] bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded-full font-normal">
                                 Read ✔️
@@ -1618,7 +1619,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                                 handleDeleteChapterByOwner(chapter.id, chapter.number); 
                               }}
                               className="p-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition-all cursor-pointer"
-                              title={`Permanently delete chapter ${chapter.number}`}
+                              title={`Permanently delete chapter ${chapterNum(chapter)}`}
                             >
                               <Trash2 size={13} />
                             </button>
