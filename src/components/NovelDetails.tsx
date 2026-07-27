@@ -111,6 +111,10 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
   // Add chapter simulator state
   const [showAddChapterForm, setShowAddChapterForm] = useState(false);
+  // Set right after a chapter is published so the page scrolls to the chapters
+  // list once the novel view renders again.
+  const [scrollToChaptersList, setScrollToChaptersList] = useState(false);
+  const chaptersSectionRef = useRef<HTMLDivElement>(null);
   const [newChapterTitle, setNewChapterTitle] = useState('');
   const [newChapterContent, setNewChapterContent] = useState('');
   const [newChapterImages, setNewChapterImages] = useState('');
@@ -152,6 +156,24 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       window.scrollTo(0, 0);
     }
   }, [showAddChapterForm]);
+
+  // After publishing, land on the chapters list ("Total published chapters")
+  // so the new chapter is right there. Without this the browser keeps the
+  // scroll position from the bottom of the add-chapter form, dropping the
+  // translator at the foot of the novel page instead.
+  useEffect(() => {
+    if (showAddChapterForm || !scrollToChaptersList) return;
+    const t = setTimeout(() => {
+      const el = chaptersSectionRef.current;
+      if (el) {
+        // Offset so the toolbar clears the sticky site header.
+        const y = el.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+      setScrollToChaptersList(false);
+    }, 100);
+    return () => clearTimeout(t);
+  }, [showAddChapterForm, scrollToChaptersList]);
 
   useEffect(() => {
     if (showAddChapterForm) {
@@ -838,6 +860,10 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       alert(`Chapter ${newChapterNum} published successfully and is now available to all readers! 🎉`);
     }
 
+    // Return to the novel page ON the chapters list, not wherever the form was
+    // scrolled to, so the freshly added chapter is immediately in view.
+    setActiveTab('chapters');
+    setScrollToChaptersList(true);
     setShowAddChapterForm(false);
     setNewChapterTitle('');
     setNewChapterContent('');
@@ -1550,7 +1576,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
           {activeTab === 'chapters' && (
             <div className="flex flex-col gap-4">
               {/* Toolbar */}
-              <div className="flex flex-wrap justify-between items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+              <div ref={chaptersSectionRef} className="flex flex-wrap justify-between items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5 scroll-mt-24">
                 <span className="text-xs text-purple-300 font-semibold">Total published chapters: {chapters.length}</span>
 
                 <div className="flex flex-wrap items-center gap-2">
