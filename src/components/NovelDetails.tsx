@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Star, Eye, Layers, Heart, Share2, Plus, Calendar, Clock, ChevronDown, MessageSquare, Edit2, AlertCircle, Trash2, Upload, Image, ArrowUp, ArrowDown, FileText, ChevronLeft, Undo2, Redo2, BookOpen, Info, Download } from 'lucide-react';
 import { Novel, Chapter, Comment, Review, User, UserRole, Report, Suggestion } from '../types';
 import { MistVilDatabase } from '../data';
@@ -115,6 +115,12 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
   // list once the novel view renders again.
   const [scrollToChaptersList, setScrollToChaptersList] = useState(false);
   const chaptersSectionRef = useRef<HTMLDivElement>(null);
+  // Next free chapter number for this novel: highest existing number + 1, so
+  // the new chapter always lands after the current last one.
+  const suggestedChapterNumber = useMemo(
+    () => (chapters.length ? Math.max(...chapters.map(chapterNum)) + 1 : 1),
+    [chapters]
+  );
   const [newChapterTitle, setNewChapterTitle] = useState('');
   const [newChapterContent, setNewChapterContent] = useState('');
   const [newChapterImages, setNewChapterImages] = useState('');
@@ -163,16 +169,20 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
   // translator at the foot of the novel page instead.
   useEffect(() => {
     if (showAddChapterForm || !scrollToChaptersList) return;
-    const t = setTimeout(() => {
+    // Re-assert the position a few times: covers late layout shifts (covers and
+    // chapter rows finishing their load) that would otherwise leave the page
+    // sitting somewhere else — a single scroll right after the render is not
+    // reliable, especially on mobile.
+    const jump = () => {
       const el = chaptersSectionRef.current;
-      if (el) {
-        // Offset so the toolbar clears the sticky site header.
-        const y = el.getBoundingClientRect().top + window.scrollY - 90;
-        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-      }
-      setScrollToChaptersList(false);
-    }, 100);
-    return () => clearTimeout(t);
+      if (!el) return;
+      // Offset so the toolbar clears the sticky site header.
+      const y = el.getBoundingClientRect().top + window.scrollY - 90;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+    };
+    const timers = [60, 250, 600, 1000].map(ms => setTimeout(jump, ms));
+    const done = setTimeout(() => setScrollToChaptersList(false), 1100);
+    return () => { timers.forEach(clearTimeout); clearTimeout(done); };
   }, [showAddChapterForm, scrollToChaptersList]);
 
   useEffect(() => {
@@ -1068,18 +1078,31 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
 
         {/* 2. Chapter Number */}
         <div className="flex flex-col gap-1 w-full mb-4 text-left">
-          <div className="flex justify-start items-center mb-1 text-[11px] text-purple-400">
+          <div className="flex justify-between items-center mb-1 text-[11px] text-purple-400 gap-2 flex-wrap">
             <span>Chapter number</span>
+            {/* One click fills in the next free number (highest + 1). */}
+            <button
+              type="button"
+              onClick={() => setNewChapterNumber(suggestedChapterNumber)}
+              title="Use this number"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 text-violet-300 hover:text-white font-bold cursor-pointer transition-all"
+            >
+              <span>Suggested number: {suggestedChapterNumber}</span>
+              <span aria-hidden="true">↩</span>
+            </button>
           </div>
-          <input 
+          <input
             type="number"
             required
             min="1"
-            placeholder="e.g. 5"
+            placeholder={`e.g. ${suggestedChapterNumber}`}
             value={newChapterNumber}
             onChange={(e) => setNewChapterNumber(e.target.value === '' ? '' : Number(e.target.value))}
             className="w-full bg-[#0F1828] border border-white/5 hover:border-white/10 rounded-xl px-4 py-3.5 text-xs text-white text-left outline-none focus:border-violet-500 font-sans placeholder-purple-300/40 font-mono"
           />
+          <span className="text-[10px] text-purple-400/80 mt-1.5 block">
+            Chapters are always ordered by number — the highest number is always the newest chapter.
+          </span>
         </div>
 
         {/* 3. Chapter Title */}
