@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 
+# Live sitemap: regenerated on every request, so newly published chapters are
+# listed immediately.
 Sitemap: https://mistvil.online/sitemap.xml
-Sitemap: https://mistvil.online/api/sitemap.php
