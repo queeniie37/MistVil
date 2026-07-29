@@ -114,26 +114,40 @@ export default function App() {
     'terms-of-service', 'contact-us',
   ]);
 
+  // Real, crawlable paths — /novel/<page> and /novel/<slug>/<number>.
+  // Search engines do NOT index anything after a "#": the fragment never
+  // reaches the server, so every hash URL looked like the bare homepage and no
+  // chapter could ever rank. These are ordinary paths instead; the host's SPA
+  // fallback (.htaccess / the Express catch-all) serves index.html for them.
   const buildScreenHash = (page: string, params: any) => {
-    // Novel detail → #/novel/<english-slug>
+    // Novel detail → /novel/<english-slug>
     if (page === 'novel') {
       const slug = params?.slug || novelSlugById(params?.id) || 'library';
-      return `#/novel/${slug}`;
+      return `/novel/${slug}`;
     }
-    // Chapter reader → #/novel/<english-slug>/<chapter-number>
+    // Chapter reader → /novel/<english-slug>/<chapter-number>
     if (page === 'reader') {
       const slug = params?.slug || novelSlugById(params?.novelId) || 'library';
       const ch = params?.chapterNumber;
-      return ch != null ? `#/novel/${slug}/${ch}` : `#/novel/${slug}`;
+      return ch != null ? `/novel/${slug}/${ch}` : `/novel/${slug}`;
     }
-    // Every other screen → #/novel/<page-name> (home, explore, …)
-    return `#/novel/${page}`;
+    // Every other screen → /novel/<page-name> (home, explore, …)
+    return `/novel/${page}`;
   };
   const parseScreenHash = (): { page: string; params: any } | null => {
     try {
-      let raw = window.location.hash || '';
-      if (!raw.startsWith('#/')) return null;
-      raw = raw.slice(2); // drop the leading "#/"
+      // Prefer the real path; fall back to the legacy "#/..." form so links
+      // shared or bookmarked before this change still open the right screen.
+      const path = window.location.pathname || '';
+      let raw = '';
+      if (path.length > 1) {
+        raw = path.replace(/^\/+/, '').replace(/\/+$/, '');
+      } else {
+        const h = window.location.hash || '';
+        if (!h.startsWith('#/')) return null;
+        raw = h.slice(2); // drop the leading "#/"
+      }
+      if (!raw) return { page: 'home', params: null };
 
       // New scheme: everything nested under the /novel/ type segment.
       if (raw === 'novel' || raw === '' || raw === 'novel/') {
@@ -649,7 +663,8 @@ export default function App() {
     setMeta('meta[property="twitter:description"]', description);
     setMeta('meta[property="og:title"]', title);
     setMeta('meta[property="twitter:title"]', title);
-    const pageUrl = `https://mistvil.online/${window.location.hash || ''}`;
+    // Canonical/social URL is the real crawlable path (never the "#" form).
+    const pageUrl = `https://mistvil.online${buildScreenHash(currentPage, currentParams)}`;
     setMeta('meta[property="og:url"]', pageUrl);
     setMeta('meta[property="twitter:url"]', pageUrl);
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -676,7 +691,7 @@ export default function App() {
           alternateName: novel.titleAr,
           author: { '@type': 'Person', name: novel.author },
           inLanguage: 'en',
-          url: `https://mistvil.online/#/novel/${slugifyTitle(novel.titleEn) || novel.id}`,
+          url: `https://mistvil.online/novel/${slugifyTitle(novel.titleEn) || novel.id}`,
           publisher: { '@type': 'Organization', name: siteName },
         };
         if (novel.genres?.length) ld.genre = novel.genres;

@@ -30,21 +30,41 @@ $today = gmdate('Y-m-d');
 // Fixed screens
 foreach (array(
     array('', 'daily', '1.0'),
-    array('#/novel/explore', 'daily', '0.9'),
-    array('#/novel/suggestions', 'daily', '0.7'),
-    array('#/novel/teams', 'weekly', '0.6'),
-    array('#/novel/ads', 'weekly', '0.5'),
-    array('#/novel/contact-us', 'monthly', '0.4'),
-    array('#/novel/privacy-policy', 'yearly', '0.3'),
-    array('#/novel/terms-of-service', 'yearly', '0.3'),
+    array('novel/explore', 'daily', '0.9'),
+    array('novel/suggestions', 'daily', '0.7'),
+    array('novel/teams', 'weekly', '0.6'),
+    array('novel/ads', 'weekly', '0.5'),
+    array('novel/contact-us', 'monthly', '0.4'),
+    array('novel/privacy-policy', 'yearly', '0.3'),
+    array('novel/terms-of-service', 'yearly', '0.3'),
 ) as $p) {
     $urls[] = array($SITE . '/' . $p[0], $today, $p[1], $p[2]);
 }
 
-// One URL per published novel from the live database
+// One URL per published novel, plus one per published CHAPTER, straight from
+// the live database — so a chapter is announced to search engines the moment
+// it exists, with no rebuild and no manual step.
 if (file_exists($DB_FILE)) {
     $db = json_decode(file_get_contents($DB_FILE), true);
     if (is_array($db) && isset($db['novels']) && is_array($db['novels'])) {
+        $now = time();
+
+        // Group published chapters by novel so each novel's lastmod reflects
+        // its newest chapter (that is the signal crawlers act on).
+        $chaptersByNovel = array();
+        if (isset($db['chapters']) && is_array($db['chapters'])) {
+            foreach ($db['chapters'] as $c) {
+                if (!is_array($c) || empty($c['novelId'])) continue;
+                if (!empty($c['deleted'])) continue;
+                // Scheduled chapters are not public yet.
+                if (!empty($c['publishAt'])) {
+                    $pt = strtotime($c['publishAt']);
+                    if ($pt !== false && $pt > $now) continue;
+                }
+                $chaptersByNovel[$c['novelId']][] = $c;
+            }
+        }
+
         foreach ($db['novels'] as $n) {
             if (!is_array($n)) continue;
             $status = isset($n['status']) ? $n['status'] : '';
@@ -52,12 +72,34 @@ if (file_exists($DB_FILE)) {
             $slug = slugify_title(isset($n['titleEn']) ? $n['titleEn'] : '');
             if ($slug === '' && isset($n['id']) && is_string($n['id'])) $slug = $n['id'];
             if ($slug === '') continue;
-            $lastmod = $today;
-            if (isset($n['createdAt']) && is_string($n['createdAt'])) {
-                $t = strtotime($n['createdAt']);
-                if ($t !== false) $lastmod = gmdate('Y-m-d', $t);
+
+            $novelId = isset($n['id']) ? $n['id'] : '';
+            $chapters = isset($chaptersByNovel[$novelId]) ? $chaptersByNovel[$novelId] : array();
+
+            // Novel page lastmod = newest chapter date (falls back to created).
+            $novelLastmod = $today;
+            $newest = 0;
+            foreach ($chapters as $c) {
+                $t = strtotime(isset($c['publishAt']) && $c['publishAt'] ? $c['publishAt'] : (isset($c['createdAt']) ? $c['createdAt'] : ''));
+                if ($t !== false && $t > $newest) $newest = $t;
             }
-            $urls[] = array($SITE . '/#/novel/' . rawurlencode($slug), $lastmod, 'daily', '0.8');
+            if ($newest > 0) {
+                $novelLastmod = gmdate('Y-m-d', $newest);
+            } elseif (isset($n['createdAt']) && is_string($n['createdAt'])) {
+                $t = strtotime($n['createdAt']);
+                if ($t !== false) $novelLastmod = gmdate('Y-m-d', $t);
+            }
+            $urls[] = array($SITE . '/novel/' . rawurlencode($slug), $novelLastmod, 'daily', '0.8');
+
+            // Every published chapter gets its own crawlable URL.
+            foreach ($chapters as $c) {
+                $num = isset($c['number']) ? $c['number'] : (isset($c['chapterNumber']) ? $c['chapterNumber'] : null);
+                if ($num === null || !is_numeric($num)) continue;
+                $num = (int)$num;
+                $ct = strtotime(isset($c['publishAt']) && $c['publishAt'] ? $c['publishAt'] : (isset($c['createdAt']) ? $c['createdAt'] : ''));
+                $clastmod = ($ct !== false && $ct > 0) ? gmdate('Y-m-d', $ct) : $novelLastmod;
+                $urls[] = array($SITE . '/novel/' . rawurlencode($slug) . '/' . $num, $clastmod, 'weekly', '0.7');
+            }
         }
     }
 }

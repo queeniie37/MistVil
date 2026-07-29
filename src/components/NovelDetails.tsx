@@ -3,7 +3,7 @@ import { Star, Eye, Layers, Heart, Share2, Plus, Calendar, Clock, ChevronDown, M
 import { Novel, Chapter, Comment, Review, User, UserRole, Report, Suggestion } from '../types';
 import { MistVilDatabase } from '../data';
 import { compressImageFile } from '../utils/media';
-import { normalizeChapterText, spreadPlainTextLines } from '../utils/text';
+import { normalizeChapterText, spreadPlainTextLines, slugifyTitle } from '../utils/text';
 import { byChapterNumberAsc, chapterNum } from '../utils/chapters';
 import { isUserTranslatorOfTheMonth } from '../utils/points';
 import ConfirmModal from './ConfirmModal';
@@ -863,6 +863,24 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
       } as any);
     }
     MistVilDatabase.set('notifications', updatedNotifs);
+
+    // Push the new chapter's URL to search engines immediately (IndexNow), so
+    // it can be crawled within minutes instead of waiting for the next sitemap
+    // poll. Best-effort: publishing never depends on this succeeding, and the
+    // sitemap still lists the chapter regardless.
+    if (!isScheduled) {
+      const slug = slugifyTitle(novel.titleEn) || novel.id;
+      fetch('/api/indexnow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          urls: [
+            `https://mistvil.online/novel/${slug}/${newChapterNum}`,
+            `https://mistvil.online/novel/${slug}`,
+          ],
+        }),
+      }).catch(() => { /* offline or endpoint unavailable — sitemap covers it */ });
+    }
 
     if (isScheduled) {
       alert(`📅 Chapter ${newChapterNum} scheduled successfully! It won't appear to readers until ${new Date(newChapterPublishAt).toLocaleString('en-US')}, and you can track it from the Activity & Scheduling page.`);
