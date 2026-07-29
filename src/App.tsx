@@ -767,6 +767,24 @@ export default function App() {
             chapterId: chap.id,
             forBookmarkers: true
           });
+
+          // A scheduled chapter going live is a brand-new public URL, so push
+          // it to search engines now — the same way an immediate publish does.
+          // Without this, only manually published chapters were announced.
+          const slug = slugifyTitle(correspondingNovel?.titleEn || '') || chap.novelId;
+          const num = chap.number ?? chap.chapterNumber;
+          if (num != null) {
+            fetch('/api/indexnow', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                urls: [
+                  `https://mistvil.online/novel/${slug}/${num}`,
+                  `https://mistvil.online/novel/${slug}`,
+                ],
+              }),
+            }).catch(() => { /* sitemap/feed still carry it */ });
+          }
         }
       }
       return chap;

@@ -28,8 +28,15 @@ RewriteRule ^api/db/?$ api/db.php [L]
 # /api/auth for register/login/profile-update.
 RewriteRule ^api/auth/?$ api/auth.php [L]
 
-# Route the dynamic per-novel sitemap for search engines.
+# Sitemap: /sitemap.xml (the location crawlers check by default) is served by
+# the live generator, so it always lists every novel AND chapter — a static
+# file went stale the moment a chapter was published.
+RewriteRule ^sitemap\.xml$ api/sitemap.php [L]
 RewriteRule ^api/sitemap\.php$ api/sitemap.php [L]
+
+# RSS feed of the newest chapters, for readers and aggregators.
+RewriteRule ^feed\.xml$ api/feed.php [L]
+RewriteRule ^api/feed/?$ api/feed.php [L]
 
 # Instant "this URL is new" push to search engines when a chapter is published.
 RewriteRule ^api/indexnow/?$ api/indexnow.php [L]
