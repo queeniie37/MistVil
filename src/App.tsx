@@ -132,6 +132,11 @@ export default function App() {
       return ch != null ? `/novel/${slug}/${ch}` : `/novel/${slug}`;
     }
     // Every other screen → /novel/<page-name> (home, explore, …)
+    // The homepage lives at the site root. Giving it its own "/novel/home"
+    // address split the canonical signal (the sitemap announces "/") and made
+    // the root look like a duplicate of a sub-page.
+    if (page === 'home') return '/';
+    // Every other screen → /novel/<page-name> (explore, suggestions, …)
     return `/novel/${page}`;
   };
   const parseScreenHash = (): { page: string; params: any } | null => {
