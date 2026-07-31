@@ -7,6 +7,7 @@ import { getAllTranslatorsPoints, crownTranslator, getCrownedTranslatorId, getCu
 import { BADGE_CATALOG, getUserBadges, grantBadge, revokeBadge } from '../utils/badges';
 import { UserDirectory } from '../utils/directory';
 import { normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from '../utils/text';
+import { chapterNum } from '../utils/chapters';
 import ConfirmModal from './ConfirmModal';
 
 interface AdminPanelProps {
@@ -1767,7 +1768,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
               if (ch) {
                 const nov = novelById.get(ch.novelId);
                 const novelName = nov ? (nov.titleEn || nov.titleAr) : 'رواية';
-                return `${novelName} — الفصل ${ch.number}`;
+                return `${novelName} — الفصل ${chapterNum(ch)}`;
               }
               return 'فصل (غير متوفر)';
             }
@@ -2238,7 +2239,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                             </span>
                             <span className="text-xs font-bold text-white truncate">{chap.title}</span>
                           </div>
-                          <span className="text-[9px] text-purple-400 block">رقم الفصل: {chap.number}</span>
+                          <span className="text-[9px] text-purple-400 block">رقم الفصل: {chapterNum(chap)}</span>
                         </div>
 
                         <div className="flex flex-wrap justify-between items-center text-[9px] text-purple-400 border-t border-white/5 pt-2 gap-1">

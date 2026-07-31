@@ -557,7 +557,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     if (reportingComment.refType === 'CHAPTER') {
       const ch = allChapters.find(c => c.id === reportingComment.refId);
       if (ch) {
-        chapterNumStr = `Chapter ${ch.number}`;
+        chapterNumStr = `Chapter ${chapterNum(ch)}`;
         const n = allNovels.find(nv => nv.id === ch.novelId);
         if (n) {
           novelTitle = n.titleAr;
@@ -922,7 +922,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
     const body = published
       .map(ch => {
         const title = ch.title.includes(':') ? ch.title.split(':').slice(1).join(':').trim() : ch.title;
-        return `\n\n==============================\nChapter ${ch.number}: ${title || 'Translated chapter'}\n==============================\n\n${normalizeChapterText(ch.content || '')}`;
+        return `\n\n==============================\nChapter ${chapterNum(ch)}: ${title || 'Translated chapter'}\n==============================\n\n${normalizeChapterText(ch.content || '')}`;
       })
       .join('');
 
@@ -1654,11 +1654,11 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
               {chapters.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[...chapters].sort((a, b) => chaptersAscending ? byChapterNumberAsc(a, b) : byChapterNumberAsc(b, a)).map((chapter) => {
-                    const isRead = readChapters.some(rc => rc.novelId === novel.id && rc.chapterNumber === chapter.number);
+                    const isRead = readChapters.some(rc => rc.novelId === novel.id && rc.chapterNumber === chapterNum(chapter));
                     return (
                       <div
                         key={chapter.id}
-                        onClick={() => onReadChapter(novel.id, chapter.number)}
+                        onClick={() => onReadChapter(novel.id, chapterNum(chapter))}
                         className={`group p-4 rounded-2xl flex items-center justify-between gap-2 cursor-pointer transition-all text-left border ${
                           isRead
                             ? 'bg-violet-900/15 border-violet-500/40 hover:bg-violet-900/25 hover:border-violet-400'
@@ -1683,7 +1683,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                             <button
                               onClick={(e) => { 
                                 e.stopPropagation(); 
-                                handleDeleteChapterByOwner(chapter.id, chapter.number); 
+                                handleDeleteChapterByOwner(chapter.id, chapterNum(chapter)); 
                               }}
                               className="p-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition-all cursor-pointer"
                               title={`Permanently delete chapter ${chapterNum(chapter)}`}

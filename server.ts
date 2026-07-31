@@ -122,7 +122,12 @@ app.get("/api/db", (req, res) => {
 // merge; tombstones older than 30 days are purged.
 function commentTime(c: any): number {
   const t = Date.parse(c?.updatedAt || c?.createdAt || "");
-  return Number.isNaN(t) ? 0 : t;
+  if (Number.isNaN(t)) return 0;
+  // A timestamp far in the FUTURE would win every merge forever, so no later
+  // legitimate edit could ever overwrite it (and a tombstone stamped year 9999
+  // would keep a record deleted permanently). Real clock drift is small, so
+  // clamp anything more than a day ahead to now.
+  return Math.min(t, Date.now() + 24 * 60 * 60 * 1000);
 }
 
 function mergeComments(stored: any, incoming: any): any[] {
@@ -204,8 +209,14 @@ app.post("/api/db", (req, res) => {
   const currentDb = loadDb();
   if (key === "comments") {
     currentDb[key] = mergeComments(currentDb[key], value);
-  } else if (key === "chapters" || key === "novels") {
+  } else if (key === "chapters" || key === "novels" || key === "contact_messages") {
     currentDb[key] = mergeById(currentDb[key], value);
+  } else if (key === "user_directory") {
+    // Public profile directory, keyed by user id: merge per-user keys so one
+    // member saving their profile can never erase members their device had
+    // not synced yet.
+    const stored = currentDb[key] && typeof currentDb[key] === "object" ? currentDb[key] : {};
+    currentDb[key] = { ...stored, ...(value && typeof value === "object" ? value : {}) };
   } else {
     currentDb[key] = value;
   }
@@ -231,6 +242,18 @@ function saveUsers(list: any[]): void {
   try { fs.writeFileSync(USERS_FILE, JSON.stringify(list), "utf-8"); } catch (e) { console.error("users write failed", e); }
 }
 function publicUser(u: any): any { const { passwordHash, ...rest } = u; return rest; }
+function clampProgress(raw: any, min: number, max: number): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, Math.trunc(n)));
+}
+// Same field ceilings the PHP endpoint enforces, so a browser cannot push an
+// unbounded value into the accounts file through either server.
+function clipField(field: string, value: any): any {
+  if (typeof value !== "string") return value;
+  const max = field === "avatar" || field === "banner" ? 1_500_000 : field === "bio" ? 1000 : field === "username" ? 40 : 300;
+  return value.length > max ? value.slice(0, max) : value;
+}
 
 app.post("/api/auth", (req, res) => {
   const body = req.body || {};
@@ -245,13 +268,18 @@ app.post("/api/auth", (req, res) => {
 
   if (action === "register") {
     if (idx !== -1) return res.status(409).json({ error: "This email is already registered." });
-    const username = typeof body.username === "string" ? body.username.trim() : "";
+    const username = typeof body.username === "string" ? clipField("username", body.username.trim()) : "";
     if (!username) return res.status(400).json({ error: "Username is required." });
     const user = {
       id: typeof body.id === "string" ? body.id : `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      username, email, role: "MEMBER", xp: 0, level: 1,
-      avatar: typeof body.avatar === "string" ? body.avatar : "",
-      bio: typeof body.bio === "string" ? body.bio : "",
+      username, email, role: "MEMBER",
+      // Registration doubles as the migration path for accounts created
+      // before this endpoint existed, so earned progress travels with them
+      // instead of resetting (clamped so it can't be inflated arbitrarily).
+      xp: clampProgress(body.xp, 0, 100_000_000),
+      level: clampProgress(body.level, 1, 1000),
+      avatar: typeof body.avatar === "string" ? clipField("avatar", body.avatar) : "",
+      bio: typeof body.bio === "string" ? clipField("bio", body.bio) : "",
       passwordHash: hash, createdAt: new Date().toISOString(),
     };
     users.push(user);
@@ -266,7 +294,7 @@ app.post("/api/auth", (req, res) => {
     if (idx === -1 || users[idx].passwordHash !== hash) return res.status(401).json({ error: "Not authorized to update this account." });
     const updates = body.updates && typeof body.updates === "object" ? body.updates : {};
     const allowed = ["username", "avatar", "bio", "banner", "discord", "telegram", "paypalEmail", "supportLink", "socialLinks", "customStatus"];
-    for (const f of allowed) if (f in updates) users[idx][f] = updates[f];
+    for (const f of allowed) if (f in updates) users[idx][f] = clipField(f, updates[f]);
     saveUsers(users);
     return res.json({ user: publicUser(users[idx]) });
   }

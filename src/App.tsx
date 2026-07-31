@@ -12,7 +12,7 @@ import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
 import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
 import { updateAccountByHash, ensureAccountOnServer } from './utils/auth';
-import { byChapterNumberAsc, isChapterNumber, chapterNum } from './utils/chapters';
+import { byChapterNumberAsc, isChapterNumber, chapterNum, hasChapterNumber } from './utils/chapters';
 
 // Component imports
 import Header from './components/Header';
@@ -777,7 +777,7 @@ export default function App() {
           // it to search engines now — the same way an immediate publish does.
           // Without this, only manually published chapters were announced.
           const slug = slugifyTitle(correspondingNovel?.titleEn || '') || chap.novelId;
-          const num = chap.number ?? chap.chapterNumber;
+          const num = hasChapterNumber(chap) ? chapterNum(chap) : null;
           if (num != null) {
             fetch('/api/indexnow', {
               method: 'POST',
@@ -1337,17 +1337,41 @@ export default function App() {
     const allChapters = MistVilDatabase.get<any[]>('chapters', []);
     const now = new Date();
     const lastAddedAt = new Map<string, number>();
+    // The newest chapter of a novel is its HIGHEST published number, never the
+    // chapter count: with chapters 80, 100 and 1000 the count is 3, so linking
+    // to "chapter 3" pointed at a chapter that does not exist.
+    const highestNumber = new Map<string, number>();
     for (const c of allChapters) {
       if (c.publishAt && new Date(c.publishAt) > now) continue; // not out yet
       const t = Date.parse(c.publishAt || c.createdAt || '') || 0;
       if (t > (lastAddedAt.get(c.novelId) || 0)) lastAddedAt.set(c.novelId, t);
+      if (hasChapterNumber(c) && chapterNum(c) > (highestNumber.get(c.novelId) ?? -Infinity)) {
+        highestNumber.set(c.novelId, chapterNum(c));
+      }
     }
     return [...activeNovels]
       .filter(n => n.chaptersCount > 0)
-      .map(n => ({ ...n, lastChapterAt: lastAddedAt.get(n.id) || 0 }))
+      .map(n => ({
+        ...n,
+        lastChapterAt: lastAddedAt.get(n.id) || 0,
+        latestChapterNumber: highestNumber.get(n.id) ?? n.chaptersCount,
+      }))
       .sort((a, b) => b.lastChapterAt - a.lastChapterAt)
       .slice(0, 20);
   }, [activeNovels]);
+
+  // First/last published chapter number of a novel, so "start reading" and
+  // "read the latest chapter" never assume chapter 1 exists or that the
+  // chapter count equals the highest number.
+  const getChapterBounds = (novelId: string) => {
+    const now = new Date();
+    const numbers = MistVilDatabase.get<any[]>('chapters', [])
+      .filter(c => c.novelId === novelId && hasChapterNumber(c))
+      .filter(c => !(c.publishAt && new Date(c.publishAt) > now))
+      .map(c => chapterNum(c));
+    if (numbers.length === 0) return { first: 1, last: 1 };
+    return { first: Math.min(...numbers), last: Math.max(...numbers) };
+  };
 
   // Honest relative timestamp for the latest-chapters cards
   const timeAgoLabel = (ts: number): string => {
@@ -1448,7 +1472,7 @@ export default function App() {
                 {/* Cinematic Slider */}
                 <HeroSlider 
                   featuredNovels={activeNovels.slice(0, 3)}
-                  onStartReading={(id) => handleReadChapter(id, 1)}
+                  onStartReading={(id) => handleReadChapter(id, getChapterBounds(id).first)}
                   onViewDetails={(id) => handleNavigate('novel', { id })}
                 />
 
@@ -1501,7 +1525,7 @@ export default function App() {
                       {latestChaptersList.map((novel) => (
                         <div 
                           key={novel.id}
-                          onClick={() => handleReadChapter(novel.id, novel.chaptersCount)}
+                          onClick={() => handleReadChapter(novel.id, novel.latestChapterNumber)}
                           className="p-4 bg-[#0E1626] hover:bg-[#131F33] border border-white/5 hover:border-violet-500/20 rounded-2xl flex gap-4 cursor-pointer transition-all hover:-translate-y-0.5 group relative"
                         >
                           {/* Purple "New" ribbon badge as requested in specs */}
@@ -1520,7 +1544,7 @@ export default function App() {
                             </div>
                             
                             <div className="flex justify-between items-center mt-2 text-[10px] text-purple-300 border-t border-white/5 pt-2">
-                              <span className="font-bold text-violet-300">Read chapter {novel.chaptersCount} →</span>
+                              <span className="font-bold text-violet-300">Read chapter {novel.latestChapterNumber} →</span>
                               <span className="text-purple-400">{timeAgoLabel(novel.lastChapterAt)}</span>
                             </div>
                           </div>

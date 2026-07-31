@@ -27,3 +27,11 @@ export function isChapterNumber(c: any, num: number | string): boolean {
   const target = Number(num);
   return Number.isFinite(target) && chapterNum(c) === target;
 }
+
+// True only when the chapter actually carries a usable number. `chapterNum`
+// falls back to 0 so sorting never sees NaN, but "no number at all" must not
+// be mistaken for chapter 0 when picking a novel's first/latest chapter.
+export function hasChapterNumber(c: any): boolean {
+  const raw = c?.number ?? c?.chapterNumber;
+  return raw !== null && raw !== undefined && raw !== '' && Number.isFinite(Number(raw));
+}

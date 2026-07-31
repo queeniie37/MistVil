@@ -64,7 +64,17 @@ function comment_time($c) {
     $raw = isset($c['updatedAt']) ? $c['updatedAt'] : (isset($c['createdAt']) ? $c['createdAt'] : '');
     if (!is_string($raw) || $raw === '') return 0;
     $t = strtotime($raw);
-    return $t === false ? 0 : $t * 1000;
+    if ($t === false) return 0;
+
+// A record's timestamp decides who wins a merge. A value far in the FUTURE
+// would therefore win every merge forever — no later, legitimate edit could
+// ever overwrite it, and a tombstone stamped year 9999 would keep the record
+// deleted permanently. Clock drift on real devices is small, so anything more
+// than a day ahead is clamped to now: honest records are unaffected, and a
+// poisoned one loses its permanent advantage as soon as a real edit lands.
+    $cap = time() + 86400;
+    if ($t > $cap) $t = $cap;
+    return $t * 1000;
 }
 
 function merge_comments($stored, $incoming) {
@@ -133,6 +143,25 @@ function merge_by_id($stored, $incoming) {
     return $merged;
 }
 
+/**
+ * Every write is a read-modify-write of ONE shared file. Without a lock two
+ * simultaneous POSTs both read the same snapshot, each applies its own key and
+ * the second rename() throws away the first one's work — a published chapter
+ * or a fresh comment silently vanishes. (view.php already serialized its
+ * increments this way; db.php did not, so a publish landing at the same moment
+ * as a view could lose either one.) Take an exclusive lock on the SAME sidecar
+ * lock file view.php uses, so all writers — whichever endpoint they come
+ * through — are serialized against each other.
+ */
+function db_lock($file) {
+    $fh = @fopen($file . '.lock', 'c');
+    if ($fh) { @flock($fh, LOCK_EX); }
+    return $fh;
+}
+function db_unlock($fh) {
+    if ($fh) { @flock($fh, LOCK_UN); @fclose($fh); }
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'OPTIONS') {
@@ -172,6 +201,15 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $raw = file_get_contents('php://input');
 
+    // Hard ceiling on a single write. Covers a full novel with base64 covers
+    // and chapter images, but stops one request from pushing an unbounded
+    // blob into the shared file that every visitor then has to download.
+    if (strlen($raw) > 40 * 1024 * 1024) {
+        http_response_code(413);
+        echo json_encode(array('error' => 'Payload too large'));
+        exit;
+    }
+
     // A payload larger than post_max_size arrives truncated or empty.
     // Reject it explicitly so the client keeps the write pending and
     // retries, instead of silently losing the published novel.
@@ -196,6 +234,7 @@ if ($method === 'POST') {
         $val = isset($body['value']) && is_array($body['value']) ? $body['value'] : array();
         $chapterId = isset($val['chapterId']) ? $val['chapterId'] : '';
         $novelId = isset($val['novelId']) ? $val['novelId'] : '';
+        $lock = db_lock($DB_FILE);
         $db = load_db($DB_FILE);
         if ($chapterId !== '' && isset($db['chapters']) && is_array($db['chapters'])) {
             foreach ($db['chapters'] as &$c) {
@@ -213,7 +252,9 @@ if ($method === 'POST') {
             }
             unset($n);
         }
-        if (!save_db($DB_FILE, $db)) {
+        $saved = save_db($DB_FILE, $db);
+        db_unlock($lock);
+        if (!$saved) {
             http_response_code(500);
             echo json_encode(array('error' => 'Failed to write database file'));
             exit;
@@ -228,6 +269,7 @@ if ($method === 'POST') {
         exit;
     }
 
+    $lock = db_lock($DB_FILE);
     $db = load_db($DB_FILE);
 
     // Rotating hourly backup BEFORE applying the write, so the site's data
@@ -263,11 +305,21 @@ if ($method === 'POST') {
     $value = isset($body['value']) ? $body['value'] : null;
     if ($key === 'comments') {
         $value = merge_comments(isset($db[$key]) ? $db[$key] : array(), $value);
-    } elseif ($key === 'chapters' || $key === 'novels') {
+    } elseif ($key === 'chapters' || $key === 'novels' || $key === 'contact_messages') {
         $value = merge_by_id(isset($db[$key]) ? $db[$key] : array(), $value);
+    } elseif ($key === 'user_directory') {
+        // Public profile directory, keyed by user id. A whole-object replace
+        // let one member's profile save erase every member their device had
+        // not synced yet, so merge per-user keys instead: the incoming entry
+        // wins for that user, everyone else is kept untouched.
+        $stored = isset($db[$key]) && is_array($db[$key]) ? $db[$key] : array();
+        $incoming = is_array($value) ? $value : array();
+        $value = array_merge($stored, $incoming);
     }
     $db[$key] = $value;
-    if (!save_db($DB_FILE, $db)) {
+    $saved = save_db($DB_FILE, $db);
+    db_unlock($lock);
+    if (!$saved) {
         http_response_code(500);
         echo json_encode(array('error' => 'Failed to write database file'));
         exit;

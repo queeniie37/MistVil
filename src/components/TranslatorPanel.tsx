@@ -5,6 +5,7 @@ import { MistVilDatabase, COVER_IMAGES } from '../data';
 import { compressImageFile } from '../utils/media';
 import { normalizeChapterText, chapterTextToEditorHtml } from '../utils/text';
 import { getTranslatorPoints, getAllTranslatorsPoints, isUserTranslatorOfTheMonth, getCurrentMonthKey } from '../utils/points';
+import { chapterNum } from '../utils/chapters';
 import ConfirmModal from './ConfirmModal';
 
 interface TranslatorPanelProps {
@@ -493,7 +494,7 @@ export default function TranslatorPanel({ currentUser, onNavigate }: TranslatorP
       if (c.id === editingChapter.id) {
         return {
           ...c,
-          title: `Chapter ${editingChapter.number}: ${editChapterTitle}`,
+          title: `Chapter ${chapterNum(editingChapter)}: ${editChapterTitle}`,
           content: cleanContent,
           updatedAt: new Date().toISOString(),
           isDraft: isScheduled,
