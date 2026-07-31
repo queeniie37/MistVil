@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import zlib from "zlib";
 import { createHash } from "crypto";
 import { createServer as createViteServer } from "vite";
 
@@ -111,7 +112,7 @@ app.get("/api/db", (req, res) => {
     res.status(304).end();
     return;
   }
-  res.type("application/json").send(body);
+  sendMaybeGzip(req, res, "application/json; charset=utf-8", body);
 });
 
 // Comments are written by many visitors at once. A plain "replace the whole
@@ -301,6 +302,25 @@ app.post("/api/auth", (req, res) => {
   return res.status(400).json({ error: "Unknown action" });
 });
 
+// Compress a response when the browser accepts it.
+//
+// /api/db returns the WHOLE shared database, so it grows with the library —
+// and every visitor downloads it on their first entry before a single chapter
+// can be listed. Uncompressed, a real library made that a multi-second wait on
+// mobile data: the page frame appeared but the chapters did not. Apache does
+// this for the PHP endpoints in production; this keeps the Node server in step.
+function sendMaybeGzip(req: any, res: any, contentType: string, body: string): void {
+  res.set("Content-Type", contentType);
+  const accepts = String(req.headers["accept-encoding"] || "").includes("gzip");
+  if (!accepts) return void res.send(body);
+  zlib.gzip(Buffer.from(body, "utf-8"), (err, buf) => {
+    if (err) return void res.send(body);
+    res.set("Content-Encoding", "gzip");
+    res.set("Vary", "Accept-Encoding");
+    res.end(buf);
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Search-engine surfaces
 // ---------------------------------------------------------------------------
@@ -369,9 +389,8 @@ app.get(["/sitemap.xml", "/api/sitemap"], (_req, res) => {
     urls.push([`${SITE_URL}/novel/${encodeURIComponent(slugifyTitle(n.titleEn) || n.id)}`, "daily", "0.8"]);
   }
   const today = new Date().toISOString().slice(0, 10);
-  res.set("Content-Type", "application/xml; charset=utf-8");
   res.set("Cache-Control", "no-cache, must-revalidate");
-  res.send('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+  sendMaybeGzip(_req, res, "application/xml; charset=utf-8", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     urls.map(([loc, freq, pri]) =>
       `  <url>\n    <loc>${xmlEscape(loc)}</loc>\n    <lastmod>${today}</lastmod>\n` +
       `    <changefreq>${freq}</changefreq>\n    <priority>${pri}</priority>\n  </url>`).join("\n") +
@@ -384,9 +403,8 @@ app.get(["/feed.xml", "/api/feed"], (_req, res) => {
   const items = publishedChapters().slice(0, 50);
   const asText = (raw: any) => String(raw || "").replace(/<img[^>]*>/gi, "").replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ").trim().slice(0, 400);
-  res.set("Content-Type", "application/rss+xml; charset=utf-8");
   res.set("Cache-Control", "no-cache, must-revalidate");
-  res.send('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n' +
+  sendMaybeGzip(_req, res, "application/rss+xml; charset=utf-8", '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n' +
     `  <title>${xmlEscape(siteName + " — Latest chapters")}</title>\n` +
     `  <link>${SITE_URL}/</link>\n` +
     `  <description>${xmlEscape("Newly published chapters on " + siteName + ".")}</description>\n` +
