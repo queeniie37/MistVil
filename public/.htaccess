@@ -52,8 +52,16 @@ RewriteRule ^novel/.+$ api/page.php [L]
 
 # Single-page app fallback: serve index.html for any other path that is not a
 # real file or directory, so deep links and refreshes don't 404.
+#
+# File-like paths (anything ending in a real extension) are EXCLUDED: a missing
+# .html/.txt/.xml must return an honest 404 instead of the app shell. Returning
+# the shell made every missing file look like a valid page — that is what made
+# Google report "the verification file contains incorrect content" instead of
+# simply "not found", and search engines treat such soft-404s as a quality
+# problem across the whole site.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !\.(html?|txt|xml|json|js|mjs|css|map|php|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|eot|pdf|zip)$ [NC]
 RewriteRule ^ index.html [L]
 
 # Never expose the shared data file or the accounts file directly to the
