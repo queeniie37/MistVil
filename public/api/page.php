@@ -59,6 +59,93 @@ function clip($t, $limit) {
     }
     return strlen($t) > $limit ? substr($t, 0, $limit) . '…' : $t;
 }
+function esc($t) {
+    return htmlspecialchars((string)$t, ENT_QUOTES, 'UTF-8');
+}
+
+// A JSON-LD block is written INSIDE a <script> element, so the encoder must
+// never emit a literal "</script>" — a novel title or author name containing
+// one would close the tag early and everything after it would run as page
+// script. JSON_HEX_TAG escapes the angle brackets into their unicode form,
+// which is still valid JSON that search engines parse normally.
+// (JSON_UNESCAPED_SLASHES is deliberately NOT used here.)
+function json_ld_encode($data) {
+    return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS);
+}
+
+// preg_replace() reads $1 / \1 in the REPLACEMENT string as backreferences, so
+// a novel title containing "$1" (or a stray backslash) came out mangled in the
+// <title> and description that search engines show. Escape both characters so
+// the replacement is always taken literally.
+function rep_literal($s) {
+    return str_replace(array('\\', '$'), array('\\\\', '\$'), $s);
+}
+
+// Novels a search engine is allowed to see. Cancelled ones are gone and
+// pending ones are not approved yet — neither should be advertised anywhere.
+function public_novels($db) {
+    $out = array();
+    if (!is_array($db) || !isset($db['novels']) || !is_array($db['novels'])) return $out;
+    foreach ($db['novels'] as $n) {
+        if (!is_array($n)) continue;
+        $st = isset($n['status']) ? $n['status'] : '';
+        if ($st === 'CANCELLED' || $st === 'PENDING') continue;
+        $out[] = $n;
+    }
+    return $out;
+}
+
+// Every published chapter, grouped by novel and ordered by chapter number.
+// Built in ONE pass: the listing pages need the chapter list of every novel
+// at once, and re-scanning the whole chapters array per novel turned that
+// into a quadratic walk over the entire database on the busiest page.
+function published_chapters_by_novel($db) {
+    $out = array();
+    if (!is_array($db) || !isset($db['chapters']) || !is_array($db['chapters'])) return $out;
+    $now = time();
+    foreach ($db['chapters'] as $c) {
+        if (!is_array($c) || empty($c['novelId'])) continue;
+        if (!empty($c['deleted'])) continue;
+        // Scheduled chapters are not public yet.
+        if (!empty($c['publishAt'])) {
+            $pt = strtotime($c['publishAt']);
+            if ($pt !== false && $pt > $now) continue;
+        }
+        if (chapter_number_of($c) === null) continue;
+        $out[$c['novelId']][] = $c;
+    }
+    foreach ($out as $k => $list) {
+        usort($list, function ($a, $b) { return chapter_number_of($a) - chapter_number_of($b); });
+        $out[$k] = $list;
+    }
+    return $out;
+}
+
+// A URL that resolves to nothing has to SAY so. Serving the app shell with a
+// 200 turned every dead link — an old slug, a typo, a deleted novel — into a
+// "soft 404", and search engines hold those against the whole site.
+function not_found($siteName) {
+    http_response_code(404);
+    header('X-Robots-Tag: noindex');
+    return array(
+        'Page not found | ' . $siteName,
+        'This page does not exist on ' . $siteName . '.',
+        '<main><h1>Page not found</h1>'
+        . '<p>The page you asked for is not on ' . esc($siteName) . '.</p>'
+        . '<p><a href="/">Homepage</a> · <a href="/novel/explore">Explore the library</a></p></main>'
+    );
+}
+
+// When a chapter went live, as a sortable timestamp.
+function chapter_time($c) {
+    foreach (array('publishAt', 'createdAt', 'updatedAt') as $k) {
+        if (!empty($c[$k])) {
+            $t = strtotime($c[$k]);
+            if ($t !== false) return $t;
+        }
+    }
+    return 0;
+}
 
 // ---- Which screen was requested? -----------------------------------------
 $reqPath = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
@@ -76,12 +163,150 @@ $jsonLd = '';
 
 $RESERVED = array('home','explore','suggestions','teams','notifications','profile','profile-edit','translator-panel','admin','ads','privacy-policy','terms-of-service','contact-us');
 
-if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true) && file_exists($DB_FILE)) {
-    $db = json_decode(file_get_contents($DB_FILE), true);
-    if (is_array($db) && isset($db['novels']) && is_array($db['novels'])) {
-        if (isset($db['site_name']) && is_string($db['site_name']) && trim($db['site_name']) !== '') {
-            $siteName = trim($db['site_name']);
+// Screens that belong to one visitor (or to staff) hold nothing a search
+// engine should keep — no stable content, and some of it private.
+$PRIVATE_SCREENS = array('notifications', 'profile', 'profile-edit', 'translator-panel', 'admin');
+
+// ---- The shared database, loaded once ------------------------------------
+$db = null;
+if (file_exists($DB_FILE)) {
+    $decoded = json_decode(file_get_contents($DB_FILE), true);
+    if (is_array($decoded) && isset($decoded['novels']) && is_array($decoded['novels'])) {
+        $db = $decoded;
+    }
+}
+if ($db !== null && isset($db['site_name']) && is_string($db['site_name']) && trim($db['site_name']) !== '') {
+    $siteName = trim($db['site_name']);
+    // The default title was built from the placeholder name above, before the
+    // database was read. Rebuild it, or the homepage goes out titled with a
+    // name the owner already renamed.
+    $title = $siteName . ' | Premium Platform for Translated & Original Novels';
+}
+
+// ---- Home page and fixed screens -----------------------------------------
+// The site ROOT is the one URL every search engine starts from, and it used to
+// be served as the bare single-page-app shell: right meta tags, but an empty
+// <div id="root">. A crawler that does not run JavaScript saw a page with no
+// words in it and no links out of it — nothing to index, and no route into the
+// novels. The fixed screens had the same problem AND shared one identical
+// title, which reads as a pile of duplicate pages.
+if ($slugOrPage === '' || in_array($slugOrPage, $RESERVED, true)) {
+    $isHome = ($slugOrPage === '' || $slugOrPage === 'home');
+    $canonical = $isHome ? ($SITE . '/') : ($SITE . '/novel/' . rawurlencode($slugOrPage));
+
+    $SCREENS = array(
+        'explore' => array(
+            'Explore the Library | ' . $siteName,
+            'Browse every translated and original novel on ' . $siteName . ' — fantasy, action and mystery titles, with new chapters published daily.'),
+        'suggestions' => array(
+            'Suggest a Novel | ' . $siteName,
+            'Suggest a novel for the ' . $siteName . ' team to translate, and see what other readers have asked for.'),
+        'teams' => array(
+            'Translation Teams | ' . $siteName,
+            'The translation teams behind the novels on ' . $siteName . ', and the titles each one works on.'),
+        'ads' => array(
+            'Advertise on ' . $siteName,
+            'Advertising options for reaching readers on ' . $siteName . '.'),
+        'contact-us' => array(
+            'Contact Us | ' . $siteName,
+            'Get in touch with the ' . $siteName . ' team about a novel, a translation, or a partnership.'),
+        'privacy-policy' => array(
+            'Privacy Policy | ' . $siteName,
+            'How ' . $siteName . ' handles the data of readers, writers and translators.'),
+        'terms-of-service' => array(
+            'Terms of Service | ' . $siteName,
+            'The terms that apply to reading, writing and translating on ' . $siteName . '.'),
+    );
+    if (!$isHome && isset($SCREENS[$slugOrPage])) {
+        $title = $SCREENS[$slugOrPage][0];
+        $description = $SCREENS[$slugOrPage][1];
+    }
+    if (!$isHome && in_array($slugOrPage, $PRIVATE_SCREENS, true)) {
+        header('X-Robots-Tag: noindex, follow');
+    }
+
+    // The catalogue itself. These links are how a crawler reaches every novel
+    // and, through the novel pages, every chapter — so both the homepage and
+    // the library carry the full list rather than a JavaScript placeholder.
+    if ($isHome || $slugOrPage === 'explore') {
+        $byNovel = published_chapters_by_novel($db);
+        $cards = '';
+        $listLd = array();
+        $recent = array();
+        $pos = 0;
+
+        foreach (public_novels($db) as $n) {
+            $titleEn = isset($n['titleEn']) ? $n['titleEn'] : '';
+            $titleAr = isset($n['titleAr']) ? $n['titleAr'] : '';
+            $display = $titleEn !== '' ? $titleEn : $titleAr;
+            if ($display === '') continue;
+            $slug = slugify_title($titleEn);
+            if ($slug === '') $slug = isset($n['id']) ? $n['id'] : '';
+            if ($slug === '') continue;
+
+            $href = '/novel/' . rawurlencode($slug);
+            $blurb = clip(plain_text(isset($n['description']) ? $n['description'] : '', 400), 200);
+            $chapters = isset($n['id']) && isset($byNovel[$n['id']]) ? $byNovel[$n['id']] : array();
+            $author = isset($n['author']) ? $n['author'] : '';
+
+            $cards .= '<li><h3><a href="' . $href . '">' . esc($display) . '</a></h3>'
+                . ($author !== '' ? '<p>' . esc($author) . '</p>' : '')
+                . ($blurb !== '' ? '<p>' . esc($blurb) . '</p>' : '')
+                . '<p>' . count($chapters) . ' chapters</p></li>';
+
+            $pos++;
+            $listLd[] = array('@type' => 'ListItem', 'position' => $pos,
+                'url' => $SITE . $href, 'name' => $display);
+
+            foreach ($chapters as $c) {
+                $recent[] = array(chapter_time($c), chapter_number_of($c), $display, $slug,
+                    isset($c['title']) ? $c['title'] : '');
+            }
         }
+
+        // Newest chapters first: a crawler that returns to the homepage sees
+        // straight away that the site changed, and gets a direct link to the
+        // chapters that changed it.
+        usort($recent, function ($a, $b) { return $b[0] - $a[0]; });
+        $recent = array_slice($recent, 0, 30);
+        $latest = '';
+        foreach ($recent as $r) {
+            $label = $r[4] !== '' ? $r[4] : ('Chapter ' . $r[1]);
+            $latest .= '<li><a href="/novel/' . rawurlencode($r[3]) . '/' . $r[1] . '">'
+                . esc($r[2] . ' — ' . $label) . '</a></li>';
+        }
+
+        $heading = $isHome ? $siteName : 'Explore the Library';
+        $bodyHtml = '<main>'
+            . '<h1>' . esc($heading) . '</h1>'
+            . '<p>' . esc($description) . '</p>'
+            . '<section><h2>Novels (' . $pos . ')</h2><ul>' . $cards . '</ul></section>'
+            . ($latest !== '' ? '<section><h2>Latest chapters</h2><ul>' . $latest . '</ul></section>' : '')
+            . '</main>';
+
+        $jsonLd = json_ld_encode(array(
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $title,
+            'description' => $description,
+            'url' => $canonical,
+            'inLanguage' => 'en',
+            'isPartOf' => array('@type' => 'WebSite', 'name' => $siteName, 'url' => $SITE . '/'),
+            'mainEntity' => array('@type' => 'ItemList', 'numberOfItems' => $pos,
+                'itemListElement' => $listLd),
+        ));
+    } else {
+        // A fixed screen with no catalogue on it still needs words: a heading
+        // and its own description beat an empty <div> for both readers on a
+        // slow connection and crawlers that never run the script.
+        $bodyHtml = '<main><h1>' . esc($title) . '</h1><p>' . esc($description) . '</p>'
+            . '<p><a href="/">' . esc($siteName) . '</a> · '
+            . '<a href="/novel/explore">Explore the library</a></p></main>';
+    }
+}
+
+if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true)) {
+    if (is_array($db) && isset($db['novels']) && is_array($db['novels'])) {
         // Find the novel by its English-title slug (id as a fallback).
         $novel = null;
         foreach ($db['novels'] as $n) {
@@ -146,7 +371,7 @@ if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true) && file_exists
                     );
                     if ($published) { $ld['datePublished'] = gmdate('c', strtotime($published)); }
                     if ($author !== '') { $ld['author'] = array('@type' => 'Person', 'name' => $author); }
-                    $jsonLd = json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    $jsonLd = json_ld_encode($ld);
 
                     // Previous/next links give crawlers a path through every chapter.
                     $prev = null; $next = null;
@@ -167,6 +392,8 @@ if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true) && file_exists
                         '<div>' . nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8')) . '</div>' .
                         '<nav>' . $nav . '</nav>' .
                         '</article>';
+                } else {
+                    list($title, $description, $bodyHtml) = not_found($siteName);
                 }
             } else {
                 // ---------- Novel page ----------
@@ -192,7 +419,7 @@ if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true) && file_exists
                         'ratingValue' => isset($novel['rating']) ? $novel['rating'] : 0,
                         'ratingCount' => (int)$novel['ratingCount'], 'bestRating' => 5);
                 }
-                $jsonLd = json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $jsonLd = json_ld_encode($ld);
 
                 // Link every chapter so crawlers can reach them from the novel page.
                 $links = '';
@@ -210,14 +437,16 @@ if ($slugOrPage !== '' && !in_array($slugOrPage, $RESERVED, true) && file_exists
                     '<h2>Chapters (' . count($chapters) . ')</h2><ul>' . $links . '</ul>' .
                     '</article>';
             }
+        } else {
+            list($title, $description, $bodyHtml) = not_found($siteName);
         }
     }
 }
 
 // ---- Inject into the shipped index.html ----------------------------------
-$titleEsc = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-$descEsc = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-$canonEsc = htmlspecialchars($canonical, ENT_QUOTES, 'UTF-8');
+$titleEsc = rep_literal(htmlspecialchars($title, ENT_QUOTES, 'UTF-8'));
+$descEsc = rep_literal(htmlspecialchars($description, ENT_QUOTES, 'UTF-8'));
+$canonEsc = rep_literal(htmlspecialchars($canonical, ENT_QUOTES, 'UTF-8'));
 
 $html = preg_replace('#<title>.*?</title>#is', '<title>' . $titleEsc . '</title>', $html, 1);
 $html = preg_replace('#<meta\s+name="description"\s+content="[^"]*"\s*/?>#i', '<meta name="description" content="' . $descEsc . '" />', $html, 1);
