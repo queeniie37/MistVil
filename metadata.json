@@ -1,6 +1,6 @@
 {
   "name": "MistVil",
-  "description": "منصة عربية فاخرة لاقتراح وترجمة ونشر وقراءة الروايات بنظام حجز وتفاعل متطور",
+  "description": "A premium English-language platform for suggesting, translating, publishing, and reading web novels with a reservation system and rich community interaction",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

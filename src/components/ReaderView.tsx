@@ -954,7 +954,7 @@ export default function ReaderView({ novelId, chapterNumber, currentUser, onBack
                             </span>
                           )}
                         </div>
-                        <span className="text-[9px] text-purple-400 mt-0.5 block">{new Date(comment.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                        <span className="text-[9px] text-purple-400 mt-0.5 block">{new Date(comment.createdAt).toLocaleDateString('en-US')}</span>
                       </div>
                     </div>
                   </div>

@@ -58,8 +58,8 @@ const defaults: any = {
   site_name: "MistVil",
   site_logo: "🌫️",
   site_banner: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200",
-  footer_description: "A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.",
-  footer_email: "support@mistvil.com",
+  footer_description: "A leading platform for translating, suggesting, and reading light novels, fantasy, and dark fantasy web novels — with top accuracy, protection standards, and a premium visual aesthetic.",
+  footer_email: "mistvil112@gmail.com",
   footer_support_text: "Via the official Discord ticket below",
   footer_community_text: "Join our great novel family to get chapter notifications the moment they drop, live before everyone else!",
   footer_socials: [

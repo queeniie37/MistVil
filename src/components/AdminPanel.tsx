@@ -6,7 +6,7 @@ import { isImageSource, safeEmojiOrFallback, compressImageFile } from '../utils/
 import { getAllTranslatorsPoints, crownTranslator, getCrownedTranslatorId, getCurrentMonthKey } from '../utils/points';
 import { BADGE_CATALOG, getUserBadges, grantBadge, revokeBadge } from '../utils/badges';
 import { UserDirectory } from '../utils/directory';
-import { normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from '../utils/text';
+import { normalizeFooterText, normalizeFooterEmail, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY, EN_FOOTER_EMAIL } from '../utils/text';
 import ConfirmModal from './ConfirmModal';
 
 interface AdminPanelProps {
@@ -79,7 +79,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
 
   // Footer dynamic inputs
   const [footerDescInput, setFooterDescInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_description', EN_FOOTER_DESCRIPTION), EN_FOOTER_DESCRIPTION));
-  const [footerEmailInput, setFooterEmailInput] = useState(() => MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
+  const [footerEmailInput, setFooterEmailInput] = useState(() => normalizeFooterEmail(MistVilDatabase.get<string>('footer_email', '')));
   const [footerSupportInput, setFooterSupportInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_support_text', EN_FOOTER_SUPPORT), EN_FOOTER_SUPPORT));
   const [footerCommunityTextInput, setFooterCommunityTextInput] = useState(() => normalizeFooterText(MistVilDatabase.get<string>('footer_community_text', EN_FOOTER_COMMUNITY), EN_FOOTER_COMMUNITY));
 
@@ -1536,7 +1536,7 @@ export default function AdminPanel({ currentUser, onNavigate }: AdminPanelProps)
                       type="email"
                       value={footerEmailInput}
                       onChange={(e) => setFooterEmailInput(e.target.value)}
-                      placeholder="support@mistvil.com"
+                      placeholder={EN_FOOTER_EMAIL}
                       className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-xs text-white focus:outline-none focus:border-violet-500 transition-colors font-mono"
                       dir="ltr"
                       required

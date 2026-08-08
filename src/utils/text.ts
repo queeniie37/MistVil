@@ -141,9 +141,14 @@ export function slugifyTitle(raw: string): string {
 }
 
 // Standard English footer copy. The footer text lives in the shared database.
-export const EN_FOOTER_DESCRIPTION = 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark web novels — with top accuracy, protection standards, and a premium visual aesthetic.';
+export const EN_FOOTER_DESCRIPTION = 'A leading platform for translating, suggesting, and reading light novels, fantasy, and dark fantasy web novels — with top accuracy, protection standards, and a premium visual aesthetic.';
 export const EN_FOOTER_SUPPORT = 'Via the official Discord ticket below';
 export const EN_FOOTER_COMMUNITY = 'Join our great novel family to get chapter notifications the moment they drop, live before everyone else!';
+
+// Official support email. The mistvil.com domain does not exist, so the old
+// support@mistvil.com default silently swallowed every support message; the
+// real, reachable inbox is the Gmail address below.
+export const EN_FOOTER_EMAIL = 'mistvil112@gmail.com';
 
 // MistVil is an English-only platform. Some databases were seeded with Arabic
 // footer defaults, so any stored footer value that is empty OR contains Arabic
@@ -156,6 +161,15 @@ const ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE
 export function normalizeFooterText(value: string | undefined, english: string): string {
   const v = (value || '').trim();
   return (!v || ARABIC_SCRIPT.test(v)) ? english : value!;
+}
+
+// Same idea as normalizeFooterText, but for the support email: any stored
+// value that is empty or points at the non-existent @mistvil.com domain falls
+// back to the real inbox, so the footer, contact page, and ads inquiry button
+// always show a working address with no database migration needed.
+export function normalizeFooterEmail(value: string | undefined): string {
+  const v = (value || '').trim().toLowerCase();
+  return (!v || v.endsWith('@mistvil.com')) ? EN_FOOTER_EMAIL : value!;
 }
 
 // Word-based, case-insensitive search matching for the site's search boxes.

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, MessageSquare, Send, CheckCircle, ArrowLeft, Trash2, Shield, Calendar, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
 import { MistVilDatabase } from '../data';
+import { normalizeFooterEmail } from '../utils/text';
 
 interface ContactUsProps {
   currentUser: User;
@@ -29,7 +30,7 @@ export default function ContactUs({ currentUser, onNavigate }: ContactUsProps) {
 
   // Official support email shown in the contact channels — kept in sync with
   // the footer email the owner manages.
-  const supportEmail = MistVilDatabase.get<string>('footer_email', 'mistvil112@gmail.com');
+  const supportEmail = normalizeFooterEmail(MistVilDatabase.get<string>('footer_email', ''));
   
   // Messages state for the Owner Panel
   const [messages, setMessages] = useState<ContactMessage[]>(() => 

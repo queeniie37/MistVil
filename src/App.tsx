@@ -10,7 +10,7 @@ import { DEFAULT_USERS, MistVilDatabase } from './data';
 import { isImageSource, safeEmojiOrFallback, compressImageFile } from './utils/media';
 import { getUserBadges } from './utils/badges';
 import { upsertSelfInDirectory } from './utils/directory';
-import { slugifyTitle, normalizeFooterText, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
+import { slugifyTitle, normalizeFooterText, normalizeFooterEmail, EN_FOOTER_DESCRIPTION, EN_FOOTER_SUPPORT, EN_FOOTER_COMMUNITY } from './utils/text';
 import { updateAccountByHash, ensureAccountOnServer } from './utils/auth';
 import { byChapterNumberAsc, isChapterNumber, chapterNum } from './utils/chapters';
 
@@ -309,7 +309,7 @@ export default function App() {
 
   // Footer dynamic values
   const [footerDesc, setFooterDesc] = useState(() => readFooterText('footer_description', EN_FOOTER_DESCRIPTION));
-  const [footerEmail, setFooterEmail] = useState(() => MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
+  const [footerEmail, setFooterEmail] = useState(() => normalizeFooterEmail(MistVilDatabase.get<string>('footer_email', '')));
   const [footerSupport, setFooterSupport] = useState(() => readFooterText('footer_support_text', EN_FOOTER_SUPPORT));
   const [footerCommunityText, setFooterCommunityText] = useState(() => readFooterText('footer_community_text', EN_FOOTER_COMMUNITY));
   
@@ -416,7 +416,7 @@ export default function App() {
 
     const handleFooterUpdate = () => {
       setFooterDesc(readFooterText('footer_description', EN_FOOTER_DESCRIPTION));
-      setFooterEmail(MistVilDatabase.get<string>('footer_email', 'support@mistvil.com'));
+      setFooterEmail(normalizeFooterEmail(MistVilDatabase.get<string>('footer_email', '')));
       setFooterSupport(readFooterText('footer_support_text', EN_FOOTER_SUPPORT));
       setFooterCommunityText(readFooterText('footer_community_text', EN_FOOTER_COMMUNITY));
       setFooterSocials(MistVilDatabase.get<any[]>('footer_socials', defaultSocialLinks));

@@ -1407,7 +1407,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
           <div className="grid grid-cols-3 gap-3 mt-6">
             <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
               <span className="text-xs text-purple-400 block mb-1">Views</span>
-              <span className="font-bold text-white text-base">{(novel.views).toLocaleString('ar-EG', { numberingSystem: 'latn' })}</span>
+              <span className="font-bold text-white text-base">{(novel.views).toLocaleString('en-US')}</span>
             </div>
             <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
               <span className="text-xs text-purple-400 block mb-1">Chapters</span>
@@ -1415,7 +1415,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
             </div>
             <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
               <span className="text-xs text-purple-400 block mb-1">Bookmarks</span>
-              <span className="font-bold text-white text-base">{(novel.bookmarksCount).toLocaleString('ar-EG', { numberingSystem: 'latn' })}</span>
+              <span className="font-bold text-white text-base">{(novel.bookmarksCount).toLocaleString('en-US')}</span>
             </div>
           </div>
 
@@ -1785,7 +1785,7 @@ export default function NovelDetails({ novelId, currentUser, onBack, onReadChapt
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-purple-400 mt-0.5 block">{new Date(comment.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                          <span className="text-[10px] text-purple-400 mt-0.5 block">{new Date(comment.createdAt).toLocaleDateString('en-US')}</span>
                         </div>
                       </div>
 

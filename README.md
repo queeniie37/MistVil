@@ -1,38 +1,38 @@
-# MistVil 🌫️ — ميست فيل
+# MistVil 🌫️
 
-**MistVil (ميست فيل)** منصة عربية كاملة الاتجاه من اليمين لليسار (RTL) لاقتراح وترجمة ونشر وقراءة الروايات: روايات كورية وصينية ويابانية مترجمة، إضافة إلى روايات عربية مؤلفة — بنظام حجز وتفاعل متطور.
+**MistVil** is a premium English-language platform for suggesting, translating, publishing, and reading web novels: translated Korean, Chinese, and Japanese novels alongside original works — with a reservation system and rich community interaction, built for an international English-reading audience.
 
-## المزايا الرئيسية
+## Key Features
 
-- **دورة حياة كاملة للرواية**: اقتراح بتصويت الأعضاء → حجز من مترجم (30 يومًا + تمديد) → ترجمة → موافقة المالك → نشر → متابعة/إكمال.
-- **محرر فصول متقدم**: مسودات، صور، ترقيم مخصص، وجدولة نشر تلقائية.
-- **قارئ متقدم**: تخصيص الخط والألوان، قراءة دون اتصال، تنقّل بين الفصول، وتحميل الفصول (PNG / JPG / TXT) بإذن المالك.
-- **مجتمع تفاعلي**: تعليقات بردود وإعجابات ووسم سبويلر، مراجعات منظمة، بلاغات، إشعارات، نظام XP ومستويات وشارات.
-- **لوحات إدارة**: لوحة مالك شاملة (موافقات، رتب، شارات، إعلانات، إعدادات الموقع) ولوحة مترجم (روايات، فصول، حجوزات، طلبات تعديل).
-- **مزامنة شبه لحظية** بين الزوار عبر استطلاع خفيف بمصافحة ETag/304.
+- **Full novel lifecycle**: member-voted suggestions → translator reservation (30 days + extension) → translation → owner approval → publishing → follow/complete.
+- **Advanced chapter editor**: drafts, inline images, custom numbering, and automatic scheduled publishing.
+- **Advanced reader**: font and color customization, offline reading, chapter navigation, and chapter downloads (PNG / JPG / TXT) with the owner's permission.
+- **Interactive community**: comments with replies, likes, and spoiler tags, structured reviews, reports, notifications, and an XP system with levels and badges.
+- **Admin panels**: a comprehensive owner panel (approvals, roles, badges, ads, site settings) and a translator panel (novels, chapters, reservations, edit requests).
+- **Near-real-time sync** between visitors via lightweight polling with an ETag/304 handshake.
 
-## التقنيات
+## Tech Stack
 
-| الطبقة | التقنية |
+| Layer | Technology |
 |---|---|
-| الواجهة | React 19 + TypeScript + Vite 6 + Tailwind CSS 4 |
-| خادم التطوير | Express (`server.ts`) على المنفذ 3000 |
-| خادم الإنتاج | PHP خالص (`public/api/db.php`) — يعمل على استضافة مشتركة بلا Node.js |
-| قاعدة البيانات | ملف JSON مشترك (`mistvil_db.json`) مع كتابة ذرّية ونسخ احتياطية دوارة |
-| تخزين المتصفح | IndexedDB (مع fallback إلى localStorage) |
-| النشر | GitHub Actions → FTP إلى Hostinger |
+| Frontend | React 19 + TypeScript + Vite 7 + Tailwind CSS 4 |
+| Dev server | Express (`server.ts`) on port 3000 |
+| Production backend | Pure PHP (`public/api/db.php`) — runs on shared hosting with no Node.js |
+| Database | Shared JSON file (`mistvil_db.json`) with atomic writes and rotating backups |
+| Browser storage | IndexedDB (with localStorage fallback) |
+| Deployment | GitHub Actions → FTP to Hostinger |
 
-## التشغيل محليًا
+## Running Locally
 
-**المتطلبات:** Node.js
+**Requirements:** Node.js
 
 ```bash
 npm install
-npm run dev      # خادم التطوير على http://localhost:3000
-npm run build    # بناء نسخة الإنتاج في dist/
-npm run lint     # فحص أنواع TypeScript
+npm run dev      # dev server at http://localhost:3000
+npm run build    # production build into dist/
+npm run lint     # TypeScript type checking
 ```
 
-## النشر
+## Deployment
 
-راجع دليل النشر المفصل: [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md)
+See the detailed deployment guide: [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md)

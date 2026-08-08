@@ -49,7 +49,7 @@ export default function NewsTicker({ newsList, onNewsClick }: NewsTickerProps) {
             {currentItem.icon}
           </span>
           <span>{currentItem.title}</span>
-          <span className="text-[10px] text-purple-400">({new Date(currentItem.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' })})</span>
+          <span className="text-[10px] text-purple-400">({new Date(currentItem.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})</span>
           <span className="text-[11px] text-rose-400 font-bold">Click for details →</span>
         </div>
       </div>

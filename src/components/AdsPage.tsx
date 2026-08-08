@@ -3,6 +3,7 @@ import { Megaphone, Plus, Trash2, Calendar, FileText, Image as ImageIcon, CheckC
 import { Ad, User } from '../types';
 import { MistVilDatabase } from '../data';
 import { compressImageFile } from '../utils/media';
+import { normalizeFooterEmail } from '../utils/text';
 
 interface AdsPageProps {
   currentUser: User;
@@ -388,7 +389,7 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 <img src={selectedAd.image} alt={selectedAd.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-[9px] text-purple-200 flex items-center gap-1">
                   <Calendar size={10} />
-                  <span>{new Date(selectedAd.createdAt).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>
+                  <span>{new Date(selectedAd.createdAt).toLocaleDateString('en-US')}</span>
                 </div>
                 <button 
                   onClick={() => setSelectedAd(null)}
@@ -416,8 +417,8 @@ export default function AdsPage({ currentUser, onNavigate, selectedAdId }: AdsPa
                 >
                   Close details ✕
                 </button>
-                <a 
-                  href={`mailto:support@mistvil.com?subject=Inquiry: ${encodeURIComponent(selectedAd.title)}`}
+                <a
+                  href={`mailto:${normalizeFooterEmail(MistVilDatabase.get<string>('footer_email', ''))}?subject=Inquiry: ${encodeURIComponent(selectedAd.title)}`}
                   className="px-4 py-2.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold rounded-xl text-xs text-center transition-all flex items-center justify-center gap-1"
                 >
                   <span>Inquire 📧</span>
